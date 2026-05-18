@@ -19,7 +19,7 @@ from datetime import datetime
 
 # 源目录和目标目录
 SOURCE_DIR = Path("/Users/chaojifeng/.claude/skills")
-TARGET_DIR = Path(__file__).parent / "skills"
+TARGET_DIR = Path(__file__).parent  # 仓库根目录
 PUBLISH_LIST = Path(__file__).parent / "publish-list.yaml"
 
 # Skills 分类映射
@@ -304,13 +304,11 @@ def main():
             print(f"  [SKIP] {skill_name} 不存在")
             continue
 
-        # 确定分类
+        # 确定分类（仅用于显示）
         category = get_category(skill_name)
-        target_dir = TARGET_DIR / category
-        target_dir.mkdir(parents=True, exist_ok=True)
 
-        # 复制
-        if copy_skill(skill_name, target_dir):
+        # 直接复制到仓库根目录
+        if copy_skill(skill_name, TARGET_DIR):
             print(f"  [OK] [{category}] {skill_name}")
 
             # 更新状态

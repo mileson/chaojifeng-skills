@@ -1,0 +1,4 @@
+interface:
+  display_name: "Offboarding Handover"
+  short_description: "用于整理离职交接资料并生成可视化交接入口站点的技能"
+  default_prompt: "Use $offboarding-handover to organize a messy work-materials folder into a structured offboarding package and visual handover site."

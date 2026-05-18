@@ -1,60 +1,49 @@
-# 开源发布清单配置
-# 格式：skill名称: 说明或reason
-
-publish:
-  offboarding-handover: "离职交接资料整理工具，生成结构化交接包和可视化入口"
-
+publish: {}
 published:
-  # 已发布的 skills - 同步后自动更新
-  # 示例：
-  # skill-creator: "2026-05-18"
-
+  offboarding-handover: '2026-05-18'
 exclude:
-  # 明确不发布的 skills
-  secrets-vault: "包含敏感信息管理"
-  feishu-card: "依赖内部飞书应用配置"
-  feishu-chat-history: "依赖内部飞书配置"
-  feishu-cron-reminder: "依赖内部飞书配置"
-  feishu-doc-1.2.7: "依赖内部飞书配置"
-  feishu-doc-reader: "依赖内部飞书配置"
-  feishu-perm: "依赖内部飞书配置"
-  feishu-screenshot: "依赖内部飞书配置"
-  feishu-send-file: "依赖内部飞书配置"
-  lark-base: "依赖内部 Lark 配置"
-  lark-calendar: "依赖内部 Lark 配置"
-  lark-contact: "依赖内部 Lark 配置"
-  lark-doc: "依赖内部 Lark 配置"
-  lark-drive: "依赖内部 Lark 配置"
-  lark-event: "依赖内部 Lark 配置"
-  lark-im: "依赖内部 Lark 配置"
-  lark-mail: "依赖内部 Lark 配置"
-  lark-minutes: "依赖内部 Lark 配置"
-  lark-openapi-explorer: "依赖内部 Lark 配置"
-  lark-sheets: "依赖内部 Lark 配置"
-  lark-skill-maker: "依赖内部 Lark 配置"
-  lark-task: "依赖内部 Lark 配置"
-  lark-task-assignment: "依赖内部 Lark 配置"
-  lark-vc: "依赖内部 Lark 配置"
-  lark-whiteboard: "依赖内部 Lark 配置"
-  lark-wiki: "依赖内部 Lark 配置"
-  lark-workflow-meeting-summary: "依赖内部 Lark 配置"
-  lark-workflow-standup-report: "依赖内部 Lark 配置"
-  lark-shared: "依赖内部 Lark 配置"
-  wechat-group-hygiene: "依赖内部微信配置"
-  wechat-mp-cloudflare-proxy: "依赖内部微信配置"
-  wechat-content-creator: "依赖内部微信配置"
-  commercial-brief-starter: "商业项目相关"
-  agent-onboarding: "OpenClaw 内部入职流程"
-  openprd-discovery-loop: "OpenPrd 内部工作流"
-  openprd-harness: "OpenPrd 内部工作流"
-  openprd-shared: "OpenPrd 内部工作流"
-  openprd-diagram-review: "OpenPrd 内部工作流"
-  conversation-pattern-miner: "包含历史对话分析"
-  conversation-pattern-miner-codex: "包含历史对话分析"
-
-# 通配排除规则
+  secrets-vault: 包含敏感信息管理
+  feishu-card: 依赖内部飞书应用配置
+  feishu-chat-history: 依赖内部飞书配置
+  feishu-cron-reminder: 依赖内部飞书配置
+  feishu-doc-1.2.7: 依赖内部飞书配置
+  feishu-doc-reader: 依赖内部飞书配置
+  feishu-perm: 依赖内部飞书配置
+  feishu-screenshot: 依赖内部飞书配置
+  feishu-send-file: 依赖内部飞书配置
+  lark-base: 依赖内部 Lark 配置
+  lark-calendar: 依赖内部 Lark 配置
+  lark-contact: 依赖内部 Lark 配置
+  lark-doc: 依赖内部 Lark 配置
+  lark-drive: 依赖内部 Lark 配置
+  lark-event: 依赖内部 Lark 配置
+  lark-im: 依赖内部 Lark 配置
+  lark-mail: 依赖内部 Lark 配置
+  lark-minutes: 依赖内部 Lark 配置
+  lark-openapi-explorer: 依赖内部 Lark 配置
+  lark-sheets: 依赖内部 Lark 配置
+  lark-skill-maker: 依赖内部 Lark 配置
+  lark-task: 依赖内部 Lark 配置
+  lark-task-assignment: 依赖内部 Lark 配置
+  lark-vc: 依赖内部 Lark 配置
+  lark-whiteboard: 依赖内部 Lark 配置
+  lark-wiki: 依赖内部 Lark 配置
+  lark-workflow-meeting-summary: 依赖内部 Lark 配置
+  lark-workflow-standup-report: 依赖内部 Lark 配置
+  lark-shared: 依赖内部 Lark 配置
+  wechat-group-hygiene: 依赖内部微信配置
+  wechat-mp-cloudflare-proxy: 依赖内部微信配置
+  wechat-content-creator: 依赖内部微信配置
+  commercial-brief-starter: 商业项目相关
+  agent-onboarding: OpenClaw 内部入职流程
+  openprd-discovery-loop: OpenPrd 内部工作流
+  openprd-harness: OpenPrd 内部工作流
+  openprd-shared: OpenPrd 内部工作流
+  openprd-diagram-review: OpenPrd 内部工作流
+  conversation-pattern-miner: 包含历史对话分析
+  conversation-pattern-miner-codex: 包含历史对话分析
 exclude_patterns:
-  - "*已废弃*"
-  - "feishu-*"
-  - "lark-*"
-  - "wechat-*"
+- '*已废弃*'
+- feishu-*
+- lark-*
+- wechat-*

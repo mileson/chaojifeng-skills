@@ -15,10 +15,10 @@
 在 Claude Code 中运行：
 
 ```
-/install-skill https://github.com/mileson/chaojifeng-skills/tree/master/skills/other/{skill名}
+/install-skill https://github.com/mileson/chaojifeng-skills/tree/master/{skill名}
 ```
 
-例如：`/install-skill https://github.com/mileson/chaojifeng-skills/tree/master/skills/other/offboarding-handover`
+例如：`/install-skill https://github.com/mileson/chaojifeng-skills/tree/master/offboarding-handover`
 
 ## Skills 一览
 
