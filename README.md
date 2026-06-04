@@ -1,12 +1,12 @@
 # 超级峰 Skill
 
-> Chaojifeng 的 Claude Code Skills | 经过实战验证的生产级技能
+> 超级峰在日常 AI 使用过程中沉淀下来的实战经验 Skills，帮助更多人更高效地用 AI 提效
 
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ## 简介
 
-这是我日常开发中积累的 Claude Code Skills，每个都经过实战验证。
+这里收录的是超级峰在日常 AI 使用过程中持续沉淀下来的实战经验 Skills，希望帮助更多人像超级峰一样，更高效地使用 AI 提效。
 
 当前收录 **2 个** skill，逐步更新中。
 
