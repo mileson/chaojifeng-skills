@@ -19,7 +19,7 @@ from datetime import datetime
 
 # 源目录和目标目录
 SOURCE_DIR = Path("/Users/chaojifeng/.claude/skills")
-TARGET_DIR = Path(__file__).parent  # 仓库根目录
+TARGET_DIR = Path(__file__).parent
 PUBLISH_LIST = Path(__file__).parent / "publish-list.yaml"
 
 # Skills 分类映射
@@ -64,7 +64,13 @@ def load_publish_list():
         return {"publish": {}, "exclude": {}, "exclude_patterns": [], "published": {}}
 
     with open(PUBLISH_LIST, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        data = yaml.safe_load(f) or {}
+
+    data["publish"] = data.get("publish") or {}
+    data["published"] = data.get("published") or {}
+    data["exclude"] = data.get("exclude") or {}
+    data["exclude_patterns"] = data.get("exclude_patterns") or []
+    return data
 
 
 def save_publish_list(data):
@@ -304,11 +310,12 @@ def main():
             print(f"  [SKIP] {skill_name} 不存在")
             continue
 
-        # 确定分类（仅用于显示）
+        # 确定分类（用于日志展示）
         category = get_category(skill_name)
+        target_dir = TARGET_DIR
 
-        # 直接复制到仓库根目录
-        if copy_skill(skill_name, TARGET_DIR):
+        # 复制
+        if copy_skill(skill_name, target_dir):
             print(f"  [OK] [{category}] {skill_name}")
 
             # 更新状态
