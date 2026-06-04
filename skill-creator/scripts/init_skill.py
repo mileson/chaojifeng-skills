@@ -3,12 +3,12 @@
 Skill Initializer - Creates a new skill from template
 
 Usage:
-    init_skill.py <skill-name> --path <path>
+    python3 path/to/init_skill.py <skill-name> --path <path>
 
 Examples:
-    init_skill.py my-new-skill --path skills/public
-    init_skill.py my-api-helper --path skills/private
-    init_skill.py custom-skill --path /custom/location
+    python3 skill-creator/scripts/init_skill.py my-new-skill --path .
+    python3 skill-creator/scripts/init_skill.py my-api-helper --path ./drafts
+    python3 skill-creator/scripts/init_skill.py custom-skill --path /custom/location
 """
 
 import sys
@@ -39,7 +39,7 @@ description: |
 
 # === 其他可选配置 ===
 # 详细配置说明: https://code.claude.com/docs/en/skills#frontmatter-reference
-# 或查看: ~/.claude/skills/skill-creator/references/frontmatter.md
+# 或查看: <path-to-skill-creator>/references/frontmatter.md
 #
 # argument-hint: "[arg1] [arg2]"     # 参数提示 (如: "[issue-number]")
 # allowed-tools: ["Bash", "Read"]    # 允许的工具 (无需用户许可)
@@ -334,16 +334,16 @@ def init_skill(skill_name, path):
 
 def main():
     if len(sys.argv) < 4 or sys.argv[2] != '--path':
-        print("Usage: init_skill.py <skill-name> --path <path>")
+        print("Usage: python3 path/to/init_skill.py <skill-name> --path <path>")
         print("\nSkill name requirements:")
         print("  - Hyphen-case identifier (e.g., 'data-analyzer')")
         print("  - Lowercase letters, digits, and hyphens only")
         print("  - Max 40 characters")
         print("  - Must match directory name exactly")
         print("\nExamples:")
-        print("  init_skill.py my-new-skill --path skills/public")
-        print("  init_skill.py my-api-helper --path skills/private")
-        print("  init_skill.py custom-skill --path /custom/location")
+        print("  python3 skill-creator/scripts/init_skill.py my-new-skill --path .")
+        print("  python3 skill-creator/scripts/init_skill.py my-api-helper --path ./drafts")
+        print("  python3 skill-creator/scripts/init_skill.py custom-skill --path /custom/location")
         sys.exit(1)
 
     skill_name = sys.argv[1]

@@ -28,6 +28,7 @@ data/
 *.bak
 *.swp
 *.swo
+skill-creator/mermaid-imgs/
 
 # Personal data (DO NOT commit)
 credentials.json

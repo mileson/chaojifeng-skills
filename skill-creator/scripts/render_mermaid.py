@@ -4,6 +4,7 @@
 Mermaid 图表渲染脚本 - Skill Creator 专用
 
 使用 Kroki API 渲染 Mermaid 图表为 PNG 图片。
+默认输出到本地 `mermaid-imgs/` 预览目录；这些预览图是临时产物，不应提交到公开仓库。
 
 依赖: Python 3.6+
 """
@@ -18,7 +19,7 @@ import base64
 import zlib
 import ssl
 
-# 默认输出目录
+# 默认输出目录（本地预览产物，不应纳入版本控制）
 DEFAULT_OUTPUT_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     "mermaid-imgs"

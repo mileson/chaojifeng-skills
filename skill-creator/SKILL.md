@@ -377,9 +377,12 @@ graph TB
 当 Skill 目录还不存在时（也就是确认流程阶段）：
 
 ```bash
+# 先把 SKILL_CREATOR_DIR 替换为你本地的 skill-creator 目录
+SKILL_CREATOR_DIR=./skill-creator
+
 # 必须提供 --skill-desc 参数
 # 根据当前讨论的 skill 生成一句话描述（3-8 个字，简洁明了）
-python3 ~/.claude/skills/skill-creator/scripts/render_mermaid.py \
+python3 "$SKILL_CREATOR_DIR/scripts/render_mermaid.py" \
   -c "graph TB; A-->B" \
   --skill-desc "新闻资讯总结"
 
@@ -387,7 +390,7 @@ python3 ~/.claude/skills/skill-creator/scripts/render_mermaid.py \
 # 再次运行时会自动递增: skill-新闻资讯总结_002.png
 
 # 也可以从文件读取
-python3 ~/.claude/skills/skill-creator/scripts/render_mermaid.py \
+python3 "$SKILL_CREATOR_DIR/scripts/render_mermaid.py" \
   -f <path-to-mermaid-file> \
   --skill-desc "API接口生成"
 ```
@@ -398,10 +401,10 @@ python3 ~/.claude/skills/skill-creator/scripts/render_mermaid.py \
 
 ```bash
 # 输出到已创建的 Skill 文件夹中，作为文档
-python3 ~/.claude/skills/skill-creator/scripts/render_mermaid.py \
+python3 "$SKILL_CREATOR_DIR/scripts/render_mermaid.py" \
   -c "graph TB; A-->B" \
   --skill-desc "数据库迁移" \
-  -o ~/.claude/skills/<skill-name>/workflow-diagram.png
+  -o <target-skill-dir>/workflow-diagram.png
 ```
 
 **CLI 渲染参数说明：**
@@ -410,6 +413,7 @@ python3 ~/.claude/skills/skill-creator/scripts/render_mermaid.py \
 - `--no-open`：不自动打开预览（可选）
 - 文件名格式：`skill-{描述}_{序号}.png`（自动递增）
 - 依赖：需要网络连接（使用 Kroki API）
+- 默认输出到本地 `mermaid-imgs/` 预览目录；这些预览图是临时产物，不要提交到公开仓库或正式版本控制中
 
 #### Mermaid 语言规范
 
