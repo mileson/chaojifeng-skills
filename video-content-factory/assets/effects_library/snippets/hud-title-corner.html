@@ -1,0 +1,57 @@
+<!--
+  模式：常驻品牌/章节标题 HUD ⚙️
+  适用：左上角常驻：竖线+英文 chip 行 + 大标题 + 渐变下划线扫入 + 副题 + 可选圆点清单（逐条点亮）。全片/全章驻留形成视觉锚点，章节切换只换文案。
+  参数化：chip/标题/副题文案、主题色、清单条数与点亮时间点。
+
+  通用铁律（本批 9 模式验证结论）：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    参考片是暗房实拍才敢裸白字，我们的视频多为亮色录屏，裸白字会直接消失（已踩坑）
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+  - 来源：download (1).mp4 参考片逐帧拆解（2026-06-11），验证工程 broll-overlay-ref9-demo
+-->
+<style>
+  /* ===== B1 hud-title-corner 常驻标题 HUD ===== */
+  #b1-wrap { position: absolute; top: 48px; left: 56px; background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.14); border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,.45); padding: 26px 32px; }
+  #b1-chip { display: flex; align-items: center; gap: 10px; }
+  #b1-bar { width: 4px; height: 18px; background: #3e9eff; border-radius: 2px; }
+  #b1-en { color: #3e9eff; font-size: 20px; font-weight: 800; letter-spacing: 5px; }
+  #b1-cn { color: #cfd2dc; font-size: 18px; font-weight: 600; letter-spacing: 2px; }
+  #b1-title { color: #fff; font-size: 56px; font-weight: 900; letter-spacing: 2px; margin-top: 10px; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
+  #b1-line { width: 220px; height: 3px; margin-top: 10px; border-radius: 2px; background: linear-gradient(90deg, #3e9eff, rgba(62,158,255,0)); transform-origin: left center; }
+  #b1-sub { color: #8b8d98; font-size: 19px; font-weight: 600; letter-spacing: 3px; margin-top: 10px; }
+  #b1-list { margin-top: 30px; display: flex; flex-direction: column; gap: 16px; }
+  .b1-item { display: flex; align-items: center; gap: 12px; }
+  .b1-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .b1-item .t { color: #fff; font-size: 22px; font-weight: 700; }
+  .b1-item .e { color: #8b8d98; font-size: 12px; font-weight: 700; letter-spacing: 2px; margin-top: 1px; }
+</style>
+
+<!-- B1 常驻标题 HUD -->
+  <div id="b1" class="clip beat" data-start="0.5" data-duration="5.5" data-track-index="0" data-layout-allow-overflow>
+    <div id="b1-wrap">
+      <div id="b1-chip"><div id="b1-bar"></div><div id="b1-en">LIVE · AI AGENT</div><div id="b1-cn">成本实测 · 实时演示</div></div>
+      <div id="b1-title">Fable 5</div>
+      <div id="b1-line"></div>
+      <div id="b1-sub">两毛钱一次 SKILL</div>
+      <div id="b1-list">
+        <div class="b1-item" id="b1-i1"><div class="b1-dot" style="background:#3e9eff"></div><div><div class="t">官方 API 按量计费</div><div class="e">PAY AS YOU GO</div></div></div>
+        <div class="b1-item" id="b1-i2"><div class="b1-dot" style="background:#46d390"></div><div><div class="t">单次成本 ¥0.2</div><div class="e">COST DOWN</div></div></div>
+        <div class="b1-item" id="b1-i3"><div class="b1-dot" style="background:#ffb224"></div><div><div class="t">效果不打折</div><div class="e">FULL POWER</div></div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B1 常驻标题 HUD（0.5 起） ===== */
+  (function () {
+    var t0 = 0.5;
+    tl.from("#b1-chip", { autoAlpha: 0, x: -30, duration: 0.45 }, t0);
+    tl.from("#b1-title", { autoAlpha: 0, y: 22, duration: 0.5 }, t0 + 0.12);
+    tl.fromTo("#b1-line", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, t0 + 0.3);
+    tl.from("#b1-sub", { autoAlpha: 0, y: 14, duration: 0.4 }, t0 + 0.42);
+    tl.from(["#b1-i1", "#b1-i2", "#b1-i3"], { autoAlpha: 0, x: -24, duration: 0.45, ease: "back.out(1.6)", stagger: 0.9 }, t0 + 1.2);
+    tl.to("#b1-wrap", { autoAlpha: 0, x: -30, duration: 0.4, ease: "power2.in" }, t0 + 5.0);
+  })();
+</script>

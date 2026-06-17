@@ -1,0 +1,55 @@
+<!--
+  模式：步骤编号 + 渐进清单 HUD ⚙️
+  适用：左上大编号（72px back.out 弹入）+ CORE STEP·N/M 进度小字 + 标题；功能 chip 随口播逐条追加（x -26 back.out），已出现的驻留。长时驻留型节拍（30~60s），单独占 track。
+  参数化：编号/总步数/chip 数量与追加时间点数组/主题色。
+
+  通用铁律（本批 9 模式验证结论）：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    参考片是暗房实拍才敢裸白字，我们的视频多为亮色录屏，裸白字会直接消失（已踩坑）
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+  - 来源：download (1).mp4 参考片逐帧拆解（2026-06-11），验证工程 broll-overlay-ref9-demo
+-->
+<style>
+  /* ===== B2 hud-step-checklist 步骤编号+渐进清单 ===== */
+  #b2-wrap { position: absolute; top: 48px; left: 56px; background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.14); border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,.45); padding: 26px 32px; }
+  #b2-head { display: flex; align-items: baseline; gap: 16px; }
+  #b2-num { color: #3e9eff; font-size: 72px; font-weight: 900; line-height: 1; text-shadow: 0 0 28px rgba(62,158,255,.5); }
+  #b2-meta .k { color: #8b8d98; font-size: 13px; font-weight: 800; letter-spacing: 3px; }
+  #b2-meta .t { color: #fff; font-size: 34px; font-weight: 900; letter-spacing: 2px; margin-top: 2px; }
+  #b2-chips { margin-top: 28px; display: flex; flex-direction: column; gap: 18px; }
+  .b2-chip { display: flex; align-items: center; gap: 14px; }
+  .b2-ico { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(62,158,255,.16); border: 1px solid rgba(62,158,255,.45); }
+  .b2-chip .zh { color: #fff; font-size: 22px; font-weight: 800; }
+  .b2-chip .en { color: #8b8d98; font-size: 12px; font-weight: 700; letter-spacing: 2px; margin-top: 1px; }
+</style>
+
+<!-- B2 步骤编号+渐进清单 HUD -->
+  <div id="b2" class="clip beat" data-start="6.5" data-duration="6.5" data-track-index="0" data-layout-allow-overflow>
+    <div id="b2-wrap">
+      <div id="b2-head">
+        <div id="b2-num">01</div>
+        <div id="b2-meta"><div class="k">CORE STEP · 01 / 04</div><div class="t">成本拆解</div></div>
+      </div>
+      <div id="b2-chips">
+        <div class="b2-chip" id="b2-c1"><div class="b2-ico">💰</div><div><div class="zh">官方价格 → 实付价格</div><div class="en">PRICE BREAKDOWN</div></div></div>
+        <div class="b2-chip" id="b2-c2"><div class="b2-ico">📊</div><div><div class="zh">按 Token 算到每一次调用</div><div class="en">PER-CALL COST</div></div></div>
+        <div class="b2-chip" id="b2-c3"><div class="b2-ico">✅</div><div><div class="zh">两毛钱 · 验证可复现</div><div class="en">REPRODUCIBLE</div></div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B2 步骤编号+渐进清单（6.5 起，chip 随口播追加） ===== */
+  (function () {
+    var t0 = 6.5;
+    tl.from("#b2-num", { autoAlpha: 0, scale: 0.5, duration: 0.55, ease: "back.out(2)" }, t0);
+    tl.from("#b2-meta", { autoAlpha: 0, x: -24, duration: 0.45 }, t0 + 0.15);
+    tl.from("#b2-c1", { autoAlpha: 0, x: -26, duration: 0.45, ease: "back.out(1.7)" }, t0 + 0.9);
+    tl.from("#b2-c2", { autoAlpha: 0, x: -26, duration: 0.45, ease: "back.out(1.7)" }, t0 + 2.4);
+    tl.from("#b2-c3", { autoAlpha: 0, x: -26, duration: 0.45, ease: "back.out(1.7)" }, t0 + 3.9);
+    tl.to("#b2-c3 .b2-ico", { scale: 1.18, duration: 0.3, ease: "power2.inOut", yoyo: true, repeat: 1 }, t0 + 4.5);
+    tl.to("#b2-wrap", { autoAlpha: 0, x: -30, duration: 0.4, ease: "power2.in" }, t0 + 6.0);
+  })();
+</script>

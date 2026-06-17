@@ -1,0 +1,34 @@
+<!--
+模式：逐字翻入标题（SplitText）
+适用：开场钩子/章节标题，比整块淡入质感高一档
+要点：黑色横幅先落下，再逐字 3D 翻入（rotationX -90 + back.out）；中文按 chars 切分自然；
+     需要加载 SplitText.min.js（与 gsap 同版本 CDN，3.13+ 免费）并 registerPlugin
+-->
+<style>
+  #headline {
+    position: absolute; top: 120px; left: 0; right: 0;
+    margin: 0 auto; width: fit-content;
+    background: #1a1a1a; color: #fff;
+    border-radius: 20px;
+    padding: 22px 46px;
+    font-size: 64px; font-weight: 900; letter-spacing: 2px;
+    box-shadow: 0 16px 48px rgba(16, 24, 40, 0.3);
+    white-space: nowrap;
+    will-change: transform;
+  }
+  #headline .char-stage { display: inline-block; }
+</style>
+
+<div id="headline"><span class="char-stage">【标题文案】</span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+<script>
+gsap.registerPlugin(SplitText);
+const split = SplitText.create("#headline .char-stage", { type: "chars" });
+tl.from("#headline", { y: -120, autoAlpha: 0, duration: .45, ease: "power3.out" }, t0 + 0.15);
+tl.from(split.chars, {
+  y: 70, autoAlpha: 0, rotationX: -90, duration: .45,
+  ease: "back.out(1.7)", stagger: { each: 0.04, from: "start" }
+}, t0 + 0.25);
+tl.to("#headline", { y: -90, autoAlpha: 0, duration: .35, ease: "power2.in" }, tEnd - 0.5);
+</script>

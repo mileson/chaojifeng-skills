@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>follow-pill</title>
+<!--
+模式：关注引导（片尾）
+适用：口播说「关注我 / 订阅频道」时的片尾引导节拍
+可替换字段：
+  #fol-pill span:last-child    按钮文案
+  #fol-sub                     副标语文案
+  .plus 背景色                 当前为强调红 #e5484d
+要点：垂直堆叠用 flex column 居中（不要分别绝对定位）；药丸 elastic 弹出 + 多次 yoyo 脉冲；最终节拍允许整组淡出收尾
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #1a1a1a;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+    overflow: hidden;
+  }
+  #stage {
+    position: relative;
+    width: 1920px; height: 1080px;
+  }
+  #fol { position: absolute; inset: 0; }
+  #fol .follow {
+    position: absolute; top: 360px; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 28px;
+  }
+  #fol .pill {
+    display: inline-flex; align-items: center; gap: 24px;
+    background: #1a1a1a; color: #fff; border-radius: 999px;
+    padding: 32px 68px; font-size: 64px; font-weight: 900;
+    box-shadow: 0 22px 68px rgba(16, 24, 40, 0.38); white-space: nowrap;
+  }
+  #fol .pill .plus {
+    width: 78px; height: 78px; border-radius: 50%;
+    background: #e5484d; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; font-weight: 900; flex: none;
+  }
+  #fol .sub {
+    font-size: 36px; font-weight: 700; color: #1a1a1a;
+    background: rgba(255, 255, 255, 0.92);
+    display: inline-block; border-radius: 999px;
+    padding: 14px 36px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.2);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="fol">
+    <div class="follow">
+      <div class="pill" id="fol-pill"><span class="plus">+</span><span>关注 超级峰</span></div>
+      <div class="sub" id="fol-sub">AI 省钱玩法 × 实战用法</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+  const PLAY = 5.5;
+  const BEAT = 4.8;
+  const repeats = Math.max(1, Math.floor(PLAY / BEAT));
+
+  const tl = gsap.timeline({ repeat: repeats, repeatDelay: 0.25 });
+
+  tl.from("#fol-pill", { scale: 0.4, autoAlpha: 0, duration: 0.7, ease: "elastic.out(1, 0.6)" }, 0.2)
+    .from("#fol-sub", { y: 60, autoAlpha: 0, duration: 0.55, ease: "power3.out" }, 0.7)
+    .to("#fol-pill", { scale: 1.07, duration: 0.42, ease: "power1.inOut", repeat: 5, yoyo: true }, 1.4)
+    .to("#fol .follow", { autoAlpha: 0, duration: 0.65, ease: "power2.in" }, BEAT - 0.85);
+</script>
+</body>
+</html>

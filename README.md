@@ -15,7 +15,8 @@
 | Skill | 简介 | 核心能力 | 适用场景 | 安装命令 |
 | --- | --- | --- | --- | --- |
 | `offboarding-handover` | 离职交接资料整理 | 支持可配置的分类规则，适配不同行业<br>自动生成 HTML 可视化入口页面<br>输出可打包交付的 ZIP 文件<br>多 Agent 协作：资料盘点、缺失检测、项目映射、风险检查 | 离职员工梳理零散工作资料、搭建交接目录、生成可视化入口 | `npx skills add mileson/chaojifeng-skills --skill offboarding-handover` |
-| `skill-creator` | Skill 创建与更新工作流 | 内置创建前确认流程，先对齐目标再落地<br>支持用 Mermaid 流程图表达新增、修改、风险与保留项<br>覆盖 frontmatter、目录结构、示例、脚本和持久化记忆设计<br>提供初始化、快速校验和 Mermaid 渲染辅助脚本 | 新建 Skill、重构 Skill 结构、补规范、拆 references、整理模板和脚本 | `npx skills add mileson/chaojifeng-skills --skill skill-creator` |
+| `skill-creator` | Skill 创建与更新工作流 | 支持品牌模板与仓库层 / Skill 层 / 产物层署名边界<br>支持 Mermaid 方案图 + 已明确授权时的直执行链路<br>覆盖 frontmatter、目录结构、示例、脚本和持久化记忆设计<br>提供 `--exact-path` 初始化、快速校验和 Mermaid 渲染辅助脚本 | 新建 Skill、重构 Skill 结构、补规范、拆 references、整理模板和脚本 | `npx skills add mileson/chaojifeng-skills --skill skill-creator` |
+| `video-content-factory` | 一体化口播视频内容工厂 | 阶段1：根据选题/背景材料生成口播稿与分镜稿，按句预绑定特效模式 ID<br>阶段2：ASR 转录、自动剪辑口误停顿、按分镜渲染透明 hyperframes 特效轨<br>FFmpeg 合成、字幕/封面元数据、输出标准发布包 | 独立开发者、知识 IP、小团队稳定产出口播视频；B站/YouTube/抖音等平台 | `npx skills add mileson/chaojifeng-skills --skill video-content-factory` |
 
 ## 正在筹备
 
@@ -32,9 +33,12 @@ MIT
 
 ## 作者
 
+- SoulCard: [超级峰](https://soulcard.me/card/chaojifeng)
 - X: [Mileson07](https://x.com/Mileson07)
-- 小红书: [超级峰](https://xhslink.com/m/4LnJ9aB1f97)
-- 抖音: [超级峰](https://v.douyin.com/rH645q7trd8/)
+- 小红书: [超级峰](https://www.xiaohongshu.com/user/profile/58b798d050c4b4193c8111c7)
+- 抖音: [超级峰](https://www.douyin.com/user/MS4wLjABAAAA2I1fDroAQZrM8Tdz6MZfd28MCaRizKmD2-lr7UQP-a0)
+- 快手: [超级峰](https://www.kuaishou.com/profile/3xeqsssav5aif84)
+- 即刻: [超级峰](https://web.okjike.com/u/E769500F-3283-4BAE-B2F3-D1F0E944CB70)
 
 ---
 

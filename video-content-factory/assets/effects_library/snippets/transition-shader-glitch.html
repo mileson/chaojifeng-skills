@@ -1,0 +1,265 @@
+<!--
+  模式：shader glitch 章节转场（官方 glitch 蒸馏版，全屏接管）⚙️
+  来源：hyperframes 官方 catalog `glitch` block（WebGL shader 转场），蒸馏适配 1920x1080 overlay 工作流。
+  适用：科技感最强的章节切换/反转宣告（"但真相是…"）；扫描线 + 块状错位 + RGB 色散 + 亮度闪烁。
+  机制：DOM 章节卡 capture 成 WebGL 纹理 → fragment shader 在「纯黑 ↔ 章节卡」之间做 glitch 混合 →
+        GSAP 驱动 u_progress。流程：canvas 淡入接管(0.3s) → glitch 显形(0.8s) → 停住展示(1.1s) →
+        glitch 退场(0.8s) → canvas 淡出揭开视频(0.3s)，全长约 3.3s。
+  参数化：
+    - 章节文案：改 #sg-scene 内三行文字（编号/标题/英文副标），结构可增减行
+    - 时长：调 SHOW_HOLD（停住秒数）与尾部 autoAlpha 时间点
+    - glitch 强度：shader 内 inten 系数（.18 行位移 / .35 块位移 / .035 色散）
+  注意：
+    - canvas 不透明（黑底），本模式只能做全屏接管转场，不能做覆盖式
+    - 场景 DOM 用 opacity:0 隐藏但保留布局，capture 时临时置 1
+    - capture 的 DOM walker 只支持纯色背景 + 文本节点，章节卡内不要放图片/渐变（用纯色块代替）
+    - 渲染器逐帧截图依赖 getContext("webgl", { preserveDrawingBuffer: true })，不能省略
+    - 父容器需 data-layout-ignore（canvas 全屏覆盖）
+    - 混黑权重用 smoothstep(.55,1.,p)：p≈0.5 时场景全亮 + 撕裂最强，只有接近端点才压黑
+    - 已在真实项目验证（broll-overlay-shader-demo，snapshot + 合成 QA 通过）
+-->
+<div
+  class="clip"
+  data-start="0"
+  data-duration="3.4"
+  data-track-index="0"
+  data-layout-ignore
+  style="position: absolute; inset: 0"
+>
+  <!-- 章节卡场景：capture 用，常态隐藏 -->
+  <div
+    id="sg-scene"
+    style="
+      position: absolute;
+      inset: 0;
+      background: #07080c;
+      opacity: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    "
+  >
+    <div
+      style="
+        font: 600 30px/1 'PingFang SC', sans-serif;
+        color: #ffb224;
+        letter-spacing: 14px;
+      "
+    >
+      CHAPTER · 02
+    </div>
+    <div
+      style="
+        font: 800 110px/1.2 'PingFang SC', sans-serif;
+        color: #ffffff;
+        letter-spacing: 6px;
+      "
+    >
+      真实成本拆解
+    </div>
+    <div
+      style="
+        font: 500 26px/1 'PingFang SC', sans-serif;
+        color: #8b8d98;
+        letter-spacing: 10px;
+      "
+    >
+      THE REAL COST BREAKDOWN
+    </div>
+  </div>
+
+  <canvas
+    id="sg-canvas"
+    width="1920"
+    height="1080"
+    style="position: absolute; inset: 0; opacity: 0; display: block"
+  ></canvas>
+</div>
+
+<script>
+  (function () {
+    var SHOW_HOLD = 1.1; // 章节卡停住展示秒数
+    var canvas = document.getElementById("sg-canvas");
+    var gl = canvas.getContext("webgl", { preserveDrawingBuffer: true });
+    var tlBeat = gsap.timeline();
+    if (!gl) {
+      // 无 WebGL 时降级为普通黑场章节卡
+      tlBeat.to("#sg-scene", { opacity: 1, duration: 0.3 }, 0.2);
+      tlBeat.to("#sg-scene", { opacity: 0, duration: 0.3 }, 3.0);
+      return;
+    }
+    gl.viewport(0, 0, 1920, 1080);
+
+    function captureScene(sceneId) {
+      var scene = document.getElementById(sceneId);
+      scene.style.opacity = "1";
+      scene.offsetHeight;
+      var c = document.createElement("canvas");
+      c.width = 1920;
+      c.height = 1080;
+      var ctx = c.getContext("2d");
+      ctx.fillStyle = window.getComputedStyle(scene).backgroundColor;
+      ctx.fillRect(0, 0, 1920, 1080);
+      var sr = scene.getBoundingClientRect();
+      var scaleX = 1920 / sr.width;
+      var scaleY = 1080 / sr.height;
+      scene.querySelectorAll("*").forEach(function (el) {
+        var cs = window.getComputedStyle(el);
+        if (cs.display === "none" || cs.visibility === "hidden") return;
+        var r = el.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) return;
+        var x = (r.left - sr.left) * scaleX;
+        var y = (r.top - sr.top) * scaleY;
+        var w = r.width * scaleX;
+        var h = r.height * scaleY;
+        var bg = cs.backgroundColor;
+        if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") {
+          ctx.fillStyle = bg;
+          ctx.fillRect(x, y, w, h);
+        }
+        var text = "";
+        el.childNodes.forEach(function (n) {
+          if (n.nodeType === 3) text += n.textContent;
+        });
+        text = text.trim();
+        if (text && !el.querySelector("div,span")) {
+          // computed fontSize/letterSpacing 已是 1920 布局空间值（transform 不影响 computed style），勿再乘 scaleX
+          ctx.font =
+            cs.fontWeight + " " + parseFloat(cs.fontSize) + "px " + cs.fontFamily;
+          ctx.fillStyle = cs.color;
+          if (cs.letterSpacing && cs.letterSpacing !== "normal")
+            ctx.letterSpacing = parseFloat(cs.letterSpacing) + "px";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, x + w / 2, y + h / 2);
+        }
+      });
+      scene.style.opacity = "0";
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      return tex;
+    }
+
+    function blackTexture() {
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texImage2D(
+        gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([7, 8, 12, 255])
+      );
+      return tex;
+    }
+
+    var vertSrc =
+      "attribute vec2 a_pos; varying vec2 v_uv; void main(){" +
+      "v_uv=a_pos*0.5+0.5; v_uv.y=1.0-v_uv.y; gl_Position=vec4(a_pos,0,1);}";
+    var quadBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    function compileShader(src, type) {
+      var s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+      return s;
+    }
+    function mkProg(fragSrc) {
+      var p = gl.createProgram();
+      gl.attachShader(p, compileShader(vertSrc, gl.VERTEX_SHADER));
+      gl.attachShader(p, compileShader(fragSrc, gl.FRAGMENT_SHADER));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(p));
+      return p;
+    }
+
+    var H =
+      "precision mediump float;varying vec2 v_uv;" +
+      "uniform sampler2D u_from,u_to;uniform float u_progress;uniform vec2 u_resolution;\n";
+    var progPass = mkProg(H + "void main(){gl_FragColor=texture2D(u_from,v_uv);}");
+    // 官方 glitch shader 原样保留：扫描线位移 + 12x8 块错位 + RGB 色散 + 扫描暗纹 + 亮度闪烁 + 色阶压缩
+    var progTrans = mkProg(
+      H +
+        "float rand(vec2 co){return fract(sin(dot(co,vec2(12.9898,78.233)))*43758.5453);}" +
+        "void main(){float inten=u_progress*(1.-u_progress)*4.;" +
+        "float lineY=floor(v_uv.y*60.)/60.;" +
+        "float lineDisp=(rand(vec2(lineY,floor(u_progress*17.)))-.5)*.18*inten;" +
+        "vec2 block=floor(v_uv*vec2(12.,8.));" +
+        "float br=rand(block+vec2(floor(u_progress*11.)));" +
+        "float ba=step(.83,br)*inten;" +
+        "vec2 bd=(vec2(rand(block*2.1),rand(block*3.7))-.5)*.35*ba;" +
+        "vec2 uv=clamp(v_uv+vec2(lineDisp,0.)+bd,0.,1.);" +
+        "float shift=inten*.035;" +
+        "float r=texture2D(u_from,uv+vec2(shift,0.)).r;" +
+        "float g=texture2D(u_from,uv).g;" +
+        "float b=texture2D(u_from,uv-vec2(shift,0.)).b;" +
+        "vec3 col=vec3(r,g,b);" +
+        "col-=step(.5,fract(v_uv.y*u_resolution.y*.5))*.05*inten;" +
+        "col*=1.+(rand(vec2(floor(u_progress*23.)))-.5)*.3*inten;" +
+        "float levels=mix(256.,8.,inten*.5);col=floor(col*levels)/levels;" +
+        "gl_FragColor=mix(vec4(col,1.),texture2D(u_to,v_uv),smoothstep(.55,1.,u_progress));}"
+    );
+
+    function renderShader(prog, texFrom, texTo, progress) {
+      gl.useProgram(prog);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texFrom);
+      gl.uniform1i(gl.getUniformLocation(prog, "u_from"), 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, texTo);
+      gl.uniform1i(gl.getUniformLocation(prog, "u_to"), 1);
+      gl.uniform1f(gl.getUniformLocation(prog, "u_progress"), progress);
+      gl.uniform2f(gl.getUniformLocation(prog, "u_resolution"), 1920, 1080);
+      var pos = gl.getAttribLocation(prog, "a_pos");
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+      gl.enableVertexAttribArray(pos);
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    var texBlack = blackTexture();
+    var texScene = captureScene("sg-scene");
+    renderShader(progPass, texBlack, texBlack, 0);
+
+    // 时间轴：淡入接管 → 黑 glitch→ 章节卡 → 停住 → glitch 回黑 → 淡出揭开
+    var T_IN = 0.3, T_GLITCH = 0.8;
+    var t1 = T_IN, t3 = t1 + T_GLITCH + SHOW_HOLD, t4 = t3 + T_GLITCH;
+    // 关键：glitch 扰动（行位移/块错位/色散）作用在 u_from 纹理上。
+    // 对纯黑纹理做位移仍是纯黑 → 必须把章节卡场景放 u_from、黑放 u_to：
+    // 进场 p 1→0（黑→glitch 场景→干净场景），退场 p 0→1（场景 glitch 回黑）
+    var state = { p: 1 };
+    tlBeat.to("#sg-canvas", { autoAlpha: 1, duration: T_IN, ease: "power2.in" }, 0);
+    tlBeat.to(
+      state,
+      {
+        p: 0, duration: T_GLITCH, ease: "power2.inOut",
+        onUpdate: function () { renderShader(progTrans, texScene, texBlack, state.p); },
+      },
+      t1
+    );
+    tlBeat.to(
+      state,
+      {
+        p: 1, duration: T_GLITCH, ease: "power2.inOut",
+        onUpdate: function () { renderShader(progTrans, texScene, texBlack, state.p); },
+        onComplete: function () { renderShader(progPass, texBlack, texBlack, 0); },
+      },
+      t3
+    );
+    tlBeat.to("#sg-canvas", { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, t4);
+
+    // 挂载到主时间轴（实际工程中替换为 master.add(tlBeat, <节拍起点秒>)）
+    window.__timelines = window.__timelines || {};
+    window.__timelines["main"] = tlBeat;
+  })();
+</script>

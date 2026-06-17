@@ -1,0 +1,48 @@
+<!--
+模式：KPI 行情滚动条（ticker strip）【骨架层 · 数据氛围】
+适用场景：底部财经台风格滚动数据条（本月用量/成本/命中率…），营造"数据在实时跑"的氛围，
+  可常驻 10~30s 当低调骨架。
+框架参数：
+  - 数据项数组（指标名/数值/涨跌幅与方向）、滚动速度（x 距离/时长）
+  - 停靠位置（底部默认）、左上角 LIVE tag 文案
+技术要点：
+  - rail 用 x 匀速平移（ease "none"），数据项重复一轮拼在尾部 = 视觉无缝
+  - 涨绿 ▲ #46d390 / 跌红 ▼ #ff8589（财经语义色；"成本下降"是绿色心智可用 ▼+绿）
+  - 条带深色 rgba(8,10,16,.92) + 上下细描边，不抢主画面
+  - LIVE tag 单独入场，先 tag 后条带滚动
+-->
+<style>
+  #tk-strip { position: absolute; left: 0; right: 0; bottom: 170px; height: 74px; background: rgba(8,10,16,.92);
+    border-top: 1px solid rgba(255,255,255,.14); border-bottom: 1px solid rgba(255,255,255,.14); overflow: hidden; }
+  #tk-rail { position: absolute; top: 0; display: flex; align-items: center; height: 100%; gap: 70px; white-space: nowrap; padding-left: 40px; }
+  .tk-item { display: flex; align-items: center; gap: 12px; }
+  .tk-k { color: #8b8d98; font-size: 19px; font-weight: 800; letter-spacing: 1px; }
+  .tk-v { color: #fff; font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .tk-up { color: #46d390; font-size: 18px; font-weight: 900; }
+  .tk-dn { color: #ff8589; font-size: 18px; font-weight: 900; }
+  #tk-tag { position: absolute; left: 90px; bottom: 270px; background: rgba(8,10,16,.85); color: #fff;
+    border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 12px 24px; font-size: 22px; font-weight: 900; }
+  #tk-tag em { color: #3e9eff; font-style: normal; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="tk-tag">LIVE DATA · <em>【说明文案】</em></div>
+<div id="tk-strip">
+  <div id="tk-rail">
+    <div class="tk-item"><span class="tk-k">【指标1】</span><span class="tk-v">【值】</span><span class="tk-dn">▼ 89%</span></div>
+    <div class="tk-item"><span class="tk-k">【指标2】</span><span class="tk-v">【值】</span><span class="tk-up">▲ 32%</span></div>
+    <div class="tk-item"><span class="tk-k">【指标3】</span><span class="tk-v">【值】</span><span class="tk-up">▲ 6%</span></div>
+    <div class="tk-item"><span class="tk-k">【指标4】</span><span class="tk-v">【值】</span><span class="tk-dn">▼ 87%</span></div>
+    <!-- 重复一轮做无缝 -->
+    <div class="tk-item"><span class="tk-k">【指标1】</span><span class="tk-v">【值】</span><span class="tk-dn">▼ 89%</span></div>
+    <div class="tk-item"><span class="tk-k">【指标2】</span><span class="tk-v">【值】</span><span class="tk-up">▲ 32%</span></div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  b.from("#tk-strip", { autoAlpha: 0, y: 50, duration: 0.5, ease: "power3.out" }, 0);
+  b.from("#tk-tag", { autoAlpha: 0, x: -40, duration: 0.45 }, 0.3);
+  b.to("#tk-rail", { x: -1400, duration: 4.2, ease: "none" }, 0.5);
+  b.to(["#tk-strip", "#tk-tag"], { autoAlpha: 0, y: 30, duration: 0.4, ease: "power2.in" }, 4.5);
+</script>

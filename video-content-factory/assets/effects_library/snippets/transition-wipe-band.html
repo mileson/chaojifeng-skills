@@ -1,0 +1,59 @@
+<!--
+模式：色带扫屏转场（双层斜带 wipe）【参数化框架】
+适用场景：节奏更快、更有冲击力的章节切换。亮色副带先掠过 → 深色主带接管全屏 →
+  章节文字 → 副带回扫一次 → 主带离场揭开画面。比黑场淡入更"剪辑感"。
+框架参数：
+  - 副带颜色 = 品牌强调色（黄/蓝/绿渐变均可）；主带保持深色（文字可读性）
+  - 斜角 skewX(-12deg) 可调 ±8°~±16°；方向可整体镜像（从右往左扫）
+  - 时长建议 3.0~3.4s；扫入扫出各 ~0.55s
+结构要点：
+  - 主带：width 130% / 高 120% / 起点 left -15%（斜角不露底）；副带 width 26%
+  - 两带都是装饰元素：beat 容器 data-layout-allow-overflow，带子 data-layout-ignore
+  - 文字三行排版同章节卡（编号/大标题/英文）
+动画要点（关键坑）：
+  - **xPercent 相对元素自身宽度**：主带宽 130% 屏用 ±135 即可跨屏；
+    副带只有 26% 屏宽，必须 ±430/±460 才能完整扫过 1920px——首次实现时副带停在屏中间就是这个坑
+  - 入场序：副带先行 0.1s（xPercent -430 → 160 直接掠过）→ 主带跟进占屏 → 文字入
+  - 出场序：文字收 → 副带再掠过一次（呼应）→ 主带 xPercent 135 离场揭开画面
+  - 全程 power3.inOut（扫屏要均匀加减速，不要 out 急刹）
+-->
+<style>
+  #wb-band-main {
+    position: absolute; top: -10%; left: -15%; width: 130%; height: 120%;
+    background: #0a0e18; transform: skewX(-12deg);
+    will-change: transform;
+  }
+  #wb-band-accent {
+    position: absolute; top: -10%; left: -15%; width: 26%; height: 120%;
+    background: linear-gradient(180deg, #ffb224, #ff8a3c); transform: skewX(-12deg);
+    box-shadow: 0 0 60px rgba(255, 178, 36, 0.45);
+    will-change: transform;
+  }
+  #wb-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+  #wb-num { color: #ffb224; font-size: 30px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(255,178,36,.55); }
+  #wb-title { color: #fff; font-size: 86px; font-weight: 900; letter-spacing: 4px; }
+  #wb-en { color: #8b8d98; font-size: 24px; font-weight: 700; letter-spacing: 8px; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="wb-band-main" data-layout-ignore></div>
+<div id="wb-band-accent" data-layout-ignore></div>
+<div id="wb-center">
+  <div id="wb-num">【CHAPTER · 02】</div>
+  <div id="wb-title">【章节标题】</div>
+  <div id="wb-en">【ENGLISH SUBTITLE】</div>
+</div>
+
+<script>
+  const b = gsap.timeline({ defaults: { ease: "power3.inOut" } });
+  b.fromTo("#wb-band-accent", { xPercent: -430 }, { xPercent: 160, duration: 0.55 }, 0)
+   .fromTo("#wb-band-main", { xPercent: -135 }, { xPercent: 0, duration: 0.55 }, 0.1)
+   .to("#wb-band-accent", { xPercent: 460, duration: 0.5 }, 0.5)
+   .from("#wb-num", { y: 26, autoAlpha: 0, duration: 0.4, ease: "power3.out" }, 0.75)
+   .from("#wb-title", { y: 50, autoAlpha: 0, duration: 0.5, ease: "power4.out" }, 0.85)
+   .from("#wb-en", { autoAlpha: 0, letterSpacing: "20px", duration: 0.5, ease: "power3.out" }, 1.15)
+   // 扫出：文字先收 → 副带再掠一次 → 主带离场
+   .to("#wb-center", { autoAlpha: 0, y: -24, duration: 0.3, ease: "power2.in" }, 2.25)
+   .fromTo("#wb-band-accent", { xPercent: -430 }, { xPercent: 460, duration: 0.6 }, 2.45)
+   .to("#wb-band-main", { xPercent: 135, duration: 0.5 }, 2.6);
+</script>

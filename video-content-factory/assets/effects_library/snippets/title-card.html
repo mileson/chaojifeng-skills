@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>title-card</title>
+<!--
+模式：大标题卡片（钩子强化）
+适用：视频开头或关键反问句，把一句话变成整屏标题卡
+可替换字段：
+  #tc-title    主标题文案
+  #tc-sub      副标题文案（可省略）
+  背景色/主色  可按品牌调整
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #1a1a1a;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+    overflow: hidden;
+  }
+  #stage {
+    position: relative;
+    width: 1920px; height: 1080px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 32px;
+  }
+  #tc-title {
+    font-size: 140px; font-weight: 900;
+    color: #fff; text-align: center;
+    line-height: 1.1; letter-spacing: 4px;
+    text-shadow: 0 18px 60px rgba(0,0,0,0.45);
+    max-width: 1700px;
+  }
+  #tc-sub {
+    font-size: 52px; font-weight: 700;
+    color: rgba(255,255,255,0.82); text-align: center;
+    background: rgba(255,255,255,0.12);
+    padding: 18px 48px; border-radius: 999px;
+    backdrop-filter: blur(6px);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="tc-title">你做一条口播视频<br>过去要多久？</div>
+  <div id="tc-sub">选题 → 写稿 → 录制 → 剪辑 → 特效 → 字幕</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+  const PLAY = 5.0;
+  const BEAT = 4.2;
+  const repeats = Math.max(1, Math.floor(PLAY / BEAT));
+  const tl = gsap.timeline({ repeat: repeats, repeatDelay: 0.3 });
+
+  tl.from("#tc-title", { scale: 0.55, autoAlpha: 0, y: 80, duration: 0.85, ease: "elastic.out(1, 0.55)" }, 0.1)
+    .from("#tc-sub", { y: 50, autoAlpha: 0, duration: 0.6, ease: "power3.out" }, 0.55)
+    .to("#tc-title", { scale: 1.04, duration: 0.35, ease: "power1.inOut", repeat: 3, yoyo: true }, 1.2)
+    .to("#stage", { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, BEAT - 0.55);
+</script>
+</body>
+</html>

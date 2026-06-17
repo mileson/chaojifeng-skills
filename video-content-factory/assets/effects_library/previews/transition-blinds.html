@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #bl-blinds { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .bl-slat { flex: 1; background: #06080f; will-change: transform; }
+  #bl-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+  #bl-big { color: #fff; font-size: 86px; font-weight: 900; letter-spacing: 6px; }
+  #bl-small { color: #ffb224; font-size: 28px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(255,178,36,.55); }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="bl-blinds" data-layout-ignore></div>
+<div id="bl-center">
+  <div id="bl-big">【下期再见】</div>
+  <div id="bl-small">【SEE YOU NEXT TIME】</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const blinds = document.getElementById("bl-blinds");
+  for (let i = 0; i < 8; i++) { const s = document.createElement("div"); s.className = "bl-slat"; blinds.appendChild(s); }
+
+  const b = gsap.timeline();
+  b.from(".bl-slat", { scaleY: 0, transformOrigin: "center center", duration: 0.45, ease: "power2.inOut", stagger: 0.055 }, 0)
+   .from("#bl-big", { y: 44, autoAlpha: 0, duration: 0.5, ease: "power4.out" }, 0.7)
+   .from("#bl-small", { autoAlpha: 0, letterSpacing: "22px", duration: 0.5, ease: "power3.out" }, 0.95);
+  // 章节转场版追加揭开（收幕版不需要）：
+  // b.to("#bl-center", { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, 2.2)
+  //  .to(".bl-slat", { scaleY: 0, duration: 0.4, ease: "power2.inOut", stagger: { each: 0.05, from: "end" } }, 2.35);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

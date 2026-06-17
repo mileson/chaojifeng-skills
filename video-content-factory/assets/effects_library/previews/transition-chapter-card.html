@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  /* 全屏接管版用 #06080f；覆盖式版改成 rgba(5,8,14,0.84) */
+  #tc-bg { position: absolute; inset: 0; background: #06080f; }
+  .corner-frame { position: absolute; width: 64px; height: 64px; }
+  .corner-frame.tl { top: 56px; left: 64px; border-top: 2.5px solid #ffb224; border-left: 2.5px solid #ffb224; }
+  .corner-frame.tr { top: 56px; right: 64px; border-top: 2.5px solid #ffb224; border-right: 2.5px solid #ffb224; }
+  .corner-frame.bl { bottom: 56px; left: 64px; border-bottom: 2.5px solid #ffb224; border-left: 2.5px solid #ffb224; }
+  .corner-frame.br { bottom: 56px; right: 64px; border-bottom: 2.5px solid #ffb224; border-right: 2.5px solid #ffb224; }
+  #tc-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; }
+  #tc-rule { width: 320px; height: 2px; background: linear-gradient(90deg, transparent, #ffb224, transparent); }
+  #tc-num { color: #ffb224; font-size: 30px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(255,178,36,.55); }
+  #tc-title { color: #fff; font-size: 86px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
+  #tc-en { color: #8b8d98; font-size: 24px; font-weight: 700; letter-spacing: 8px; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="tc-bg"></div>
+<div class="corner-frame tl"></div>
+<div class="corner-frame tr"></div>
+<div class="corner-frame bl"></div>
+<div class="corner-frame br"></div>
+<div id="tc-center">
+  <div id="tc-rule"></div>
+  <div id="tc-num">【CHAPTER · 01】</div>
+  <div id="tc-title">【章节标题】</div>
+  <div id="tc-en">【ENGLISH SUBTITLE】</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  // 需 gsap.registerPlugin(SplitText)
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const split = SplitText.create("#tc-title", { type: "chars" });
+  b.from("#tc-bg", { autoAlpha: 0, duration: 0.45, ease: "power1.inOut" }, 0)
+   .from(".corner-frame", { autoAlpha: 0, scale: 0.6, duration: 0.45, ease: "back.out(1.6)", stagger: 0.07 }, 0.3)
+   .from("#tc-rule", { scaleX: 0, duration: 0.5, ease: "power2.inOut" }, 0.4)
+   .from("#tc-num", { y: 26, autoAlpha: 0, duration: 0.4 }, 0.55)
+   .from(split.chars, { y: 60, autoAlpha: 0, duration: 0.5, ease: "power4.out", stagger: { each: 0.04, from: "start" } }, 0.7)
+   .from("#tc-en", { autoAlpha: 0, letterSpacing: "20px", duration: 0.55 }, 1.15)
+   // 退场铁律：内容先收，背景再揭开
+   .to("#tc-center, .corner-frame", { autoAlpha: 0, y: -24, duration: 0.35, ease: "power2.in" }, 2.6)
+   .to("#tc-bg", { autoAlpha: 0, duration: 0.5, ease: "power1.inOut" }, 2.85);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

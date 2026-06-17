@@ -1,0 +1,43 @@
+<!--
+模式：百叶窗转场（blinds）【参数化框架】
+适用场景：横向条带依次合拢盖屏。两种用法：
+  1. 章节转场：合上 → 文字 → 反向展开揭开（注释中给出揭开动画）
+  2. 片尾收幕：合上 + "下期再见" 停住到视频结束（不揭开）——本模板默认形态
+框架参数：
+  - 条数：8 条横向默认；纵向改 flex-direction: row + scaleX
+  - stagger 方向：顺序（0.055 each）/ edges（从上下往中间合）/ center
+  - 条带颜色可交替两色（偶数条深、奇数条更深）增加层次
+技术要点：
+  - 条带 JS 动态生成（flex:1 自动均分），scaleY 0→1 transformOrigin center
+  - 合拢 ease power2.inOut，条带间 stagger 0.05~0.07（太快没有"百叶"感）
+  - 收幕版文字入场后不退场，beat duration 设到 composition 结束
+  - 揭开动画（章节转场版）：先 to("#文字", {autoAlpha:0}) 再 to(".slat", { scaleY: 0, stagger: { from: "end" } })
+  - beat 容器 data-layout-allow-overflow，条带容器 data-layout-ignore
+-->
+<style>
+  #bl-blinds { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .bl-slat { flex: 1; background: #06080f; will-change: transform; }
+  #bl-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+  #bl-big { color: #fff; font-size: 86px; font-weight: 900; letter-spacing: 6px; }
+  #bl-small { color: #ffb224; font-size: 28px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(255,178,36,.55); }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="bl-blinds" data-layout-ignore></div>
+<div id="bl-center">
+  <div id="bl-big">【下期再见】</div>
+  <div id="bl-small">【SEE YOU NEXT TIME】</div>
+</div>
+
+<script>
+  const blinds = document.getElementById("bl-blinds");
+  for (let i = 0; i < 8; i++) { const s = document.createElement("div"); s.className = "bl-slat"; blinds.appendChild(s); }
+
+  const b = gsap.timeline();
+  b.from(".bl-slat", { scaleY: 0, transformOrigin: "center center", duration: 0.45, ease: "power2.inOut", stagger: 0.055 }, 0)
+   .from("#bl-big", { y: 44, autoAlpha: 0, duration: 0.5, ease: "power4.out" }, 0.7)
+   .from("#bl-small", { autoAlpha: 0, letterSpacing: "22px", duration: 0.5, ease: "power3.out" }, 0.95);
+  // 章节转场版追加揭开（收幕版不需要）：
+  // b.to("#bl-center", { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, 2.2)
+  //  .to(".bl-slat", { scaleY: 0, duration: 0.4, ease: "power2.inOut", stagger: { each: 0.05, from: "end" } }, 2.35);
+</script>

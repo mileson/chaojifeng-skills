@@ -1,0 +1,51 @@
+<!--
+模式：隐私打码贴片（privacy-blur-patch）【工具层 · 局部模糊/马赛克】
+适用场景：演示真实截图/录屏时遮盖敏感信息（API Key、邮箱、金额、用户头像），
+  叠在画面对应坐标上 3~30s；支持高斯模糊与马赛克两种质感。
+框架参数：
+  - 每个贴片的 left/top/width/height（对准底片敏感区域）
+  - mode：高斯模糊（backdrop-filter blur）或马赛克（像素块网格）
+  - 入场时间 t0、是否常驻（不退场则删掉退场 tween）
+技术要点：
+  - 模糊片用 backdrop-filter: blur() 直接虚化下层真实画面，无需知道内容
+  - 马赛克片用 8x3 色块网格近似像素化（离线渲染下 backdrop 像素化不可用，色块更稳）
+  - 红色「已打码」角标可选，提示观众这是有意遮盖
+  - 贴片 scale 弹入提示位置，避免观众疑惑画面糊了
+-->
+<style>
+  .pbp-blur { position: absolute; border-radius: 10px;
+    backdrop-filter: blur(18px) saturate(.8); -webkit-backdrop-filter: blur(18px) saturate(.8);
+    background: rgba(20,26,40,.25); border: 1.5px dashed rgba(229,72,77,.65); }
+  .pbp-mosaic { position: absolute; border-radius: 10px; overflow: hidden; display: grid;
+    grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
+    border: 1.5px dashed rgba(229,72,77,.65); }
+  .pbp-mosaic i { display: block; }
+  .pbp-tag { position: absolute; top: -16px; right: -10px; z-index: 2; font-size: 17px; font-weight: 800;
+    color: #fff; background: #e5484d; border-radius: 8px; padding: 4px 12px; letter-spacing: 2px;
+    box-shadow: 0 6px 18px rgba(229,72,77,.45); }
+</style>
+
+<!-- 贴片 1：高斯模糊（对准敏感区域，演示坐标） -->
+<div class="pbp-blur" id="pbp-a" style="left: 620px; top: 380px; width: 480px; height: 86px;">
+  <span class="pbp-tag">已打码</span>
+</div>
+<!-- 贴片 2：马赛克（JS 自动填充色块） -->
+<div class="pbp-mosaic" id="pbp-b" style="left: 620px; top: 520px; width: 480px; height: 78px;"></div>
+
+<script>
+  // 马赛克色块：确定性伪随机灰阶（逐帧渲染稳定，不闪烁）
+  (function () {
+    var box = document.getElementById("pbp-b");
+    for (var k = 0; k < 24; k++) {
+      var cell = document.createElement("i");
+      var g = 38 + ((k * 47) % 52);
+      cell.style.background = "rgb(" + g + "," + (g + 4) + "," + (g + 12) + ")";
+      box.appendChild(cell);
+    }
+  })();
+  tl.from(["#pbp-a", "#pbp-b"], { autoAlpha: 0, scale: 1.18, duration: 0.4,
+    ease: "back.out(2)", stagger: 0.12 }, t0);
+  tl.from(".pbp-tag", { autoAlpha: 0, y: 10, duration: 0.35 }, t0 + 0.3);
+  // 常驻场景删掉下面退场
+  tl.to(["#pbp-a", "#pbp-b"], { autoAlpha: 0, duration: 0.35 }, t0 + 5.0);
+</script>

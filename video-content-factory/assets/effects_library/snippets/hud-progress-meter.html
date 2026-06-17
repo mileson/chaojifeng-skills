@@ -1,0 +1,60 @@
+<!--
+  模式：指标进度条 HUD ⚙️
+  适用：chip 行 + 标题（强调词换色）+ label/百分比行 + 圆角进度条（渐变填充 scaleX 生长 + 发光）+ 描边 chip 组。count-up 与 fill 同步。
+  参数化：进度值/配色/chip 文案组。适合「能力提升/趋势向好」类口播。
+
+  通用铁律（本批 9 模式验证结论）：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    参考片是暗房实拍才敢裸白字，我们的视频多为亮色录屏，裸白字会直接消失（已踩坑）
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+  - 来源：download (1).mp4 参考片逐帧拆解（2026-06-11），验证工程 broll-overlay-ref9-demo
+-->
+<style>
+  /* ===== B8 hud-progress-meter ===== */
+  #b8-wrap { position: absolute; top: 64px; left: 56px; background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.14); border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,.45); padding: 26px 32px; }
+  #b8-chip { display: flex; align-items: center; gap: 10px; }
+  #b8-bar { width: 4px; height: 18px; background: #46d390; border-radius: 2px; }
+  #b8-en { color: #46d390; font-size: 19px; font-weight: 800; letter-spacing: 4px; }
+  #b8-title { color: #fff; font-size: 38px; font-weight: 900; margin-top: 12px; }
+  #b8-title em { color: #46d390; font-style: normal; }
+  #b8-meter { margin-top: 24px; width: 420px; }
+  #b8-lb { color: #8b8d98; font-size: 16px; font-weight: 700; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  #b8-pct { color: #46d390; font-variant-numeric: tabular-nums; }
+  #b8-track { height: 14px; border-radius: 7px; background: rgba(255,255,255,.12); overflow: hidden; }
+  #b8-fill { height: 100%; width: 100%; border-radius: 7px; background: linear-gradient(90deg, #1d7a4f, #46d390); transform-origin: left center; box-shadow: 0 0 18px rgba(70,211,144,.6); }
+  #b8-chips { margin-top: 22px; display: flex; gap: 12px; }
+  .b8-c { padding: 8px 18px; border-radius: 99px; border: 1.5px solid rgba(255,255,255,.3); color: #e8eaf0; font-size: 17px; font-weight: 700; background: rgba(8,10,16,.6); }
+</style>
+
+<!-- B8 进度条 HUD -->
+  <div id="b8" class="clip beat" data-start="45.5" data-duration="4.5" data-track-index="0" data-layout-allow-overflow>
+    <div id="b8-wrap">
+      <div id="b8-chip"><div id="b8-bar"></div><div id="b8-en">SELF-EVOLVING · 越用越省</div></div>
+      <div id="b8-title">缓存命中率 <em>持续上涨</em></div>
+      <div id="b8-meter">
+        <div id="b8-lb"><span>命中率</span><span id="b8-pct">0%</span></div>
+        <div id="b8-track"><div id="b8-fill"></div></div>
+      </div>
+      <div id="b8-chips"><div class="b8-c">自动缓存</div><div class="b8-c">零配置</div></div>
+    </div>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  // 依赖的 count-up 工具：
+  // function countUp(sel, end, dur, at, decimals, suffix) { var obj={v:0},el=document.querySelector(sel);
+  //   tl.to(obj,{v:end,duration:dur,ease:"power1.out",onUpdate:function(){el.textContent=obj.v.toFixed(decimals||0)+(suffix||"");}},at); }
+
+  /* ===== B8 进度条 HUD（45.5 起） ===== */
+  (function () {
+    var t0 = 45.5;
+    tl.from("#b8-chip", { autoAlpha: 0, x: -26, duration: 0.4 }, t0);
+    tl.from("#b8-title", { autoAlpha: 0, y: 18, duration: 0.45 }, t0 + 0.15);
+    tl.from("#b8-meter", { autoAlpha: 0, duration: 0.35 }, t0 + 0.45);
+    tl.fromTo("#b8-fill", { scaleX: 0 }, { scaleX: 0.92, duration: 1.1, ease: "power2.out" }, t0 + 0.6);
+    countUp("#b8-pct", 92, 1.1, t0 + 0.6, 0, "%");
+    tl.from(".b8-c", { autoAlpha: 0, y: 14, duration: 0.4, ease: "back.out(1.7)", stagger: 0.15 }, t0 + 1.7);
+    tl.to("#b8-wrap", { autoAlpha: 0, x: -30, duration: 0.4, ease: "power2.in" }, t0 + 4.0);
+  })();
+</script>

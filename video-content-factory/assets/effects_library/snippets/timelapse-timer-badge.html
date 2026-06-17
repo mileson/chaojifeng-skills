@@ -1,0 +1,46 @@
+<!--
+模式：延时计时角标（timelapse-timer-badge）【工具层 · 真实感证明】
+适用场景：倍速演示段叠加「真实计时」角标（从下载到上岗 · 真实计时不摆拍）。
+框架参数：
+  - 目标秒数（如 178 = 02:58）、倍速标注（8x）、底部 caption
+  - 计时时长（默认 3s 跑完）
+技术要点：
+  - state 对象 s 0→目标秒，onUpdate 格式化 mm:ss（padStart 补零 + tabular-nums 防抖）
+  - 角标右上入场 x 80 滑入；计完变绿 + textShadow = 「达成」确认
+  - 可作为常驻 util 拉长到整个倍速段（duration 改为段长）
+-->
+<style>
+  #ttb-badge { position: absolute; right: 90px; top: 90px; background: rgba(10,14,22,.9);
+    border: 1px solid rgba(255,122,89,.5); border-radius: 16px; padding: 18px 28px; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+  #ttb-label { color: #8b93a3; font-size: 14px; font-weight: 800; letter-spacing: 3px; }
+  #ttb-time { color: #ff7a59; font-size: 52px; font-weight: 900; font-variant-numeric: tabular-nums;
+    font-family: ui-monospace, Menlo, monospace; margin-top: 6px; text-shadow: 0 0 22px rgba(255,122,89,.5); }
+  #ttb-speed { display: inline-block; margin-top: 8px; background: rgba(255,122,89,.16); border: 1px solid rgba(255,122,89,.6);
+    color: #ffa48c; border-radius: 99px; padding: 4px 18px; font-size: 16px; font-weight: 900; }
+  #ttb-cap { position: absolute; left: 0; right: 0; bottom: 150px; text-align: center; }
+  #ttb-cap span { display: inline-block; background: rgba(10,14,22,.88); color: #fff; border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px; padding: 12px 28px; font-size: 22px; font-weight: 900; }
+  #ttb-cap em { color: #ff7a59; font-style: normal; }
+</style>
+
+<div id="ttb-badge">
+  <div id="ttb-label">REAL TIME</div>
+  <div id="ttb-time">00:00</div>
+  <div><span id="ttb-speed">【8x 倍速】</span></div>
+</div>
+<div id="ttb-cap"><span>【说明 · 】<em>【高亮】</em></span></div>
+
+<script>
+  tl.from("#ttb-badge", { autoAlpha: 0, x: 80, duration: 0.5 }, t0);
+  tl.from("#ttb-cap", { autoAlpha: 0, y: 20, duration: 0.4 }, t0 + 0.35);
+  var st = { s: 0 }, timeEl = null;
+  tl.to(st, { s: 178 /* 目标秒数 */, duration: 3.0, ease: "none",
+    onUpdate: function () {
+      timeEl = timeEl || document.getElementById("ttb-time");
+      var v = Math.floor(st.s);
+      timeEl.textContent = String(Math.floor(v / 60)).padStart(2, "0") + ":" + String(v % 60).padStart(2, "0");
+    } }, t0 + 0.5);
+  tl.to("#ttb-time", { color: "#46d390", textShadow: "0 0 26px rgba(70,211,144,.7)", duration: 0.3 }, t0 + 3.5);
+  tl.to(["#ttb-badge", "#ttb-cap"], { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, t0 + 4.0);
+</script>

@@ -1,0 +1,67 @@
+<!--
+  模式：手机样机画中画 ⚙️
+  适用：CSS iPhone 样机（圆角 64 + 深色边框 + 主题色发光描边 + 灵动岛 + 状态栏）+ 应用头部 + 聊天气泡流（bot/me/code 三种气泡 CSS 自绘）；气泡 stagger 逐条入场后整体 y 滚动。
+  参数化：描边发光色/左右停靠/气泡内容与条数/滚动距离。样机需 data-layout-ignore。内容也可放截图长图。
+
+  通用铁律（本批 9 模式验证结论）：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    参考片是暗房实拍才敢裸白字，我们的视频多为亮色录屏，裸白字会直接消失（已踩坑）
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+  - 来源：download (1).mp4 参考片逐帧拆解（2026-06-11），验证工程 broll-overlay-ref9-demo
+-->
+<style>
+  /* ===== B4 device-pip-phone 手机样机画中画 ===== */
+  #b4-phone { position: absolute; top: 50px; right: 96px; width: 430px; height: 905px;
+    border-radius: 64px; background: #0c0d12; border: 9px solid #23252e;
+    box-shadow: 0 0 0 2.5px #46d390, 0 0 44px rgba(70,211,144,.5), 0 36px 90px rgba(0,0,0,.6); overflow: hidden; }
+  #b4-island { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 118px; height: 32px; border-radius: 18px; background: #000; z-index: 3; }
+  #b4-status { height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 14px 30px 0; color: #fff; font-size: 16px; font-weight: 700; }
+  #b4-head { height: 54px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #fff; font-size: 18px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,.08); }
+  #b4-head .on { width: 8px; height: 8px; border-radius: 50%; background: #46d390; }
+  #b4-view { position: absolute; top: 112px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+  #b4-msgs { position: absolute; left: 0; right: 0; top: 0; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .b4-msg { max-width: 78%; padding: 12px 16px; border-radius: 16px; font-size: 16.5px; line-height: 1.5; }
+  .b4-bot { align-self: flex-start; background: #1d2029; color: #e8eaf0; border: 1px solid rgba(255,255,255,.09); border-bottom-left-radius: 5px; }
+  .b4-me { align-self: flex-end; background: #2e6b4f; color: #eafff4; border-bottom-right-radius: 5px; }
+  .b4-code { align-self: flex-start; max-width: 88%; background: #11131a; border: 1px solid rgba(70,211,144,.35); color: #46d390;
+    font-family: ui-monospace, Menlo, monospace; font-size: 13.5px; padding: 11px 14px; border-radius: 12px; }
+  #b4-label { position: absolute; left: 56px; top: 430px; background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 16px 22px; }
+  #b4-label .t { color: #fff; font-size: 30px; font-weight: 900; }
+  #b4-label .s { color: #8b8d98; font-size: 16px; font-weight: 600; margin-top: 6px; }
+</style>
+
+<!-- B4 手机样机画中画 -->
+  <div id="b4" class="clip beat" data-start="20" data-duration="6" data-track-index="0" data-layout-allow-overflow>
+    <div id="b4-phone" data-layout-ignore>
+      <div id="b4-island"></div>
+      <div id="b4-status"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div id="b4-head"><div class="on"></div>Fable Agent · 正在输入</div>
+      <div id="b4-view">
+        <div id="b4-msgs">
+          <div class="b4-msg b4-me">帮我跑一下今天的成本统计</div>
+          <div class="b4-msg b4-bot">好的！正在调用成本统计 skill，读取今天的 API 用量——</div>
+          <div class="b4-code">terminal: "sqlite3 ~/.fable/usage.db SELECT…"</div>
+          <div class="b4-msg b4-bot">今天一共调用 47 次，总花费 ¥9.4，平均每次 ¥0.2</div>
+          <div class="b4-msg b4-me">两毛钱？没算错？</div>
+          <div class="b4-code">verify: tokens_in 18.2k · tokens_out 3.1k ✓</div>
+          <div class="b4-msg b4-bot">没错，官方按量计费 + prompt 缓存命中，就是两毛</div>
+          <div class="b4-msg b4-bot">要不要我把统计报表定时推到你手机？</div>
+        </div>
+      </div>
+    </div>
+    <div id="b4-label"><div class="t">手机样机画中画</div><div class="s">PHONE PIP · 聊天流自动滚动</div></div>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B4 手机样机画中画（20 起） ===== */
+  (function () {
+    var t0 = 20;
+    tl.from("#b4-phone", { autoAlpha: 0, y: 50, scale: 0.92, duration: 0.65, transformOrigin: "center center" }, t0);
+    tl.from("#b4-label", { autoAlpha: 0, x: -26, duration: 0.45 }, t0 + 0.4);
+    tl.from(".b4-msg, .b4-code", { autoAlpha: 0, y: 16, duration: 0.35, stagger: 0.28, ease: "power2.out" }, t0 + 0.7);
+    tl.to("#b4-msgs", { y: -300, duration: 1.8, ease: "power1.inOut" }, t0 + 3.0);
+    tl.to(["#b4-phone", "#b4-label"], { autoAlpha: 0, y: 40, duration: 0.45, ease: "power2.in" }, t0 + 5.4);
+  })();
+</script>

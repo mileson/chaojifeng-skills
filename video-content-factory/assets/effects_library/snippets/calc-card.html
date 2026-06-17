@@ -1,0 +1,36 @@
+<!--
+模式：算账卡（数据逐步推导）
+适用：口播逐句算账/推导（$20 → ¥135 → ÷500 → ¥0.2/次）
+要点：每一行的入场时间跟着口播节奏走（不是固定间隔）；总计行绿底高亮 + yoyo 脉冲
+-->
+<style>
+  #calc .calc {
+    position: absolute; top: 190px; left: 110px; width: 760px;
+    background: #fff; border-radius: 24px; padding: 44px 52px;
+    box-shadow: 0 20px 60px rgba(16,24,40,.25);
+  }
+  #calc h3 { font-size: 34px; font-weight: 900; color: #1a1a1a; margin-bottom: 30px; letter-spacing: 2px; }
+  #calc .row { display: flex; align-items: center; gap: 20px; font-size: 42px; font-weight: 800; color: #1a1a1a; padding: 14px 0; font-variant-numeric: tabular-nums; }
+  #calc .row .arr { color: #8b8d98; font-size: 34px; }
+  #calc .row .note { font-size: 26px; font-weight: 600; color: #60646c; }
+  #calc .row.total { margin-top: 18px; padding: 22px 28px; background: #e9f6ef; border-radius: 16px; color: #1d7a4f; font-size: 56px; justify-content: center; }
+  #calc .row.total .per { font-size: 30px; color: #30a46c; margin-left: 6px; }
+</style>
+
+<div id="calc">
+  <div class="calc">
+    <h3>【卡片标题】</h3>
+    <div class="row" id="calc-r1"><span>【算式1左】</span><span class="arr">→</span><span>【算式1右】</span></div>
+    <div class="row" id="calc-r2"><span>【算式2】</span><span class="note">【备注】</span></div>
+    <div class="row total" id="calc-r3"><span>【结论值】</span><span class="per">【单位】</span></div>
+  </div>
+</div>
+
+<script>
+tl.from("#calc .calc", { y: 90, opacity: 0, duration: .6, ease: "power3.out" }, t0 + 0.15);
+tl.from("#calc-r1", { x: -60, opacity: 0, duration: .5, ease: "power2.out" }, /* 跟口播 */ t0 + 2.0);
+tl.from("#calc-r2", { x: -60, opacity: 0, duration: .5, ease: "power2.out" }, t0 + 4.3);
+tl.from("#calc-r3", { scale: .6, opacity: 0, duration: .55, ease: "back.out(1.8)" }, t0 + 6.0);
+tl.to("#calc-r3", { scale: 1.05, duration: .25, ease: "power1.inOut", repeat: 3, yoyo: true }, t0 + 6.7);
+tl.to("#calc .calc", { y: 80, opacity: 0, duration: .4, ease: "power2.in" }, tEnd - 0.55);
+</script>

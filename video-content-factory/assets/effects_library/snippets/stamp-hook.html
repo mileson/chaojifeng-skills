@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>stamp-hook</title>
+<!--
+模式：盖章钩子（开场反差）
+适用：视频前 3~5 秒，先抛出大众认知（贵？）再砸出反转结论（¥0.27）
+可替换字段：
+  #hook-old      旧认知印章文案
+  #hook-new      反转结论印章文案
+  #hook-new small 副注文案
+  红/绿背景色可整体替换，保持对比度
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    /* 独立预览用深色底；作为透明 overlay 时，可移除 body background */
+    background: #1a1a1a;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+    overflow: hidden;
+  }
+  #stage {
+    position: relative;
+    width: 1920px; height: 1080px;
+  }
+  .stamp {
+    font-weight: 900; border-radius: 18px;
+    box-shadow: 0 14px 40px rgba(16, 24, 40, 0.28);
+    color: #fff; white-space: nowrap;
+  }
+  #hook-old {
+    position: absolute; top: 340px; left: 560px;
+    background: #e5484d; font-size: 96px; padding: 28px 58px;
+    transform: rotate(-5deg);
+  }
+  #hook-strike {
+    position: absolute; left: -8%; top: 50%;
+    width: 116%; height: 12px; border-radius: 6px;
+    background: #1a1a1a; transform: rotate(-4deg);
+    transform-origin: left center;
+  }
+  #hook-new {
+    position: absolute; top: 310px; left: 1020px;
+    background: #30a46c; font-size: 118px; padding: 34px 68px;
+    transform: rotate(3.5deg); font-variant-numeric: tabular-nums;
+  }
+  #hook-new small {
+    display: block; font-size: 38px; font-weight: 700;
+    opacity: 0.92; margin-top: 6px; letter-spacing: 6px;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="hook-old" class="stamp">很贵？<div id="hook-strike"></div></div>
+  <div id="hook-new" class="stamp">¥0.27 <small>一 次 调 用</small></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+  const PLAY = 5.0;                 // 预览循环总时长（秒）
+  const BEAT = 4.0;                 // 单个节拍动画时长（秒）
+  const repeats = Math.max(1, Math.floor(PLAY / BEAT));
+
+  const tl = gsap.timeline({ repeat: repeats, repeatDelay: 0.25 });
+
+  tl.from("#hook-old", { y: -220, autoAlpha: 0, rotation: -18, duration: 0.6, ease: "back.out(1.6)" }, 0.15)
+    .from("#hook-strike", { scaleX: 0, duration: 0.45, ease: "power3.inOut" }, 1.35)
+    .from("#hook-new", { scale: 0.2, autoAlpha: 0, rotation: 22, duration: 0.7, ease: "elastic.out(1, 0.55)" }, 1.5)
+    .to("#hook-old", { x: -160, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, BEAT - 0.5)
+    .to("#hook-new", { y: -120, autoAlpha: 0, duration: 0.4, ease: "power2.in" }, BEAT - 0.45);
+</script>
+</body>
+</html>

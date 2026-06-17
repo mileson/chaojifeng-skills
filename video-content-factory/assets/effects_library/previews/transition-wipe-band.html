@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #wb-band-main {
+    position: absolute; top: -10%; left: -15%; width: 130%; height: 120%;
+    background: #0a0e18; transform: skewX(-12deg);
+    will-change: transform;
+  }
+  #wb-band-accent {
+    position: absolute; top: -10%; left: -15%; width: 26%; height: 120%;
+    background: linear-gradient(180deg, #ffb224, #ff8a3c); transform: skewX(-12deg);
+    box-shadow: 0 0 60px rgba(255, 178, 36, 0.45);
+    will-change: transform;
+  }
+  #wb-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+  #wb-num { color: #ffb224; font-size: 30px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(255,178,36,.55); }
+  #wb-title { color: #fff; font-size: 86px; font-weight: 900; letter-spacing: 4px; }
+  #wb-en { color: #8b8d98; font-size: 24px; font-weight: 700; letter-spacing: 8px; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="wb-band-main" data-layout-ignore></div>
+<div id="wb-band-accent" data-layout-ignore></div>
+<div id="wb-center">
+  <div id="wb-num">【CHAPTER · 02】</div>
+  <div id="wb-title">【章节标题】</div>
+  <div id="wb-en">【ENGLISH SUBTITLE】</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const b = gsap.timeline({ defaults: { ease: "power3.inOut" } });
+  b.fromTo("#wb-band-accent", { xPercent: -430 }, { xPercent: 160, duration: 0.55 }, 0)
+   .fromTo("#wb-band-main", { xPercent: -135 }, { xPercent: 0, duration: 0.55 }, 0.1)
+   .to("#wb-band-accent", { xPercent: 460, duration: 0.5 }, 0.5)
+   .from("#wb-num", { y: 26, autoAlpha: 0, duration: 0.4, ease: "power3.out" }, 0.75)
+   .from("#wb-title", { y: 50, autoAlpha: 0, duration: 0.5, ease: "power4.out" }, 0.85)
+   .from("#wb-en", { autoAlpha: 0, letterSpacing: "20px", duration: 0.5, ease: "power3.out" }, 1.15)
+   // 扫出：文字先收 → 副带再掠一次 → 主带离场
+   .to("#wb-center", { autoAlpha: 0, y: -24, duration: 0.3, ease: "power2.in" }, 2.25)
+   .fromTo("#wb-band-accent", { xPercent: -430 }, { xPercent: 460, duration: 0.6 }, 2.45)
+   .to("#wb-band-main", { xPercent: 135, duration: 0.5 }, 2.6);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

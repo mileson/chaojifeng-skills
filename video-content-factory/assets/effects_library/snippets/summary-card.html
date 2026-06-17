@@ -1,0 +1,37 @@
+<!--
+模式：总结清单卡（片尾要点回顾）
+适用：口播说「总结一下」时
+要点：黑色大卡更显收束感；普通条目用彩色圆标✓，核心结论做成 hero 行
+     （黄色高亮底 + nowrap 保证单行）最后入场
+-->
+<style>
+  #sum .summary {
+    position: absolute; top: 180px; left: 120px; width: 900px;
+    background: #1a1a1a; border-radius: 26px; padding: 46px 54px;
+    box-shadow: 0 22px 64px rgba(16,24,40,.4);
+  }
+  #sum h3 { color: #fff; font-size: 38px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
+  #sum .item { display: flex; align-items: center; gap: 18px; font-size: 36px; font-weight: 700; color: #e8e8ec; padding: 13px 0; }
+  #sum .item .ic { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; flex: none; }
+  #sum .ic.g { background: #30a46c; color: #fff; }
+  #sum .ic.r { background: #e5484d; color: #fff; }
+  #sum .ic.s { background: #ffb224; color: #1a1a1a; }
+  #sum .item.hero { margin-top: 16px; padding: 20px 24px; background: rgba(255,178,36,.14); border-radius: 16px; color: #ffd494; font-size: 36px; font-weight: 900; white-space: nowrap; }
+</style>
+
+<div id="sum">
+  <div class="summary">
+    <h3>【总结标题】</h3>
+    <div class="item" id="sum-i1"><span class="ic g">✓</span><span>【要点1】</span></div>
+    <div class="item" id="sum-i2"><span class="ic r">✓</span><span>【要点2】</span></div>
+    <div class="item hero" id="sum-i3"><span class="ic s">★</span><span>【核心结论】</span></div>
+  </div>
+</div>
+
+<script>
+tl.from("#sum .summary", { x: -120, opacity: 0, duration: .6, ease: "power3.out" }, t0 + 0.15);
+tl.from("#sum-i1", { x: -50, opacity: 0, duration: .45, ease: "power2.out" }, t0 + 1.0);
+tl.from("#sum-i2", { x: -50, opacity: 0, duration: .45, ease: "power2.out" }, t0 + 2.0);
+tl.from("#sum-i3", { scale: .7, opacity: 0, duration: .55, ease: "back.out(1.6)" }, t0 + 3.1);
+tl.to("#sum .summary", { x: -100, opacity: 0, duration: .4, ease: "power2.in" }, tEnd - 0.55);
+</script>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  /* ===== B7 bento-dashboard ===== */
+  #b7-bg { position: absolute; inset: 0; background: #0a0c12; overflow: hidden; }
+  #b7-wm { position: absolute; inset: -200px; transform: rotate(-14deg); display: flex; flex-direction: column; gap: 70px; opacity: .07; }
+  #b7-wm .row { white-space: nowrap; font-size: 64px; font-weight: 900; letter-spacing: 12px; color: #fff; }
+  #b7-grid { position: absolute; top: 120px; left: 160px; right: 160px; height: 660px; display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 18px; }
+  .b7-cell { border-radius: 18px; padding: 28px 30px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+  .b7-cell .lb { font-size: 22px; font-weight: 700; opacity: .85; }
+  .b7-cell .vl { font-size: 86px; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .b7-cell .un { font-size: 20px; font-weight: 700; opacity: .7; margin-top: 2px; }
+  #b7-c1 { grid-row: span 2; background: #e5484d; color: #fff; }
+  #b7-c1 .vl { font-size: 130px; }
+  #b7-c2 { background: #1d2029; color: #ffb224; border: 1px solid rgba(255,255,255,.1); }
+  #b7-c3 { background: #2f6fed; color: #fff; }
+  #b7-c4 { background: #1d2029; color: #fff; border: 1px solid rgba(255,255,255,.1); }
+  #b7-c5 { background: #e8862a; color: #fff; }
+  #b7-c6 { background: #14161d; border: 1px solid rgba(70,211,144,.4); color: #46d390; display: flex; justify-content: flex-end; }
+  #b7-bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; margin-top: 14px; }
+  #b7-bars .bar { flex: 1; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, #46d390, #1d7a4f); transform-origin: bottom; }
+  #b7-title { position: absolute; top: 46px; left: 160px; color: #fff; font-size: 30px; font-weight: 900; letter-spacing: 2px; }
+  #b7-title em { color: #3e9eff; font-style: normal; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="b7" class="clip beat" data-start="38" data-duration="7" data-track-index="0" data-layout-allow-overflow>
+    <div id="b7-bg" data-layout-ignore>
+      <div id="b7-wm">
+        <div class="row">SUPERFENG ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG ORIGINAL</div>
+        <div class="row">ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG</div>
+        <div class="row">SUPERFENG ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG ORIGINAL</div>
+        <div class="row">ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG</div>
+        <div class="row">SUPERFENG ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG ORIGINAL</div>
+        <div class="row">ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG ORIGINAL · SUPERFENG</div>
+      </div>
+    </div>
+    <div id="b7-title">COST DASHBOARD · <em>本月用量实时看板</em></div>
+    <div id="b7-grid">
+      <div class="b7-cell" id="b7-c1"><div class="lb">单次成本（元）</div><div class="vl" id="b7-v1">0.00</div><div class="un">官方 API · 缓存命中</div></div>
+      <div class="b7-cell" id="b7-c2"><div class="lb">本月调用</div><div class="vl" id="b7-v2">0</div><div class="un">次</div></div>
+      <div class="b7-cell" id="b7-c3"><div class="lb">缓存命中率</div><div class="vl" id="b7-v3">0</div><div class="un">%</div></div>
+      <div class="b7-cell" id="b7-c4"><div class="lb">总花费</div><div class="vl" id="b7-v4">0</div><div class="un">元</div></div>
+      <div class="b7-cell" id="b7-c5"><div class="lb">对比订阅省</div><div class="vl" id="b7-v5">0</div><div class="un">%</div></div>
+      <div class="b7-cell" id="b7-c6">
+        <div class="lb">近 7 日调用趋势</div>
+        <div id="b7-bars">
+          <div class="bar" style="height:34%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:42%"></div>
+          <div class="bar" style="height:62%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:78%"></div><div class="bar" style="height:100%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  // 依赖的 count-up 工具：
+  // function countUp(sel, end, dur, at, decimals, suffix) { var obj={v:0},el=document.querySelector(sel);
+  //   tl.to(obj,{v:end,duration:dur,ease:"power1.out",onUpdate:function(){el.textContent=obj.v.toFixed(decimals||0)+(suffix||"");}},at); }
+
+  /* ===== B7 Bento 仪表盘（38 起，含推近） ===== */
+  (function () {
+    var t0 = 0.4;
+    tl.from("#b7-bg", { autoAlpha: 0, duration: 0.5 }, t0);
+    tl.from("#b7-title", { autoAlpha: 0, y: -20, duration: 0.45 }, t0 + 0.25);
+    tl.from(".b7-cell", { autoAlpha: 0, scale: 0.82, duration: 0.55, ease: "back.out(1.5)",
+      stagger: { each: 0.1, from: "start" } }, t0 + 0.4);
+    countUp("#b7-v1", 0.2, 1.1, t0 + 0.9, 2);
+    countUp("#b7-v2", 1284, 1.2, t0 + 1.0);
+    countUp("#b7-v3", 92, 1.2, t0 + 1.1);
+    countUp("#b7-v4", 257, 1.2, t0 + 1.2);
+    countUp("#b7-v5", 87, 1.2, t0 + 1.3);
+    tl.from("#b7-bars .bar", { scaleY: 0, duration: 0.5, ease: "power2.out", stagger: 0.07 }, t0 + 1.4);
+    // 推近到 c1（单次成本）
+    tl.to("#b7-grid", { scale: 1.75, x: 620, y: 200, duration: 0.9, ease: "power3.inOut" }, t0 + 3.6);
+    tl.to("#b7-c1", { boxShadow: "0 0 0 4px rgba(255,255,255,.85), 0 0 60px rgba(229,72,77,.8)", duration: 0.4, yoyo: true, repeat: 3 }, t0 + 4.5);
+    tl.to("#b7", { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, t0 + 6.4);
+  })();
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

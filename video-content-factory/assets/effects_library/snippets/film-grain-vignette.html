@@ -1,0 +1,37 @@
+<!--
+模式：胶片颗粒 + 暗角（film grain + vignette）【工具层 · 质感滤镜】
+适用场景：片尾段/情绪段叠加电影质感（单独 track，叠在其他节拍之上 5~15s）。
+  离线逐帧渲染下零性能成本。
+框架参数：
+  - 颗粒强度（opacity .09 默认，.05 更含蓄）、暗角强度（rgba .5）
+  - 颗粒跳动频率（每帧伪随机平移）
+技术要点：
+  - 颗粒 = inline SVG feTurbulence data URI 背景图（无外部资源），inset -100px 留平移余量
+  - 颗粒跳动用 state + onUpdate：伪随机公式 (k*37)%90-45（确定性 → 逐帧渲染稳定）
+  - 暗角 radial-gradient 中心透明 52% 起渐暗
+  - 两层都 data-layout-ignore（全屏覆盖不参与布局检查）
+  - 放独立 track（data-track-index 与内容层错开）
+-->
+<style>
+  #fg-vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 52%, rgba(0,0,0,.5) 100%); }
+  #fg-grain { position: absolute; inset: -100px; opacity: .09;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.8'/%3E%3C/svg%3E"); }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；两层都加 data-layout-ignore；放独立 track -->
+<div id="fg-vig"></div>
+<div id="fg-grain"></div>
+
+<script>
+  const b = gsap.timeline();
+  b.from(["#fg-vig", "#fg-grain"], { autoAlpha: 0, duration: 0.8 }, 0);
+  const st = { n: 0 };
+  b.to(st, {
+    n: 60, duration: 8.5, ease: "none",
+    onUpdate() {
+      const k = Math.floor(st.n);
+      gsap.set("#fg-grain", { x: (k * 37) % 90 - 45, y: (k * 53) % 90 - 45 });
+    },
+  }, 0);
+  b.to(["#fg-vig", "#fg-grain"], { autoAlpha: 0, duration: 0.6 }, 8.2);
+</script>

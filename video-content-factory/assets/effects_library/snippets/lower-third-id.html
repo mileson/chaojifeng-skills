@@ -1,0 +1,40 @@
+<!--
+模式：人物身份下三分条（lower-third）【骨架层 · 广电级标配】
+适用场景：开场 3~6s 自我介绍 / 嘉宾出场 / 章节主讲人标注。借鉴 YT lower-third 官方组件。
+框架参数：
+  - 头像字符/图片、姓名、副标（账号+定位），左侧 accent 竖条颜色
+  - 驻留时长（默认 5s，可拉长为常驻骨架）
+  - 位置：左下默认；可镜像到右下（flex-direction: row-reverse）
+技术要点：
+  - 整条 x -80 滑入 → 头像 back.out(2) 弹出 → 姓名/副标 stagger 0.12 上浮
+  - 深色底板 rgba(8,10,16,.86) + 左侧 5px accent 竖条 = 在任何底片上可读（铁律）
+  - 退场整条 x 滑出，与入场方向一致
+-->
+<style>
+  #lt-bar { position: absolute; left: 90px; bottom: 200px; display: flex; align-items: center; gap: 18px;
+    background: rgba(8,10,16,.86); border: 1px solid rgba(255,255,255,.16); border-left: 5px solid #3e9eff;
+    border-radius: 16px; padding: 18px 30px 18px 20px; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+  #lt-ava { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #3e9eff, #8b5cf6);
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; font-weight: 900; }
+  #lt-name { color: #fff; font-size: 28px; font-weight: 900; }
+  #lt-sub { color: #8b8d98; font-size: 16px; font-weight: 700; margin-top: 3px; letter-spacing: 1px; }
+  #lt-sub em { color: #3e9eff; font-style: normal; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="lt-bar">
+  <div id="lt-ava">【首字】</div>
+  <div>
+    <div id="lt-name">【姓名】</div>
+    <div id="lt-sub">【定位】 · <em>【@账号】</em> · 【一句话标签】</div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  b.from("#lt-bar", { autoAlpha: 0, x: -80, duration: 0.6, ease: "power3.out" }, 0);
+  b.from("#lt-ava", { scale: 0, duration: 0.5, ease: "back.out(2)" }, 0.25);
+  b.from(["#lt-name", "#lt-sub"], { autoAlpha: 0, y: 14, duration: 0.4, stagger: 0.12 }, 0.4);
+  // 退场（驻留时长按需调整）
+  b.to("#lt-bar", { autoAlpha: 0, x: -60, duration: 0.4, ease: "power2.in" }, 4.4);
+</script>

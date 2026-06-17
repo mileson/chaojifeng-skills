@@ -1,0 +1,57 @@
+<!--
+模式：终端打字机卡
+适用：发布/上线/命令演示类口播（科技感最强的"宣布"方式）
+要点：macOS 风格深色终端（红黄绿圆点）+ 字符逐个打出 + 光标闪烁；
+     打字用对象属性 + onUpdate slice，ease 必须 "none"（匀速才像打字）；光标用 repeat+yoyo 闪烁
+-->
+<style>
+  #term {
+    position: absolute; top: 130px; left: 0; right: 0;
+    margin: 0 auto; width: 820px;
+    background: rgba(16, 18, 26, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+    will-change: transform;
+  }
+  #term .bar {
+    display: flex; gap: 10px; align-items: center;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  #term .dot { width: 16px; height: 16px; border-radius: 50%; }
+  #term .dot.r { background: #ff5f57; } #term .dot.y { background: #febc2e; } #term .dot.g { background: #28c840; }
+  #term .bar span { margin-left: 12px; color: #8b8d98; font-size: 24px; font-weight: 600; }
+  #term .body {
+    padding: 28px 32px 34px;
+    font-family: "SF Mono", "Menlo", "PingFang SC", monospace;
+    font-size: 33px; font-weight: 600; line-height: 1.7;
+  }
+  #term-line1 { color: #e8e8ec; }
+  #term-line1 .prompt { color: #3e63dd; font-weight: 800; }
+  #term-line2 { color: #46d390; }
+  #term-caret { display: inline-block; width: 16px; height: 36px; background: #46d390; vertical-align: -6px; margin-left: 4px; }
+</style>
+
+<div id="term">
+  <div class="bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span>【窗口标题】</span></div>
+  <div class="body">
+    <div id="term-line1"><span class="prompt">$</span> <span id="term-t1"></span></div>
+    <div id="term-line2"><span id="term-t2"></span><span id="term-caret"></span></div>
+  </div>
+</div>
+
+<script>
+const L1 = "【命令行文案】";
+const L2 = "● 【输出结果文案】";
+tl.from("#term", { y: -110, autoAlpha: 0, scale: 0.94, duration: .45, ease: "power3.out" }, t0 + 0.0);
+const t1 = { n: 0 }, t2 = { n: 0 };
+tl.to(t1, { n: L1.length, duration: .9, ease: "none",
+  onUpdate() { document.querySelector("#term-t1").textContent = L1.slice(0, Math.round(t1.n)); } }, t0 + 0.5);
+tl.to(t2, { n: L2.length, duration: .7, ease: "none",
+  onUpdate() { document.querySelector("#term-t2").textContent = L2.slice(0, Math.round(t2.n)); } }, t0 + 1.5);
+tl.to("#term-caret", { autoAlpha: 0, duration: .01, repeat: 11, yoyo: true, repeatDelay: .2 }, t0 + 0.5);
+tl.to("#term", { y: -80, autoAlpha: 0, duration: .35, ease: "power2.in" }, tEnd - 0.4);
+</script>

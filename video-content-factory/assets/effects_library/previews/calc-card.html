@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #calc .calc {
+    position: absolute; top: 190px; left: 110px; width: 760px;
+    background: #fff; border-radius: 24px; padding: 44px 52px;
+    box-shadow: 0 20px 60px rgba(16,24,40,.25);
+  }
+  #calc h3 { font-size: 34px; font-weight: 900; color: #1a1a1a; margin-bottom: 30px; letter-spacing: 2px; }
+  #calc .row { display: flex; align-items: center; gap: 20px; font-size: 42px; font-weight: 800; color: #1a1a1a; padding: 14px 0; font-variant-numeric: tabular-nums; }
+  #calc .row .arr { color: #8b8d98; font-size: 34px; }
+  #calc .row .note { font-size: 26px; font-weight: 600; color: #60646c; }
+  #calc .row.total { margin-top: 18px; padding: 22px 28px; background: #e9f6ef; border-radius: 16px; color: #1d7a4f; font-size: 56px; justify-content: center; }
+  #calc .row.total .per { font-size: 30px; color: #30a46c; margin-left: 6px; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="calc">
+  <div class="calc">
+    <h3>【卡片标题】</h3>
+    <div class="row" id="calc-r1"><span>【算式1左】</span><span class="arr">→</span><span>【算式1右】</span></div>
+    <div class="row" id="calc-r2"><span>【算式2】</span><span class="note">【备注】</span></div>
+    <div class="row total" id="calc-r3"><span>【结论值】</span><span class="per">【单位】</span></div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+tl.from("#calc .calc", { y: 90, opacity: 0, duration: .6, ease: "power3.out" }, t0 + 0.15);
+tl.from("#calc-r1", { x: -60, opacity: 0, duration: .5, ease: "power2.out" }, /* 跟口播 */ t0 + 2.0);
+tl.from("#calc-r2", { x: -60, opacity: 0, duration: .5, ease: "power2.out" }, t0 + 4.3);
+tl.from("#calc-r3", { scale: .6, opacity: 0, duration: .55, ease: "back.out(1.8)" }, t0 + 6.0);
+tl.to("#calc-r3", { scale: 1.05, duration: .25, ease: "power1.inOut", repeat: 3, yoyo: true }, t0 + 6.7);
+tl.to("#calc .calc", { y: 80, opacity: 0, duration: .4, ease: "power2.in" }, tEnd - 0.55);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!--
+模式：VS 对比（双方案价格/效果对比）
+适用：口播对比两种方案优劣（API ¥3~15 vs Cursor ¥0.2）
+要点：劣势侧红、优势侧绿；中央黑色 VS 圆章旋转弹出；优势侧脉冲强调
+-->
+<style>
+  #vs .vs-wrap { position: absolute; top: 200px; left: 130px; width: 1100px; display: flex; gap: 28px; align-items: stretch; }
+  #vs .side { flex: 1; border-radius: 22px; padding: 38px 36px; color: #fff; box-shadow: 0 16px 48px rgba(16,24,40,.28); }
+  #vs .side .lab { font-size: 30px; font-weight: 700; opacity: .92; margin-bottom: 14px; }
+  #vs .side .price { font-size: 68px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  #vs .side .unit { font-size: 28px; font-weight: 600; opacity: .85; margin-top: 8px; }
+  #vs .bad-side { background: #c5333a; }
+  #vs .good-side { background: #1d7a4f; }
+  #vs .vs-badge {
+    align-self: center; width: 84px; height: 84px; border-radius: 50%;
+    background: #1a1a1a; color: #fff; font-size: 32px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 28px rgba(16,24,40,.3); flex: none;
+  }
+</style>
+
+<div id="vs">
+  <div class="vs-wrap">
+    <div class="side bad-side" id="vs-bad">
+      <div class="lab">【劣势方案名】</div>
+      <div class="price">【劣势数值】</div>
+      <div class="unit">【说明】</div>
+    </div>
+    <div class="vs-badge" id="vs-badge">VS</div>
+    <div class="side good-side" id="vs-good">
+      <div class="lab">【优势方案名】</div>
+      <div class="price">【优势数值】</div>
+      <div class="unit">【说明】</div>
+    </div>
+  </div>
+</div>
+
+<script>
+tl.from("#vs-bad", { x: -260, opacity: 0, duration: .55, ease: "power3.out" }, t0 + 0.15);
+tl.from("#vs-badge", { scale: 0, rotation: -180, duration: .5, ease: "back.out(1.8)" }, t0 + 0.55);
+tl.from("#vs-good", { x: 260, opacity: 0, duration: .55, ease: "power3.out" }, t0 + 0.85);
+tl.to("#vs-good", { scale: 1.04, duration: .3, ease: "power1.inOut", repeat: 3, yoyo: true }, t0 + 2.8);
+tl.to("#vs .vs-wrap", { y: 70, opacity: 0, duration: .35, ease: "power2.in" }, tEnd - 0.5);
+</script>

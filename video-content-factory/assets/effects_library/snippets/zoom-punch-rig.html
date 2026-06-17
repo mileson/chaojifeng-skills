@@ -1,0 +1,40 @@
+<!--
+模式：推近强调 rig（zoom-punch-rig）【工具层 · 镜头语言】
+适用场景：口播讲到关键 UI/数据时，把整段底片（录屏/截图所在容器）推近 15%~40% 并停留，
+  讲完缓出复位——Screen.studio / Rotato 式「镜头推近」的 HTML 等价物。
+框架参数：
+  - 目标容器选择器（必须是包住底片内容的定位元素）
+  - 推近倍率 scale（1.15 轻推 / 1.4 重推）与对焦点 transformOrigin（推向哪个角）
+  - punchIn(t, scale, origin) / punchOut(t) 可多次调用形成「推-回-再推」节奏
+技术要点：
+  - origin 用百分比坐标指向兴趣点（如 "72% 30%" = 右上区域的按钮）
+  - 入 power3.out（快起缓停，像手动推镜头），出 power2.inOut
+  - 推近同时叠 1.02 倍轻微持续漂移（drift）避免画面死板
+  - 与 camera-shake-impact 互斥使用，不要同时控制同一容器
+-->
+<style>
+  /* 演示底片容器（工程里换成真实录屏容器的选择器） */
+  #zpr-stage { position: absolute; inset: 0; }
+</style>
+
+<div id="zpr-stage" data-layout-allow-overflow></div>
+
+<script>
+  (function () {
+    var target = "#zpr-stage";
+    window.punchIn = function (t, scale, origin, dur) {
+      tl.set(target, { transformOrigin: origin || "50% 50%" }, t);
+      tl.to(target, { scale: scale || 1.3, duration: dur || 0.7, ease: "power3.out" }, t);
+      // 推近后持续轻漂移，画面不死板
+      tl.to(target, { x: "+=8", y: "-=6", duration: 2.2, ease: "sine.inOut" }, t + 0.7);
+    };
+    window.punchOut = function (t, dur) {
+      tl.to(target, { scale: 1, x: 0, y: 0, duration: dur || 0.6, ease: "power2.inOut" }, t);
+    };
+  })();
+  // 演示节奏：推近右上 → 停留 → 复位 → 推近左下
+  punchIn(t0, 1.32, "72% 28%");
+  punchOut(t0 + 3.0);
+  punchIn(t0 + 4.0, 1.22, "25% 75%");
+  punchOut(t0 + 6.5);
+</script>

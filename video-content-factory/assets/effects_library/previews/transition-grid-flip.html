@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #gf-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(3, 1fr); }
+  .gf-cell { background: #0a0e18; border: 1px solid rgba(255,178,36,.08); will-change: transform; }
+  #gf-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+  #gf-small { color: #e5484d; font-size: 28px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(229,72,77,.55); }
+  #gf-big { color: #fff; font-size: 80px; font-weight: 900; letter-spacing: 4px; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="gf-grid" data-layout-ignore></div>
+<div id="gf-center">
+  <div id="gf-small">【⚠ WARNING · 注意】</div>
+  <div id="gf-big">【章节文案】</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  const grid = document.getElementById("gf-grid");
+  for (let i = 0; i < 18; i++) { const c = document.createElement("div"); c.className = "gf-cell"; grid.appendChild(c); }
+
+  const b = gsap.timeline();
+  b.from(".gf-cell", { rotationY: 92, autoAlpha: 0, transformPerspective: 900, transformOrigin: "left center",
+      duration: 0.45, ease: "power2.out", stagger: { grid: [3, 6], from: "start", each: 0.035 } }, 0)
+   .from("#gf-small", { y: 24, autoAlpha: 0, duration: 0.35, ease: "power3.out" }, 0.65)
+   .from("#gf-big", { y: 44, autoAlpha: 0, duration: 0.45, ease: "power4.out" }, 0.75)
+   .to("#gf-center", { autoAlpha: 0, scale: 0.97, duration: 0.25, ease: "power2.in" }, 1.5)
+   .to(".gf-cell", { rotationY: -92, autoAlpha: 0, transformOrigin: "right center",
+      duration: 0.4, ease: "power2.in", stagger: { grid: [3, 6], from: "end", each: 0.03 } }, 1.6);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

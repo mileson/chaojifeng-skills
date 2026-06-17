@@ -1,0 +1,67 @@
+<!--
+  模式：桌面窗口画中画 ⚙️
+  适用：大圆角窗口（CSS 重绘工具栏：红黄绿点+地址栏）+ 外层渐变发光 glow 层 + 内容视窗 overflow hidden；内容为截图列表，GSAP y 停顿式分段滚动模拟浏览。入场 y 60 + scale 0.94 浮入。
+  参数化：glow 配色/占屏比例与停靠/是否带工具栏/滚动停顿点数组；内容可换 <video>。glow 层需 data-layout-ignore。
+
+  通用铁律（本批 9 模式验证结论）：
+  - 所有左侧 HUD/清单/标签类必须自带深色底板 rgba(8,10,16,.8) + 圆角 + 细描边——
+    参考片是暗房实拍才敢裸白字，我们的视频多为亮色录屏，裸白字会直接消失（已踩坑）
+  - 大型 PIP/全屏容器（窗口/手机/bento 背景/glow 层）加 data-layout-ignore，beat 容器加 data-layout-allow-overflow
+  - 内容滚动用「停顿式分段 y 平移」（power1.inOut 多段）比匀速滚动更像真人浏览
+  - 来源：download (1).mp4 参考片逐帧拆解（2026-06-11），验证工程 broll-overlay-ref9-demo
+-->
+<style>
+  /* ===== B3 window-pip-desktop 桌面窗口画中画 ===== */
+  #b3-win { position: absolute; top: 70px; right: 64px; width: 1240px; height: 780px; border-radius: 26px;
+    background: #15171f; border: 2px solid transparent;
+    background-clip: padding-box; box-shadow: 0 40px 120px rgba(0,0,0,.65); overflow: hidden; }
+  #b3-glow { position: absolute; top: 64px; right: 58px; width: 1252px; height: 792px; border-radius: 30px;
+    background: linear-gradient(135deg, #3e9eff, rgba(62,158,255,0) 40%, rgba(70,211,144,.8)); filter: blur(1px); }
+  #b3-bar { height: 52px; background: #1e212b; display: flex; align-items: center; padding: 0 20px; gap: 8px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .b3-dot { width: 13px; height: 13px; border-radius: 50%; }
+  #b3-url { flex: 1; margin: 0 16px; height: 30px; border-radius: 15px; background: rgba(255,255,255,.08); color: #8b8d98;
+    font-size: 14px; display: flex; align-items: center; padding: 0 18px; letter-spacing: .5px; }
+  #b3-view { position: absolute; top: 52px; left: 0; right: 0; bottom: 0; overflow: hidden; background: #fff; }
+  #b3-scroll { position: absolute; left: 0; right: 0; top: 0; padding: 26px 30px; display: flex; flex-direction: column; gap: 20px; background: #fff; }
+  #b3-scroll .hd { font-size: 26px; font-weight: 900; color: #1a1a1a; }
+  #b3-scroll img { width: 100%; border-radius: 12px; border: 1px solid rgba(16,24,40,.12); display: block; }
+  #b3-label { position: absolute; left: 56px; top: 430px; background: rgba(8,10,16,.8); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 16px 22px; }
+  #b3-label .t { color: #fff; font-size: 30px; font-weight: 900; }
+  #b3-label .s { color: #8b8d98; font-size: 16px; font-weight: 600; margin-top: 6px; }
+</style>
+
+<!-- B3 桌面窗口画中画 -->
+  <div id="b3" class="clip beat" data-start="13.5" data-duration="6" data-track-index="0" data-layout-allow-overflow>
+    <div id="b3-glow" data-layout-ignore></div>
+    <div id="b3-win">
+      <div id="b3-bar">
+        <div class="b3-dot" style="background:#ff5f57"></div><div class="b3-dot" style="background:#febc2e"></div><div class="b3-dot" style="background:#28c840"></div>
+        <div id="b3-url">anthropic.com/pricing · Fable 5 API</div>
+      </div>
+      <div id="b3-view">
+        <div id="b3-scroll">
+          <div class="hd">全网博主都在聊 Fable 5</div>
+          <img src="assets/praise_appso.jpg" />
+          <img src="assets/praise_infoq.jpg" />
+          <img src="assets/praise_jiqizhixin.jpg" />
+          <img src="assets/praise_chanxin.jpg" />
+          <img src="assets/kazike_comment.jpg" />
+        </div>
+      </div>
+    </div>
+    <div id="b3-label"><div class="t">桌面窗口画中画</div><div class="s">WINDOW PIP · 内容持续滚动</div></div>
+  </div>
+
+<script>
+  // tl 为主 timeline（paused + window.__timelines 注册），t0 为节拍起点秒，挂载时按工程调整
+  /* ===== B3 桌面窗口画中画（13.5 起） ===== */
+  (function () {
+    var t0 = 13.5;
+    tl.from(["#b3-glow", "#b3-win"], { autoAlpha: 0, y: 60, scale: 0.94, duration: 0.65, transformOrigin: "center center" }, t0);
+    tl.from("#b3-label", { autoAlpha: 0, x: -26, duration: 0.45 }, t0 + 0.4);
+    // 内容滚动：停顿式两段
+    tl.to("#b3-scroll", { y: -380, duration: 1.6, ease: "power1.inOut" }, t0 + 1.3);
+    tl.to("#b3-scroll", { y: -800, duration: 1.6, ease: "power1.inOut" }, t0 + 3.4);
+    tl.to(["#b3-glow", "#b3-win", "#b3-label"], { autoAlpha: 0, y: 40, duration: 0.45, ease: "power2.in" }, t0 + 5.4);
+  })();
+</script>

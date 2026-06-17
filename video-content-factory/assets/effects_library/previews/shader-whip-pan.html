@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div style="position:absolute;inset:0;background:#07080c"></div>
+  <div id="wp-scene" style="position:absolute;inset:0;background:#0a1020;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px">
+    <div style="font:600 30px/1 'PingFang SC',sans-serif;color:#3e9eff;letter-spacing:14px">CHAPTER · 01</div>
+    <div style="font:800 110px/1.2 'PingFang SC',sans-serif;color:#ffffff;letter-spacing:6px">横甩切换</div>
+    <div style="font:500 26px/1 'PingFang SC',sans-serif;color:#8b93a8;letter-spacing:10px">WHIP PAN</div>
+  </div>
+  <canvas id="wp-canvas" width="1920" height="1080" style="position:absolute;inset:0;opacity:0;display:block"></canvas>
+  <div id="ir-scene" style="position:absolute;inset:0;background:#120e08;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px">
+    <div style="font:600 30px/1 'PingFang SC',sans-serif;color:#ffb224;letter-spacing:14px">CHAPTER · 02</div>
+    <div style="font:800 110px/1.2 'PingFang SC',sans-serif;color:#ffffff;letter-spacing:6px">金圈虹膜</div>
+    <div style="font:500 26px/1 'PingFang SC',sans-serif;color:#8b93a8;letter-spacing:10px">SDF IRIS</div>
+  </div>
+  <canvas id="ir-canvas" width="1920" height="1080" style="position:absolute;inset:0;opacity:0;display:block"></canvas>
+  <div id="cz-scene" style="position:absolute;inset:0;background:#0a1418;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px">
+    <div style="font:600 30px/1 'PingFang SC',sans-serif;color:#4dd0e1;letter-spacing:14px">CHAPTER · 03</div>
+    <div style="font:800 110px/1.2 'PingFang SC',sans-serif;color:#ffffff;letter-spacing:6px">变焦转场</div>
+    <div style="font:500 26px/1 'PingFang SC',sans-serif;color:#8b93a8;letter-spacing:10px">CINEMATIC ZOOM</div>
+  </div>
+  <canvas id="cz-canvas" width="1920" height="1080" style="position:absolute;inset:0;opacity:0;display:block"></canvas>
+  <div id="fw-scene" style="position:absolute;inset:0;background:#14101e;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px">
+    <div style="font:600 30px/1 'PingFang SC',sans-serif;color:#b388ff;letter-spacing:14px">CHAPTER · 04</div>
+    <div style="font:800 110px/1.2 'PingFang SC',sans-serif;color:#ffffff;letter-spacing:6px">闪白转场</div>
+    <div style="font:500 26px/1 'PingFang SC',sans-serif;color:#8b93a8;letter-spacing:10px">FLASH WHITE</div>
+  </div>
+  <canvas id="fw-canvas" width="1920" height="1080" style="position:absolute;inset:0;opacity:0;display:block"></canvas>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+  // 共用 shader rig：DOM 场景 capture → WebGL 纹理 + 过渡程序
+  function makeShaderRig(canvasId, sceneId, fragBody) {
+    var canvas = document.getElementById(canvasId);
+    var gl = canvas.getContext("webgl", { preserveDrawingBuffer: true });
+    if (!gl) return null;
+    gl.viewport(0, 0, 1920, 1080);
+
+    function texFromCanvas2D(c) {
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      return tex;
+    }
+    function captureScene() {
+      var scene = document.getElementById(sceneId);
+      scene.style.opacity = "1";
+      scene.offsetHeight;
+      var c = document.createElement("canvas");
+      c.width = 1920; c.height = 1080;
+      var ctx = c.getContext("2d");
+      ctx.fillStyle = window.getComputedStyle(scene).backgroundColor;
+      ctx.fillRect(0, 0, 1920, 1080);
+      var sr = scene.getBoundingClientRect();
+      var sx = 1920 / sr.width, sy = 1080 / sr.height;
+      scene.querySelectorAll("*").forEach(function (el) {
+        var cs = window.getComputedStyle(el);
+        if (cs.display === "none" || cs.visibility === "hidden") return;
+        var r = el.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) return;
+        var x = (r.left - sr.left) * sx, y = (r.top - sr.top) * sy;
+        var w = r.width * sx, h = r.height * sy;
+        var bg = cs.backgroundColor;
+        if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") {
+          ctx.fillStyle = bg; ctx.fillRect(x, y, w, h);
+        }
+        var text = "";
+        el.childNodes.forEach(function (n) { if (n.nodeType === 3) text += n.textContent; });
+        text = text.trim();
+        if (text && !el.querySelector("div,span")) {
+          // computed fontSize/letterSpacing 已是 1920 布局空间值（transform 不影响 computed style），勿再乘 sx
+          ctx.font = cs.fontWeight + " " + parseFloat(cs.fontSize) + "px " + cs.fontFamily;
+          ctx.fillStyle = cs.color;
+          if (cs.letterSpacing && cs.letterSpacing !== "normal")
+            ctx.letterSpacing = parseFloat(cs.letterSpacing) + "px";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(text, x + w / 2, y + h / 2);
+        }
+      });
+      scene.style.opacity = "0";
+      return texFromCanvas2D(c);
+    }
+    function blackTexture() {
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([7, 8, 12, 255]));
+      return tex;
+    }
+
+    var vertSrc = "attribute vec2 a_pos; varying vec2 v_uv; void main(){v_uv=a_pos*0.5+0.5; v_uv.y=1.0-v_uv.y; gl_Position=vec4(a_pos,0,1);}";
+    var quadBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    function compile(src, type) {
+      var s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(canvasId, gl.getShaderInfoLog(s));
+      return s;
+    }
+    function mkProg(fragSrc) {
+      var p = gl.createProgram();
+      gl.attachShader(p, compile(vertSrc, gl.VERTEX_SHADER));
+      gl.attachShader(p, compile(fragSrc, gl.FRAGMENT_SHADER));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error(canvasId, gl.getProgramInfoLog(p));
+      return p;
+    }
+    var H = "precision mediump float;varying vec2 v_uv;uniform sampler2D u_from,u_to;uniform float u_progress;uniform vec2 u_resolution;\n";
+    var progPass = mkProg(H + "void main(){gl_FragColor=texture2D(u_from,v_uv);}");
+    var progTrans = mkProg(H + fragBody);
+
+    function draw(prog, texFrom, texTo, p) {
+      gl.useProgram(prog);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texFrom);
+      gl.uniform1i(gl.getUniformLocation(prog, "u_from"), 0);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texTo);
+      gl.uniform1i(gl.getUniformLocation(prog, "u_to"), 1);
+      gl.uniform1f(gl.getUniformLocation(prog, "u_progress"), p);
+      gl.uniform2f(gl.getUniformLocation(prog, "u_resolution"), 1920, 1080);
+      var pos = gl.getAttribLocation(prog, "a_pos");
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+      gl.enableVertexAttribArray(pos);
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    var texScene = captureScene();
+    var texBlack = blackTexture();
+    draw(progPass, texBlack, texBlack, 0);
+    return {
+      trans: function (texFrom, texTo, p) { draw(progTrans, texFrom, texTo, p); },
+      black: function () { draw(progPass, texBlack, texBlack, 0); },
+      scene: texScene,
+      dark: texBlack,
+    };
+  }
+
+  var master = gsap.timeline({ paused: true });
+  window.__timelines = window.__timelines || {};
+
+  // ===== 1. whip-pan：横甩模糊。进场 from=黑 to=场景 p0→1（场景从左甩入）；退场 from=场景 to=黑 p0→1（场景向右甩出） =====
+  var FRAG_WP = "void main(){float fromOff=u_progress*1.5;vec3 fromC=vec3(0.);for(int i=0;i<10;i++){float f=float(i)/10.;vec2 fuv=vec2(v_uv.x+fromOff+u_progress*.08*f,v_uv.y);fromC+=texture2D(u_from,clamp(fuv,0.,1.)).rgb;}fromC/=10.;float toOff=(1.-u_progress)*1.5;vec3 toC=vec3(0.);for(int i=0;i<10;i++){float f=float(i)/10.;vec2 tuv=vec2(v_uv.x-toOff-(1.-u_progress)*.08*f,v_uv.y);toC+=texture2D(u_to,clamp(tuv,0.,1.)).rgb;}toC/=10.;gl_FragColor=vec4(mix(fromC,toC,u_progress),1.);}";
+  (function () {
+    var rig = makeShaderRig("wp-canvas", "wp-scene", FRAG_WP);
+    var tl = gsap.timeline();
+    if (rig) {
+      var st = { p: 0 };
+      tl.to("#wp-canvas", { autoAlpha: 1, duration: 0.22, ease: "power2.in" }, 0);
+      tl.to(st, { p: 1, duration: 0.55, ease: "power3.out",
+        onUpdate: function () { rig.trans(rig.dark, rig.scene, st.p); } }, 0.22);
+      tl.to(st, { p: 1, duration: 0.55, ease: "power3.in", startAt: { p: 0 },
+        onUpdate: function () { rig.trans(rig.scene, rig.dark, st.p); },
+        onComplete: function () { rig.black(); } }, 2.45);
+      tl.to("#wp-canvas", { autoAlpha: 0, duration: 0.25, ease: "power2.out" }, 3.0);
+    }
+    master.add(tl, 0.5);
+  })();
+
+  // ===== 2. sdf-iris：金圈虹膜。进退共用 from=黑 to=场景：进场 p0→1 光圈揭开，退场 p1→0 光圈收拢 =====
+  var FRAG_IR = "void main(){vec4 A=texture2D(u_from,v_uv),B=texture2D(u_to,v_uv);vec2 uv=(v_uv-.5)*vec2(u_resolution.x/u_resolution.y,1.);float d=length(uv);float radius=u_progress*1.2;float fw=.003;float edge=smoothstep(radius+fw,radius-fw,d);float ring1=exp(-abs(d-radius)*25.);float ring2=exp(-abs(d-radius+.04)*20.)*.5;float ring3=exp(-abs(d-radius+.08)*15.)*.25;float glow=(ring1+ring2+ring3)*u_progress*(1.-u_progress)*4.;gl_FragColor=vec4(mix(A,B,edge).rgb+vec3(1.,.85,.6)*glow*.6,1.);}";
+  (function () {
+    var rig = makeShaderRig("ir-canvas", "ir-scene", FRAG_IR);
+    var tl = gsap.timeline();
+    if (rig) {
+      var st = { p: 0 };
+      tl.to("#ir-canvas", { autoAlpha: 1, duration: 0.25, ease: "power2.in" }, 0);
+      tl.to(st, { p: 1, duration: 0.8, ease: "power2.inOut",
+        onUpdate: function () { rig.trans(rig.dark, rig.scene, st.p); } }, 0.25);
+      tl.to(st, { p: 0, duration: 0.7, ease: "power2.inOut",
+        onUpdate: function () { rig.trans(rig.dark, rig.scene, st.p); },
+        onComplete: function () { rig.black(); } }, 2.55);
+      tl.to("#ir-canvas", { autoAlpha: 0, duration: 0.25, ease: "power2.out" }, 3.25);
+    }
+    master.add(tl, 4.5);
+  })();
+
+  // ===== 3. cinematic-zoom：径向变焦模糊交叉溶解（含 RGB 微色散）。方向同 whip-pan =====
+  var FRAG_CZ = "void main(){vec2 d=v_uv-vec2(.5);float fromS=u_progress*.08;float toS=(1.-u_progress)*.06;float fr=0.,fg=0.,fb=0.;for(int i=0;i<12;i++){float f=float(i)/12.;fr+=texture2D(u_from,v_uv-d*(fromS*1.06)*f).r;fg+=texture2D(u_from,v_uv-d*fromS*f).g;fb+=texture2D(u_from,v_uv-d*(fromS*.94)*f).b;}vec3 fromBl=vec3(fr,fg,fb)/12.;float tr=0.,tg=0.,tb=0.;for(int i=0;i<12;i++){float f=float(i)/12.;tr+=texture2D(u_to,v_uv+d*(toS*1.06)*f).r;tg+=texture2D(u_to,v_uv+d*toS*f).g;tb+=texture2D(u_to,v_uv+d*(toS*.94)*f).b;}vec3 toBl=vec3(tr,tg,tb)/12.;gl_FragColor=vec4(mix(fromBl,toBl,u_progress),1.);}";
+  (function () {
+    var rig = makeShaderRig("cz-canvas", "cz-scene", FRAG_CZ);
+    var tl = gsap.timeline();
+    if (rig) {
+      var st = { p: 0 };
+      tl.to("#cz-canvas", { autoAlpha: 1, duration: 0.25, ease: "power2.in" }, 0);
+      tl.to(st, { p: 1, duration: 0.7, ease: "power2.out",
+        onUpdate: function () { rig.trans(rig.dark, rig.scene, st.p); } }, 0.25);
+      tl.to(st, { p: 1, duration: 0.7, ease: "power2.in", startAt: { p: 0 },
+        onUpdate: function () { rig.trans(rig.scene, rig.dark, st.p); },
+        onComplete: function () { rig.black(); } }, 2.55);
+      tl.to("#cz-canvas", { autoAlpha: 0, duration: 0.25, ease: "power2.out" }, 3.25);
+    }
+    master.add(tl, 8.5);
+  })();
+
+  // ===== 4. flash-through-white：闪白。进场 from=黑 to=场景（黑冲白显场景）；退场 from=场景 to=黑（场景冲白落黑） =====
+  var FRAG_FW = "void main(){vec4 A=texture2D(u_from,v_uv),B=texture2D(u_to,v_uv);float toWhite=smoothstep(0.,.45,u_progress);vec3 fromC=mix(A.rgb,vec3(1.),toWhite);float fromWhite=1.-smoothstep(.5,1.,u_progress);vec3 toC=mix(B.rgb,vec3(1.),fromWhite);gl_FragColor=vec4(mix(fromC,toC,smoothstep(.35,.65,u_progress)),1.);}";
+  (function () {
+    var rig = makeShaderRig("fw-canvas", "fw-scene", FRAG_FW);
+    var tl = gsap.timeline();
+    if (rig) {
+      var st = { p: 0 };
+      tl.to("#fw-canvas", { autoAlpha: 1, duration: 0.18, ease: "power2.in" }, 0);
+      tl.to(st, { p: 1, duration: 0.6, ease: "power1.inOut",
+        onUpdate: function () { rig.trans(rig.dark, rig.scene, st.p); } }, 0.18);
+      tl.to(st, { p: 1, duration: 0.6, ease: "power1.inOut", startAt: { p: 0 },
+        onUpdate: function () { rig.trans(rig.scene, rig.dark, st.p); },
+        onComplete: function () { rig.black(); } }, 2.65);
+      tl.to("#fw-canvas", { autoAlpha: 0, duration: 0.22, ease: "power2.out" }, 3.25);
+    }
+    master.add(tl, 12.5);
+  })();
+
+  window.__timelines["shader4"] = master;
+
+var m = window.__timelines && window.__timelines["shader4"];if (m) { m.vars.paused = false; m.pause(); gsap.fromTo(m, { time: 0.5 }, { time: 3.85, duration: 3.35, ease: 'none', repeat: -1, repeatDelay: 0.5 }); }
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

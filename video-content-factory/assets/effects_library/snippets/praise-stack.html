@@ -1,0 +1,28 @@
+<!--
+模式：截图瀑布（舆论铺垫）
+适用：口播说「全网都在说 / 大家都在转」时，竖排展示 3~4 张媒体/评论截图
+要点：宽度 ≤ 640px 防撞字幕；卡片白底圆角投影；chip 内用 <em> 高亮关键词
+-->
+<style>
+  .shot-card { background: #fff; border-radius: 14px; box-shadow: 0 12px 36px rgba(16,24,40,.22); padding: 10px; }
+  .shot-card img { display: block; width: 100%; height: auto; border-radius: 8px; }
+  .chip { display: inline-block; padding: 12px 28px; border-radius: 999px; font-weight: 800; font-size: 30px; color: #fff; box-shadow: 0 8px 24px rgba(16,24,40,.25); }
+  #praise .chip { position: absolute; top: 82px; left: 80px; background: #1a1a1a; }
+  #praise .chip em { color: #ffb224; font-style: normal; }
+  #praise .stack { position: absolute; top: 150px; left: 80px; width: 640px; display: flex; flex-direction: column; gap: 16px; }
+</style>
+
+<div id="praise">
+  <div class="chip">【铺垫语】 · <em>【高亮词】</em></div>
+  <div class="stack">
+    <div class="shot-card pr-card"><img src="assets/【截图1】.jpg" /></div>
+    <div class="shot-card pr-card"><img src="assets/【截图2】.jpg" /></div>
+    <div class="shot-card pr-card"><img src="assets/【截图3】.jpg" /></div>
+  </div>
+</div>
+
+<script>
+tl.from("#praise .chip", { x: -80, opacity: 0, duration: .5, ease: "power3.out" }, t0 + 0.15);
+tl.from(".pr-card", { x: -340, opacity: 0, rotation: -3, duration: .6, ease: "back.out(1.3)", stagger: .16 }, t0 + 0.35);
+tl.to("#praise .chip, .pr-card", { x: -120, opacity: 0, duration: .32, ease: "power2.in", stagger: .04 }, tEnd - 0.45);
+</script>

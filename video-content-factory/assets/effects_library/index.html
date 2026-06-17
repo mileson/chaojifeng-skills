@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>特效库管理界面 · video-content-factory</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "PingFang SC", "Hiragino Sans GB", sans-serif; background: #0a0c12; color: #e8eaf0; }
+  .wrap { max-width: 1480px; margin: 0 auto; padding: 40px 32px 100px; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 18px;
+    border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 24px; margin-bottom: 24px; }
+  header .tag { font-size: 12px; letter-spacing: 4px; color: #3e9eff; font-weight: 800; }
+  header h1 { font-size: 30px; font-weight: 900; margin-top: 6px; }
+  header .stats { color: #8b8d98; font-size: 13px; margin-top: 8px; }
+  header .stats b { color: #46d390; }
+  header .right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  #search { width: 320px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,.16);
+    background: rgba(16,18,26,.9); color: #fff; font-size: 15px; padding: 0 18px; outline: none; }
+  #search:focus { border-color: #3e9eff; }
+  #cache { color: #8b8d98; font-size: 12px; }
+  #cache b { color: #46d390; font-weight: 700; }
+  nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  nav button { padding: 9px 20px; border-radius: 99px; border: 1px solid rgba(255,255,255,.18); background: rgba(16,18,26,.8);
+    color: #cfd2dc; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .15s; }
+  nav button:hover { border-color: #3e9eff; color: #fff; }
+  nav button.on { background: #3e9eff; border-color: #3e9eff; color: #fff; }
+  nav button .n { opacity: .65; font-weight: 600; margin-left: 4px; }
+  .sec-title { font-size: 18px; font-weight: 800; margin: 34px 0 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.08);
+    display: flex; align-items: center; gap: 10px; }
+  .sec-title:first-of-type { margin-top: 0; }
+  .sec-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #3e9eff; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 22px; }
+  .card { background: rgba(16,18,26,.85); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; overflow: hidden;
+    transition: border-color .15s, transform .15s; }
+  .card:hover { border-color: rgba(62,158,255,.55); transform: translateY(-2px); }
+  .stage { position: relative; height: 186px; background: linear-gradient(135deg, #11131a, #181b26); overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,.08); }
+  .stage iframe { width: 100%; height: 100%; border: 0; display: block; pointer-events: none; background: transparent; }
+  .stage::after { content: "LIVE ▶"; position: absolute; right: 10px; top: 8px; font-size: 10px; letter-spacing: 1px;
+    color: #46d390; font-weight: 800; pointer-events: none; }
+  .stage.missing { display: flex; align-items: center; justify-content: center; }
+  .stage.missing::after { display: none; }
+  .stage .miss { color: #8b8d98; font-size: 13px; text-align: center; padding: 0 20px; }
+  .body { padding: 16px 18px 18px; }
+  .row1 { display: flex; align-items: center; gap: 10px; }
+  .name { font-size: 17px; font-weight: 800; flex: 1; }
+  .cat { font-size: 10.5px; font-weight: 800; letter-spacing: 1px; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+  .cat.skeleton { background: rgba(62,158,255,.18); color: #7ab8ff; border: 1px solid rgba(62,158,255,.4); }
+  .cat.container { background: rgba(70,211,144,.15); color: #46d390; border: 1px solid rgba(70,211,144,.4); }
+  .cat.beat { background: rgba(255,178,36,.14); color: #ffb224; border: 1px solid rgba(255,178,36,.4); }
+  .cat.transition { background: rgba(229,72,77,.15); color: #ff8589; border: 1px solid rgba(229,72,77,.4); }
+  .cat.util { background: rgba(255,255,255,.1); color: #cfd2dc; border: 1px solid rgba(255,255,255,.25); }
+  .cat.outro { background: rgba(77,208,225,.15); color: #4dd0e1; border: 1px solid rgba(77,208,225,.4); }
+  .cat.product { background: rgba(168,120,255,.14); color: #c9a8ff; border: 1px solid rgba(168,120,255,.4); }
+  .pid { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #46d390; margin-top: 5px; }
+  .desc { font-size: 13px; color: #aab; line-height: 1.6; margin-top: 8px; min-height: 42px; }
+  .anim { font-size: 12px; color: #8b8d98; line-height: 1.55; margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,.1); }
+  .anim b { color: #7ab8ff; font-weight: 700; }
+  .copy { margin-top: 12px; width: 100%; height: 38px; border-radius: 10px; border: 1px solid rgba(62,158,255,.5);
+    background: rgba(62,158,255,.12); color: #7ab8ff; font-size: 13.5px; font-weight: 800; cursor: pointer; transition: all .15s; }
+  .copy:hover { background: #3e9eff; color: #fff; }
+  .copy.ok { background: #46d390; border-color: #46d390; color: #07140d; }
+  .copy.err { background: rgba(229,72,77,.2); border-color: rgba(229,72,77,.5); color: #ff8589; }
+  .empty { color: #8b8d98; padding: 40px 0; }
+  .error { color: #ff8589; padding: 40px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="tag">VIDEO CONTENT FACTORY · EFFECTS LIBRARY</div>
+      <h1>特效库管理界面</h1>
+      <div class="stats">按 <b>registry.json</b> 自动渲染 · 新增特效后刷新本页或运行 <code>build_effects_gallery.py refresh</code></div>
+    </div>
+    <div class="right">
+      <input id="search" type="search" placeholder="搜索特效名 / id / 场景关键词…" />
+      <div id="cache">读取缓存中…</div>
+    </div>
+  </header>
+  <nav id="nav"></nav>
+  <div id="grid"></div>
+</div>
+
+<!-- registry.js 由 build_effects_gallery.py refresh 同步生成，包含 registry.json 完整数据；
+     在 file:// 协议下浏览器会拦截 fetch，但 <script src> 仍可正常加载。 -->
+<script src="registry.js"></script>
+<script>
+const CATS = {
+  all: "全部",
+  skeleton: "骨架层 · 常驻 HUD",
+  container: "容器层 · 画中画",
+  beat: "节拍层 · 内容卡片",
+  transition: "转场",
+  util: "工具",
+  outro: "片尾 · 拼接结尾",
+  product: "产品卡片",
+};
+const CAT_COLOR = {
+  skeleton: "#7ab8ff", container: "#46d390", beat: "#ffb224", transition: "#ff8589",
+  util: "#cfd2dc", outro: "#4dd0e1", product: "#c9a8ff",
+};
+
+let reg = [];
+let cache = null;
+let curCat = "all", curQ = "";
+
+async function loadJson(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loadRegistry() {
+  // 优先使用 registry.js 中内嵌的数据，以兼容 file:// 协议直接打开
+  let data = null;
+  if (typeof window.__EFFECTS_REGISTRY__ !== "undefined" && window.__EFFECTS_REGISTRY__) {
+    data = window.__EFFECTS_REGISTRY__;
+  } else {
+    data = await loadJson("registry.json?" + Date.now());
+  }
+  if (!data || !Array.isArray(data.effects)) {
+    document.getElementById("grid").innerHTML = "<div class='error'>读取 registry.json 失败，请确认文件存在且格式正确（根节点应包含 effects 数组）。<br/>提示：可直接运行 <code>python3 scripts/build_effects_gallery.py refresh</code> 重新生成 registry.js。</div>";
+    return false;
+  }
+  reg = data.effects;
+  return true;
+}
+
+async function loadCache() {
+  cache = await loadJson("cache.json?" + Date.now());
+  // file:// 协议下 fetch 会失败，回退到 registry.js 内嵌的缓存元数据
+  if (!cache && typeof window.__EFFECTS_REGISTRY__ !== "undefined" && window.__EFFECTS_REGISTRY__) {
+    cache = {
+      built_at: window.__EFFECTS_REGISTRY__.built_at,
+      build_epoch: window.__EFFECTS_REGISTRY__.build_epoch,
+      count: window.__EFFECTS_REGISTRY__.count,
+    };
+  }
+  const el = document.getElementById("cache");
+  if (cache && cache.built_at) {
+    const d = new Date(cache.built_at).toLocaleString("zh-CN");
+    el.innerHTML = `界面缓存刷新于 <b>${d}</b> · 共 <b>${cache.count || reg.length}</b> 个特效`;
+  } else {
+    el.innerHTML = "暂无缓存记录 · 运行 <code>build_effects_gallery.py refresh</code> 可刷新";
+  }
+}
+
+function fieldsOf(r) {
+  return [
+    r.id, r.name, r.category, r.desc, r.anim, r.params, r.path, r.accent, r.since,
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function previewUrl(r) {
+  // registry.path 优先指向 snippet；界面预览使用 previews/<id>.html
+  const id = r.id;
+  return `previews/${id}.html`;
+}
+
+function cardHtml(r) {
+  const catLabel = (CATS[r.category] || r.category).split(" ")[0];
+  const missing = !r.id || !r.path;
+  const src = missing ? "" : previewUrl(r);
+  const stage = missing
+    ? `<div class="stage missing"><div class="miss">预览不可用：registry 记录缺少 id 或 path</div></div>`
+    : `<div class="stage"><iframe src="${src}" title="${r.name || r.id} 预览"></iframe></div>`;
+  return `
+    <div class="card">
+      ${stage}
+      <div class="body">
+        <div class="row1"><div class="name">${r.name || "（未命名）"}</div><div class="cat ${r.category}">${catLabel}</div></div>
+        <div class="pid">${r.id || "（无 id）"}</div>
+        <div class="desc">${r.desc || "暂无描述"}</div>
+        <div class="anim"><b>动效</b> ${r.anim || "—"}<br/><b>参数</b> ${r.params || "—"}</div>
+        <button class="copy" data-id="${r.id}">复制给 Agent</button>
+      </div>
+    </div>`;
+}
+
+function groupedEffects() {
+  const filtered = reg.filter(r =>
+    (curCat === "all" || r.category === curCat) &&
+    (!curQ || fieldsOf(r).includes(curQ)));
+  if (curCat !== "all") return { [curCat]: filtered };
+  const groups = {};
+  for (const r of filtered) {
+    const c = r.category || "未分类";
+    if (!groups[c]) groups[c] = [];
+    groups[c].push(r);
+  }
+  return groups;
+}
+
+function render() {
+  const grid = document.getElementById("grid");
+  const groups = groupedEffects();
+  const cats = Object.keys(groups);
+
+  if (!cats.length) {
+    grid.innerHTML = "<div class='empty'>没有匹配特效。</div>";
+    return;
+  }
+
+  grid.innerHTML = "";
+  for (const cat of cats) {
+    if (curCat === "all") {
+      const title = document.createElement("div");
+      title.className = "sec-title";
+      title.style.gridColumn = "1 / -1";
+      title.innerHTML = `<span class="dot" style="background:${CAT_COLOR[cat] || '#3e9eff'}"></span>${CATS[cat] || cat}`;
+      grid.appendChild(title);
+    }
+    const cards = document.createElement("div");
+    cards.style.display = "contents";
+    cards.innerHTML = groups[cat].map(cardHtml).join("");
+    grid.appendChild(cards);
+  }
+
+  bindCopyButtons();
+}
+
+function bindCopyButtons() {
+  document.querySelectorAll(".copy").forEach(btn => {
+    // 避免重复绑定
+    btn.replaceWith(btn.cloneNode(true));
+  });
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", async () => {
+    const r = reg.find(x => x.id === btn.dataset.id);
+    if (!r || !r.id || !r.name || !r.path) {
+      btn.textContent = "记录不完整";
+      btn.classList.add("err");
+      setTimeout(() => { btn.textContent = "复制给 Agent"; btn.classList.remove("err"); }, 1400);
+      return;
+    }
+    const text = `请在视频里使用特效「${r.id}（${r.name}）」→ ${r.path}`;
+    const ok = () => {
+      btn.textContent = "已复制 ✓"; btn.classList.add("ok");
+      setTimeout(() => { btn.textContent = "复制给 Agent"; btn.classList.remove("ok"); }, 1400);
+    };
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); ok(); } catch (e) { btn.textContent = "复制失败"; btn.classList.add("err"); }
+      ta.remove();
+    };
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        ok();
+      } else {
+        fallback();
+      }
+    } catch (e) {
+      fallback();
+    }
+  }));
+}
+
+function renderNav() {
+  const counts = { all: reg.length };
+  reg.forEach(r => counts[r.category] = (counts[r.category] || 0) + 1);
+  document.getElementById("nav").innerHTML = Object.entries(CATS)
+    .filter(([k]) => k === "all" || (counts[k] || 0) > 0)
+    .map(([k, v]) =>
+      `<button data-cat="${k}" class="${k === curCat ? "on" : ""}">${v}<span class="n">${counts[k] || 0}</span></button>`).join("");
+  document.querySelectorAll("#nav button").forEach(b => b.addEventListener("click", () => {
+    curCat = b.dataset.cat; renderNav(); render();
+  }));
+}
+
+async function init() {
+  const ok = await loadRegistry();
+  if (!ok) return;
+  await loadCache();
+  renderNav();
+  render();
+}
+
+document.getElementById("search").addEventListener("input", e => { curQ = e.target.value.trim().toLowerCase(); render(); });
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!--
+模式：引用大卡（单条评论/观点）
+适用：口播点名引用某个人或账号的观点时
+要点：来源 chip 用品牌紫或来源色；卡片宽 1000~1100px 居中偏左
+-->
+<style>
+  .shot-card { background: #fff; border-radius: 14px; box-shadow: 0 12px 36px rgba(16,24,40,.22); padding: 10px; }
+  .shot-card img { display: block; width: 100%; height: auto; border-radius: 8px; }
+  .chip { display: inline-block; padding: 12px 28px; border-radius: 999px; font-weight: 800; font-size: 30px; color: #fff; box-shadow: 0 8px 24px rgba(16,24,40,.25); }
+  #quote .quote-wrap { position: absolute; top: 270px; left: 200px; width: 1050px; }
+  #quote .chip { background: #6e56cf; margin-bottom: 18px; }
+</style>
+
+<div id="quote">
+  <div class="quote-wrap">
+    <div class="chip">【来源名】 · 【动作词】</div>
+    <div class="shot-card" id="quote-card"><img src="assets/【引用截图】.jpg" /></div>
+  </div>
+</div>
+
+<script>
+tl.from("#quote .chip", { y: -50, opacity: 0, duration: .45, ease: "power3.out" }, t0 + 0.15);
+tl.from("#quote-card", { scale: .86, opacity: 0, y: 60, duration: .6, ease: "expo.out" }, t0 + 0.3);
+tl.to("#quote .quote-wrap", { scale: .94, opacity: 0, duration: .32, ease: "power2.in" }, tEnd - 0.45);
+</script>

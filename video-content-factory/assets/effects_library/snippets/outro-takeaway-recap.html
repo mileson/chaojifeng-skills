@@ -1,0 +1,59 @@
+<!--
+模式：要点回顾片尾（outro-takeaway-recap）【片尾层 · 拼接式结尾】
+适用场景：教程/干货视频收尾 7~9s——「这期记住 3 件事」逐条点亮回顾，
+  最后弱引导关注；观众带着清单走，完播价值感拉满。
+框架参数：
+  - 要点条数（3 条最佳，最多 4）、每条文案（动词开头，≤18 字）
+  - 逐条点亮时间点（跟口播）、主题色
+技术要点：
+  - 无卡直贴形态：要点条不加卡片底板，编号格 + 文字直接铺在底色上（text-shadow 兜底）
+  - 编号格 01/02/03 翻入（rotationX -90 → 0），条目文案随后滑入
+  - 底部弱引导为纯文字行（无胶囊卡），延迟到最后 1.5s 才入（不抢要点）
+-->
+<style>
+  #otr-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #16233a 0%, #0b121e 58%, #070b13 100%); }
+  #otr-kicker { position: absolute; left: 50%; top: 140px; transform: translateX(-50%);
+    color: #46d390; font-size: 24px; font-weight: 800; letter-spacing: 8px; }
+  #otr-title { position: absolute; left: 50%; top: 192px; transform: translateX(-50%);
+    color: #f4f7ff; font-size: 56px; font-weight: 900; }
+  #otr-list { position: absolute; left: 50%; top: 360px; transform: translateX(-50%); width: max-content;
+    display: flex; flex-direction: column; gap: 56px; }
+  .otr-item { display: flex; align-items: center; gap: 38px; }
+  .otr-num { width: 84px; height: 84px; border-radius: 20px; flex: 0 0 auto; display: flex;
+    align-items: center; justify-content: center; font-size: 36px; font-weight: 900; color: #0a1410;
+    background: linear-gradient(135deg, #46d390, #2ea36f);
+    box-shadow: 0 14px 40px rgba(70,211,144,.28); }
+  .otr-text { color: #f0f5ff; font-size: 36px; font-weight: 800; text-shadow: 0 2px 14px rgba(0,0,0,.55); }
+  .otr-text small { display: block; color: #9aa8c0; font-size: 21px; font-weight: 600; margin-top: 10px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.5); }
+  #otr-cta { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%);
+    color: #cdd6e6; font-size: 27px; font-weight: 800; white-space: nowrap;
+    text-shadow: 0 2px 12px rgba(0,0,0,.55); }
+  #otr-cta b { color: #46d390; }
+</style>
+
+<div id="otr-bg" data-layout-allow-overflow></div>
+<div id="otr-kicker">TAKEAWAYS · 这期记住 3 件事</div>
+<div id="otr-title">花 1 分钟，把方法带走</div>
+<div id="otr-list">
+  <div class="otr-item"><div class="otr-num">01</div>
+    <div class="otr-text">开口先问场景，再谈模型<small>九成成本浪费在「用大模型干小事」</small></div></div>
+  <div class="otr-item"><div class="otr-num">02</div>
+    <div class="otr-text">缓存命中率是第一指标<small>Prompt Caching 一项就能省一半</small></div></div>
+  <div class="otr-item"><div class="otr-num">03</div>
+    <div class="otr-text">批量任务全部走 Batch<small>不着急的活，半价排队就行</small></div></div>
+</div>
+<div id="otr-cta">下期继续拆 AI 省钱套路，<b>关注不迷路</b></div>
+
+<script>
+  tl.from("#otr-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from(["#otr-kicker", "#otr-title"], { autoAlpha: 0, y: 24, duration: 0.5, stagger: 0.12 }, t0 + 0.35);
+  document.querySelectorAll(".otr-item").forEach(function (item, i) {
+    var at = t0 + 1.0 + i * 1.1;
+    tl.from(item, { autoAlpha: 0, y: 40, duration: 0.5, ease: "back.out(1.4)" }, at);
+    tl.from(item.querySelector(".otr-num"), { rotationX: -90, transformOrigin: "50% 100%",
+      duration: 0.5, ease: "back.out(1.8)" }, at + 0.1);
+  });
+  tl.from("#otr-cta", { autoAlpha: 0, y: 24, duration: 0.5 }, t0 + 4.6);
+</script>

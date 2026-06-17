@@ -1,0 +1,53 @@
+<!--
+模式：成本/数据对比条形图
+适用：价格对比、性能对比、任何"差距可视化"（比 VS 卡更数据感，商业科技片标配）
+要点：深色 HUD 容器 + 红绿渐变条（带同色 glow）+ 条 scaleX 生长（transform-origin: left）
+     + 数值 count-up 同步滚动 + 底部差距倍数 back.out 弹出 + yoyo 脉冲；
+     条宽用 CSS width 百分比表达终值比例，动画只动 scaleX（不要动 width）
+-->
+<style>
+  #chart {
+    position: absolute; top: 140px; left: 0; right: 0;
+    margin: 0 auto; width: 980px;
+    background: rgba(16, 18, 26, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    padding: 38px 46px 44px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #chart h3 { color: #fff; font-size: 38px; font-weight: 900; margin-bottom: 34px; }
+  #chart h3 em { color: #e5484d; font-style: normal; }
+  #chart .row { display: flex; align-items: center; gap: 22px; margin-bottom: 26px; }
+  #chart .row .label { width: 240px; color: #c8cad3; font-size: 28px; font-weight: 700; text-align: right; flex-shrink: 0; }
+  #chart .row .track { flex: 1; height: 52px; border-radius: 10px; background: rgba(255,255,255,0.07); position: relative; }
+  #chart .row .bar { position: absolute; left: 0; top: 0; height: 100%; border-radius: 10px; transform-origin: left center; }
+  #chart .row .bar.bad  { width: 100%; background: linear-gradient(90deg, #b03238, #e5484d); box-shadow: 0 0 24px rgba(229,72,77,.55); }
+  #chart .row .bar.good { width: 7%;  background: linear-gradient(90deg, #1d7a4f, #30a46c); box-shadow: 0 0 24px rgba(48,164,108,.55); }
+  #chart .row .val { width: 190px; flex-shrink: 0; font-size: 34px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  #chart .row .val.bad { color: #ff8589; } #chart .row .val.good { color: #46d390; }
+  #chart-gap { margin-top: 8px; text-align: center; color: #ffb224; font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums; text-shadow: 0 0 24px rgba(255,178,36,.5); }
+</style>
+
+<div id="chart">
+  <h3>【标题，可含 <em>红色强调</em>】</h3>
+  <div class="row"><span class="label">【对照项】</span><div class="track"><div class="bar bad" id="chart-bar1"></div></div><span class="val bad" id="chart-val1">0</span></div>
+  <div class="row"><span class="label">【优势项】</span><div class="track"><div class="bar good" id="chart-bar2"></div></div><span class="val good" id="chart-val2">0</span></div>
+  <div id="chart-gap">差距 0×</div>
+</div>
+
+<script>
+tl.from("#chart", { y: 80, autoAlpha: 0, duration: .55, ease: "power3.out" }, t0 + 0.15);
+tl.from("#chart-bar1", { scaleX: 0, duration: .9, ease: "power2.inOut" }, t0 + 0.75);
+tl.from("#chart-bar2", { scaleX: 0, duration: .6, ease: "power2.inOut" }, t0 + 1.4);
+const v1 = { v: 0 }, v2 = { v: 0 }, gap = { v: 0 };
+tl.to(v1, { v: 10 /*终值*/, duration: .9, ease: "power2.out",
+  onUpdate() { document.querySelector("#chart-val1").textContent = "¥" + v1.v.toFixed(1) + "+/次"; } }, t0 + 0.75);
+tl.to(v2, { v: 0.2 /*终值*/, duration: .6, ease: "power2.out",
+  onUpdate() { document.querySelector("#chart-val2").textContent = "¥" + v2.v.toFixed(1) + "/次"; } }, t0 + 1.4);
+tl.to(gap, { v: 50 /*倍数*/, duration: .8, ease: "power2.out",
+  onUpdate() { document.querySelector("#chart-gap").textContent = "差距 " + Math.round(gap.v) + "×"; } }, t0 + 2.1);
+tl.from("#chart-gap", { scale: .6, autoAlpha: 0, duration: .5, ease: "back.out(1.8)" }, t0 + 2.1);
+tl.to("#chart-gap", { scale: 1.06, duration: .25, ease: "power1.inOut", repeat: 3, yoyo: true }, t0 + 3.0);
+tl.to("#chart", { y: 70, autoAlpha: 0, duration: .4, ease: "power2.in" }, tEnd - 0.55);
+</script>

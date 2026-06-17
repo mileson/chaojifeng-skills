@@ -1,0 +1,31 @@
+<!--
+模式：品牌组合横幅（宣布方法）
+适用：口播宣布解决方案是「A × B + 某方案」时，顶部横幅一句话点题
+要点：居中必须用 margin auto + fit-content（不能用 translateX，避免 GSAP transform 冲突）；
+     white-space: nowrap 保证单行
+-->
+<style>
+  #banner {
+    position: absolute; top: 92px; left: 0; right: 0;
+    margin: 0 auto; width: fit-content;
+    background: #1a1a1a; color: #fff; border-radius: 20px;
+    padding: 26px 52px; display: flex; align-items: center; gap: 26px;
+    box-shadow: 0 16px 48px rgba(16,24,40,.3); white-space: nowrap;
+  }
+  #banner .logo { font-size: 44px; font-weight: 900; letter-spacing: .5px; }
+  #banner .x { font-size: 32px; color: #8b8d98; font-weight: 700; }
+  #banner .tag { background: #30a46c; color: #fff; border-radius: 12px; font-size: 30px; font-weight: 800; padding: 10px 22px; }
+</style>
+
+<div id="banner">
+  <span class="logo">【品牌A】</span>
+  <span class="x">×</span>
+  <span class="logo">【品牌B】</span>
+  <span class="tag">【方案标签】</span>
+</div>
+
+<script>
+tl.from("#banner", { y: -140, opacity: 0, duration: .6, ease: "back.out(1.4)" }, t0 + 0.15);
+tl.from("#banner .tag", { scale: 0, duration: .45, ease: "back.out(2.2)" }, t0 + 0.7);
+tl.to("#banner", { y: -150, opacity: 0, duration: .35, ease: "power2.in" }, tEnd - 0.5);
+</script>

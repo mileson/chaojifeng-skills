@@ -1,0 +1,66 @@
+<!--
+模式：决策树流程图（flow decision tree）【容器层 · 方案选择】
+适用场景："你该选哪个方案"类讲解：根节点 → 分支条件 → 结论节点逐层展开。
+框架参数：
+  - 节点数与层级（默认 1+2+2）、各节点便签色（黄=问题/白=分支/绿=推荐/灰=不推荐）
+  - SVG 连线 path（与节点位置对应）、分支条件标签
+技术要点：
+  - 必须配全屏 dim scrim（rgba .62，data-layout-ignore）——白色细线在亮底片上看不见（铁律）
+  - 展开顺序 = 阅读顺序：根 pop → 连线描画 → 条件标签 → 子节点 pop → 下层连线 → 结论
+  - 连线 stroke-dashoffset 描画；推荐路径用绿色粗线，其余白色细线
+  - 节点便签微旋转（±1.5deg）+ back.out(1.8) pop = 手作感
+  - 结论节点 boxShadow 绿色脉冲 yoyo x3 收尾
+-->
+<style>
+  #ft-scrim { position: absolute; inset: 0; background: rgba(4,5,8,.62); }
+  #ft-stage { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 1240px; height: 760px; }
+  #ft-svg { position: absolute; inset: 0; overflow: visible; }
+  .ft-node { position: absolute; border-radius: 14px; padding: 18px 26px; text-align: center;
+    box-shadow: 0 16px 44px rgba(0,0,0,.45); }
+  .ft-node .t { font-size: 23px; font-weight: 900; }
+  .ft-node .s { font-size: 14px; font-weight: 700; margin-top: 3px; opacity: .75; }
+  #ft-n0 { left: 440px; top: 30px; background: #ffd866; color: #1a1a1a; transform: rotate(-1.5deg); }
+  #ft-n1 { left: 150px; top: 300px; background: #fff; color: #1a1a1a; transform: rotate(1deg); }
+  #ft-n2 { left: 740px; top: 300px; background: #fff; color: #1a1a1a; transform: rotate(-1deg); }
+  #ft-n3 { left: 620px; top: 560px; background: #46d390; color: #06281a; transform: rotate(1.2deg); }
+  #ft-n4 { left: 950px; top: 560px; background: #2a2d38; color: #aab; transform: rotate(-1deg); }
+  .ft-edge-label { position: absolute; background: rgba(8,10,16,.85); color: #cfd2dc; border: 1px solid rgba(255,255,255,.2);
+    border-radius: 99px; font-size: 15px; font-weight: 800; padding: 5px 16px; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow；scrim 加 data-layout-ignore -->
+<div id="ft-scrim"></div>
+<div id="ft-stage">
+  <svg id="ft-svg" viewBox="0 0 1240 760">
+    <path id="ft-e1" d="M 560,130 C 480,200 360,240 280,295" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="4" stroke-linecap="round"/>
+    <path id="ft-e2" d="M 680,130 C 760,200 820,240 860,295" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="4" stroke-linecap="round"/>
+    <path id="ft-e3" d="M 840,400 C 800,460 760,500 730,555" fill="none" stroke="rgba(70,211,144,.8)" stroke-width="5" stroke-linecap="round"/>
+    <path id="ft-e4" d="M 940,400 C 980,460 1010,500 1030,555" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <div class="ft-node" id="ft-n0"><div class="t">【根问题】</div><div class="s">START HERE</div></div>
+  <div class="ft-node" id="ft-n1"><div class="t">【分支A】</div><div class="s">【说明】</div></div>
+  <div class="ft-node" id="ft-n2"><div class="t">【分支B】</div><div class="s">【说明】</div></div>
+  <div class="ft-node" id="ft-n3"><div class="t">✓ 【推荐方案】</div><div class="s">【关键数字】</div></div>
+  <div class="ft-node" id="ft-n4"><div class="t">【备选方案】</div><div class="s">【关键数字】</div></div>
+  <div class="ft-edge-label" id="ft-lb1" style="left:330px;top:200px">【条件A】</div>
+  <div class="ft-edge-label" id="ft-lb2" style="left:790px;top:200px">【条件B】</div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  b.from("#ft-scrim", { autoAlpha: 0, duration: 0.4 }, 0);
+  ["#ft-e1", "#ft-e2", "#ft-e3", "#ft-e4"].forEach((sel) => {
+    const p = document.querySelector(sel);
+    const len = p.getTotalLength();
+    gsap.set(p, { attr: { "stroke-dasharray": len, "stroke-dashoffset": len } });
+  });
+  b.from("#ft-n0", { autoAlpha: 0, scale: 0.5, duration: 0.5, ease: "back.out(1.8)" }, 0.2);
+  b.to(["#ft-e1", "#ft-e2"], { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power2.inOut", stagger: 0.15 }, 0.8);
+  b.from(["#ft-lb1", "#ft-lb2"], { autoAlpha: 0, scale: 0.5, duration: 0.35, ease: "back.out(2)", stagger: 0.15 }, 1.0);
+  b.from(["#ft-n1", "#ft-n2"], { autoAlpha: 0, scale: 0.5, duration: 0.5, ease: "back.out(1.8)", stagger: 0.18 }, 1.2);
+  b.to(["#ft-e3", "#ft-e4"], { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power2.inOut", stagger: 0.15 }, 2.1);
+  b.from(["#ft-n3", "#ft-n4"], { autoAlpha: 0, scale: 0.5, duration: 0.5, ease: "back.out(1.8)", stagger: 0.18 }, 2.5);
+  b.to("#ft-n3", { boxShadow: "0 0 0 5px rgba(70,211,144,.7), 0 16px 44px rgba(0,0,0,.45)", duration: 0.35, yoyo: true, repeat: 3 }, 3.4);
+  b.to("#ft-scrim", { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 5.4);
+  b.to("#ft-stage", { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, 5.4);
+</script>

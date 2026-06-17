@@ -1,0 +1,55 @@
+<!--
+模式：工具链制作名单片尾（outro-credits-roll）【片尾层 · 拼接式结尾】
+适用场景：教程/工作流视频收尾 8~10s——电影 credits 式上滚名单，但滚的是
+  「本期工具链」：环节 → 用了什么工具；Build in Public 的透明感 + 干货感。
+框架参数：
+  - 名单分组（环节名 + 工具名数组）、滚动时长、顶部标题
+技术要点：
+  - 名单整列 y 匀速上滚（ease:"none"，电影 credits 灵魂）
+  - 上下渐隐遮罩（mask 渐变）让首尾自然淡出
+  - 环节名小字灰、工具名大字白（电影职位/人名层级）
+  - 左上角常驻小标题不滚动
+-->
+<style>
+  #ocr-bg { position: absolute; inset: 0;
+    background: radial-gradient(130% 100% at 50% 0%, #141b2c 0%, #0a0f1a 58%, #06080f 100%); }
+  #ocr-head { position: absolute; left: 50%; top: 110px; transform: translateX(-50%); text-align: center; }
+  #ocr-kicker { color: #b388ff; font-size: 22px; font-weight: 800; letter-spacing: 8px; }
+  #ocr-title { color: #f4f7ff; font-size: 48px; font-weight: 900; margin-top: 10px; }
+  #ocr-viewport { position: absolute; left: 50%; top: 270px; transform: translateX(-50%);
+    width: 900px; height: 620px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); }
+  #ocr-roll { position: absolute; left: 0; top: 0; width: 100%; text-align: center; }
+  .ocr-group { margin-bottom: 64px; }
+  .ocr-role { color: #8b96ac; font-size: 22px; font-weight: 700; letter-spacing: 6px; }
+  .ocr-name { color: #eef2fb; font-size: 40px; font-weight: 900; margin-top: 10px; letter-spacing: 1px; }
+  .ocr-name small { color: #6f7a90; font-size: 22px; font-weight: 600; margin-left: 14px; }
+</style>
+
+<div id="ocr-bg" data-layout-allow-overflow></div>
+<div id="ocr-head">
+  <div id="ocr-kicker">BEHIND THE SCENES</div>
+  <div id="ocr-title">本期工具链</div>
+</div>
+<div id="ocr-viewport" data-layout-allow-overflow>
+  <div id="ocr-roll">
+    <div class="ocr-group"><div class="ocr-role">脚本 / 文案</div>
+      <div class="ocr-name">Claude Fable 5<small>口播稿 + 分镜</small></div></div>
+    <div class="ocr-group"><div class="ocr-role">B-Roll 特效</div>
+      <div class="ocr-name">Hyperframes<small>HTML + GSAP 渲染</small></div></div>
+    <div class="ocr-group"><div class="ocr-role">配图 / 封面</div>
+      <div class="ocr-name">GPT Image<small>原生图像生成</small></div></div>
+    <div class="ocr-group"><div class="ocr-role">剪辑 / 字幕</div>
+      <div class="ocr-name">FFmpeg + Whisper<small>全自动流水线</small></div></div>
+    <div class="ocr-group"><div class="ocr-role">出品</div>
+      <div class="ocr-name">超级峰<small>一个人 + AI</small></div></div>
+  </div>
+</div>
+
+<script>
+  tl.from("#ocr-bg", { autoAlpha: 0, duration: 0.6 }, t0);
+  tl.from(["#ocr-kicker", "#ocr-title"], { autoAlpha: 0, y: 22, duration: 0.5, stagger: 0.12 }, t0 + 0.35);
+  // 名单从视口下缘外滚到上缘外
+  tl.fromTo("#ocr-roll", { y: 640 }, { y: -780, duration: 7.5, ease: "none" }, t0 + 0.9);
+</script>

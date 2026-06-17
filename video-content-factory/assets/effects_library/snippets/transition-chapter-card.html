@@ -1,0 +1,62 @@
+<!--
+模式：章节卡转场（全屏接管 / 覆盖式二合一）【参数化框架】
+适用场景：教程类视频的章节切换（第一章/第二章/STEP 01…）。在两段内容之间插入 2.5~3.5s
+  的章节宣告，帮观众建立结构感。
+框架参数（核心：背景透明度决定形态）：
+  - 全屏接管：bg 用不透明 #06080f —— 底层画面完全遮住，纯黑场章节卡
+  - 覆盖式：bg 用 rgba(5,8,14,0.78~0.88) —— 底层画面隐约可见，压迫感更轻
+  - 装饰二选一：四角 L 形框线（科技感强，适合全屏版）/ 编号两侧水平细线（轻量，适合覆盖版）
+  - 编号体系自由：CHAPTER · 01 / STEP · 02 / 03 / PART A / 第一章
+  - 时长建议 2.8~3.4s：入 0.45s + 内容展示 1.6~2.2s + 出 0.7s
+结构要点：
+  - 三行排版居中：编号小字（主题色宽字距 12px + glow）→ 大标题（白 86px 900）→ 英文小字（灰 #8b8d98 宽字距 8px）
+  - 标题上方一根渐变细线（transparent → 主题色 → transparent）
+  - 退场顺序铁律：内容先收（y:-24 + autoAlpha），背景再揭开（错开 0.25s）——观众先看到文字走、再看到画面回来
+  - 退场 y 位移会越出画布，beat 容器加 data-layout-allow-overflow
+动画要点：
+  - 背景 autoAlpha 0→1（power1.inOut，转场的明暗变化要均匀）
+  - 四角框线 back.out + stagger 0.07；细线 scaleX 展开
+  - 大标题 SplitText 逐字 y:60 power4.out；英文行用 letterSpacing 收缩入场（20px → 8px）制造聚拢感
+-->
+<style>
+  /* 全屏接管版用 #06080f；覆盖式版改成 rgba(5,8,14,0.84) */
+  #tc-bg { position: absolute; inset: 0; background: #06080f; }
+  .corner-frame { position: absolute; width: 64px; height: 64px; }
+  .corner-frame.tl { top: 56px; left: 64px; border-top: 2.5px solid #ffb224; border-left: 2.5px solid #ffb224; }
+  .corner-frame.tr { top: 56px; right: 64px; border-top: 2.5px solid #ffb224; border-right: 2.5px solid #ffb224; }
+  .corner-frame.bl { bottom: 56px; left: 64px; border-bottom: 2.5px solid #ffb224; border-left: 2.5px solid #ffb224; }
+  .corner-frame.br { bottom: 56px; right: 64px; border-bottom: 2.5px solid #ffb224; border-right: 2.5px solid #ffb224; }
+  #tc-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; }
+  #tc-rule { width: 320px; height: 2px; background: linear-gradient(90deg, transparent, #ffb224, transparent); }
+  #tc-num { color: #ffb224; font-size: 30px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(255,178,36,.55); }
+  #tc-title { color: #fff; font-size: 86px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
+  #tc-en { color: #8b8d98; font-size: 24px; font-weight: 700; letter-spacing: 8px; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow（退场 y 位移越出画布） -->
+<div id="tc-bg"></div>
+<div class="corner-frame tl"></div>
+<div class="corner-frame tr"></div>
+<div class="corner-frame bl"></div>
+<div class="corner-frame br"></div>
+<div id="tc-center">
+  <div id="tc-rule"></div>
+  <div id="tc-num">【CHAPTER · 01】</div>
+  <div id="tc-title">【章节标题】</div>
+  <div id="tc-en">【ENGLISH SUBTITLE】</div>
+</div>
+
+<script>
+  // 需 gsap.registerPlugin(SplitText)
+  const b = gsap.timeline({ defaults: { ease: "power3.out" } });
+  const split = SplitText.create("#tc-title", { type: "chars" });
+  b.from("#tc-bg", { autoAlpha: 0, duration: 0.45, ease: "power1.inOut" }, 0)
+   .from(".corner-frame", { autoAlpha: 0, scale: 0.6, duration: 0.45, ease: "back.out(1.6)", stagger: 0.07 }, 0.3)
+   .from("#tc-rule", { scaleX: 0, duration: 0.5, ease: "power2.inOut" }, 0.4)
+   .from("#tc-num", { y: 26, autoAlpha: 0, duration: 0.4 }, 0.55)
+   .from(split.chars, { y: 60, autoAlpha: 0, duration: 0.5, ease: "power4.out", stagger: { each: 0.04, from: "start" } }, 0.7)
+   .from("#tc-en", { autoAlpha: 0, letterSpacing: "20px", duration: 0.55 }, 1.15)
+   // 退场铁律：内容先收，背景再揭开
+   .to("#tc-center, .corner-frame", { autoAlpha: 0, y: -24, duration: 0.35, ease: "power2.in" }, 2.6)
+   .to("#tc-bg", { autoAlpha: 0, duration: 0.5, ease: "power1.inOut" }, 2.85);
+</script>

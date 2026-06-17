@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #chart {
+    position: absolute; top: 140px; left: 0; right: 0;
+    margin: 0 auto; width: 980px;
+    background: rgba(16, 18, 26, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    padding: 38px 46px 44px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    will-change: transform;
+  }
+  #chart h3 { color: #fff; font-size: 38px; font-weight: 900; margin-bottom: 34px; }
+  #chart h3 em { color: #e5484d; font-style: normal; }
+  #chart .row { display: flex; align-items: center; gap: 22px; margin-bottom: 26px; }
+  #chart .row .label { width: 240px; color: #c8cad3; font-size: 28px; font-weight: 700; text-align: right; flex-shrink: 0; }
+  #chart .row .track { flex: 1; height: 52px; border-radius: 10px; background: rgba(255,255,255,0.07); position: relative; }
+  #chart .row .bar { position: absolute; left: 0; top: 0; height: 100%; border-radius: 10px; transform-origin: left center; }
+  #chart .row .bar.bad  { width: 100%; background: linear-gradient(90deg, #b03238, #e5484d); box-shadow: 0 0 24px rgba(229,72,77,.55); }
+  #chart .row .bar.good { width: 7%;  background: linear-gradient(90deg, #1d7a4f, #30a46c); box-shadow: 0 0 24px rgba(48,164,108,.55); }
+  #chart .row .val { width: 190px; flex-shrink: 0; font-size: 34px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  #chart .row .val.bad { color: #ff8589; } #chart .row .val.good { color: #46d390; }
+  #chart-gap { margin-top: 8px; text-align: center; color: #ffb224; font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums; text-shadow: 0 0 24px rgba(255,178,36,.5); }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="chart">
+  <h3>【标题，可含 <em>红色强调</em>】</h3>
+  <div class="row"><span class="label">【对照项】</span><div class="track"><div class="bar bad" id="chart-bar1"></div></div><span class="val bad" id="chart-val1">0</span></div>
+  <div class="row"><span class="label">【优势项】</span><div class="track"><div class="bar good" id="chart-bar2"></div></div><span class="val good" id="chart-val2">0</span></div>
+  <div id="chart-gap">差距 0×</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+tl.from("#chart", { y: 80, autoAlpha: 0, duration: .55, ease: "power3.out" }, t0 + 0.15);
+tl.from("#chart-bar1", { scaleX: 0, duration: .9, ease: "power2.inOut" }, t0 + 0.75);
+tl.from("#chart-bar2", { scaleX: 0, duration: .6, ease: "power2.inOut" }, t0 + 1.4);
+const v1 = { v: 0 }, v2 = { v: 0 }, gap = { v: 0 };
+tl.to(v1, { v: 10 /*终值*/, duration: .9, ease: "power2.out",
+  onUpdate() { document.querySelector("#chart-val1").textContent = "¥" + v1.v.toFixed(1) + "+/次"; } }, t0 + 0.75);
+tl.to(v2, { v: 0.2 /*终值*/, duration: .6, ease: "power2.out",
+  onUpdate() { document.querySelector("#chart-val2").textContent = "¥" + v2.v.toFixed(1) + "/次"; } }, t0 + 1.4);
+tl.to(gap, { v: 50 /*倍数*/, duration: .8, ease: "power2.out",
+  onUpdate() { document.querySelector("#chart-gap").textContent = "差距 " + Math.round(gap.v) + "×"; } }, t0 + 2.1);
+tl.from("#chart-gap", { scale: .6, autoAlpha: 0, duration: .5, ease: "back.out(1.8)" }, t0 + 2.1);
+tl.to("#chart-gap", { scale: 1.06, duration: .25, ease: "power1.inOut", repeat: 3, yoyo: true }, t0 + 3.0);
+tl.to("#chart", { y: 70, autoAlpha: 0, duration: .4, ease: "power2.in" }, tEnd - 0.55);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

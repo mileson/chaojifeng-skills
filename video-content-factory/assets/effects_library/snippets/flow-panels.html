@@ -1,0 +1,44 @@
+<!--
+模式：流程对比面板（正确做法 vs 错误做法）
+适用：解释机制类内容（单次调用只扣1次 vs 并行扣N次）
+要点：节点→箭头→节点的流程图；结论条绿底✓ / 红底✗；两个面板先后入场对应口播顺序
+-->
+<style>
+  #flow .diagram { position: absolute; top: 170px; left: 110px; width: 1080px; display: flex; gap: 26px; }
+  #flow .panel { flex: 1; background: #fff; border-radius: 22px; padding: 32px 34px; box-shadow: 0 16px 48px rgba(16,24,40,.24); }
+  #flow .panel h4 { font-size: 32px; font-weight: 900; color: #1a1a1a; margin-bottom: 22px; }
+  #flow .flow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  #flow .node { border-radius: 12px; padding: 12px 20px; font-size: 26px; font-weight: 800; color: #fff; background: #3e63dd; }
+  #flow .node.task { background: #1a1a1a; }
+  #flow .node.warn { background: #c5333a; }
+  #flow .arrow { font-size: 26px; color: #8b8d98; font-weight: 800; }
+  #flow .verdict { margin-top: 24px; border-radius: 14px; font-size: 34px; font-weight: 900; padding: 14px 0; text-align: center; }
+  #flow .ok .verdict { background: #e9f6ef; color: #1d7a4f; }
+  #flow .bad .verdict { background: #fdebec; color: #c5333a; }
+</style>
+
+<div id="flow">
+  <div class="diagram">
+    <div class="panel ok" id="flow-ok">
+      <h4>【正确做法标题】</h4>
+      <div class="flow">
+        <span class="node task">【输入】</span><span class="arrow">→</span><span class="node">【结果】</span>
+      </div>
+      <div class="verdict">【正向结论】 ✓</div>
+    </div>
+    <div class="panel bad" id="flow-bad">
+      <h4>【错误做法标题】</h4>
+      <div class="flow">
+        <span class="node task">【输入】</span><span class="arrow">→</span><span class="node warn">【坏结果】</span>
+      </div>
+      <div class="verdict">【负向结论】 ✗</div>
+    </div>
+  </div>
+</div>
+
+<script>
+tl.from("#flow-ok", { y: 110, opacity: 0, duration: .55, ease: "power3.out" }, t0 + 0.15);
+tl.from("#flow-bad", { y: 110, opacity: 0, duration: .55, ease: "power3.out" }, /* 跟口播 */ t0 + 3.6);
+tl.from("#flow-bad .verdict", { scale: .6, opacity: 0, duration: .4, ease: "back.out(1.8)" }, t0 + 4.3);
+tl.to("#flow .diagram", { y: 80, opacity: 0, duration: .38, ease: "power2.in" }, tEnd - 0.55);
+</script>

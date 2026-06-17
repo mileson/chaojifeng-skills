@@ -1,0 +1,44 @@
+<!--
+模式：玻璃 HUD 卡（深色科技感容器）
+适用：引用、信息汇总、任何想要"商业科技感"的内容容器（替代纯白卡）
+要点：伪毛玻璃 = 半透明深色底 + 1.5px 白描边 + 大范围黑色外发光 + 品牌色 glow；
+     ⚠️ backdrop-filter 在透明 overlay 上无效（底层视频不在 DOM 里），不要尝试真模糊；
+     顶部渐变细线 scaleX 扫入是点睛之笔；卡片入场后加 sine.inOut 微浮动显得"活"
+-->
+<style>
+  #hud-card {
+    position: absolute; top: 150px; left: 0; right: 0;
+    margin: 0 auto; width: 1020px;
+    background: rgba(18, 20, 28, 0.82);
+    border: 1.5px solid rgba(255, 255, 255, 0.16);
+    border-radius: 22px;
+    padding: 30px 34px 34px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(110, 86, 207, 0.25);
+    overflow: hidden;
+    will-change: transform;
+  }
+  #hud-card .topline {
+    position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg, transparent, #6e56cf, #3e63dd, transparent);
+    transform-origin: left center;
+  }
+  #hud-card .src { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  #hud-card .src .badge { background: #6e56cf; color: #fff; border-radius: 999px; padding: 8px 24px; font-size: 28px; font-weight: 800; }
+  #hud-card .src .desc { color: #a0a3ad; font-size: 26px; font-weight: 600; }
+  #hud-card img { display: block; width: 100%; border-radius: 14px; }
+</style>
+
+<div id="hud-card">
+  <div class="topline" id="hud-topline"></div>
+  <div class="src"><span class="badge">【来源名】</span><span class="desc">【来源描述】</span></div>
+  <img src="assets/【截图】.jpg" alt="" />
+</div>
+
+<script>
+tl.from("#hud-card", { y: 70, autoAlpha: 0, scale: 0.96, duration: .55, ease: "power3.out" }, t0 + 0.15);
+tl.from("#hud-topline", { scaleX: 0, duration: .8, ease: "power2.inOut" }, t0 + 0.3);
+tl.from("#hud-card .src .badge", { x: -40, autoAlpha: 0, duration: .4, ease: "back.out(1.6)" }, t0 + 0.4);
+tl.from("#hud-card .src .desc", { x: -30, autoAlpha: 0, duration: .4, ease: "power3.out" }, t0 + 0.52);
+tl.to("#hud-card", { y: -6, duration: 1.2, ease: "sine.inOut", repeat: 1, yoyo: true }, t0 + 1.0);
+tl.to("#hud-card", { y: 60, autoAlpha: 0, duration: .4, ease: "power2.in" }, tEnd - 0.55);
+</script>

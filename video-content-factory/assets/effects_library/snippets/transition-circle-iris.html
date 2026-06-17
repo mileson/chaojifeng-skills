@@ -1,0 +1,38 @@
+<!--
+模式：圆形敞开转场（circle iris）【参数化框架】
+适用场景：轻量快速的语义转折（"但是…"、"不过…"）或小章节切换。圆从画面中心扩张
+  盖住画面 → 短文字 → 圆收缩揭开。比黑场淡入更有"镜头光圈"感。
+框架参数：
+  - 圆心位置可调：circle(0% at 50% 50%) 的 at 坐标改成任意点（如从按钮位置敞开）
+  - 时长建议 2.2~2.8s（属于快转场，文字一行大字 + 一行小字即可，别塞多行内容）
+  - 盖层颜色：纯深色 #06080f；想要覆盖式可改 rgba 但 clip-path 边缘会露底，建议保持不透明
+技术要点：
+  - clip-path: circle() 用 GSAP 直接插值字符串（同结构才能插值：始终保持 "circle(R% at X% Y%)" 格式）
+  - 盖上用 power3.in（加速撞满屏），揭开用 power3.inOut（均匀），节奏感最像光圈
+  - circle 半径用 120%（相对参考盒），保证盖满 16:9 四角
+  - 退场缩到 0% 后元素仍在但不可见，beat 结束自然卸载
+  - beat 容器加 data-layout-allow-overflow，盖层 data-layout-ignore
+-->
+<style>
+  #ci-cover { position: absolute; inset: 0; background: #06080f; clip-path: circle(0% at 50% 50%); }
+  #ci-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+  #ci-small { color: #46d390; font-size: 28px; font-weight: 800; letter-spacing: 12px; text-shadow: 0 0 16px rgba(70,211,144,.55); }
+  #ci-big { color: #fff; font-size: 76px; font-weight: 900; letter-spacing: 3px; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="ci-cover" data-layout-ignore></div>
+<div id="ci-center">
+  <div id="ci-small">【BUT · 但是】</div>
+  <div id="ci-big">【一句话转折文案】</div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  b.fromTo("#ci-cover", { clipPath: "circle(0% at 50% 50%)" },
+      { clipPath: "circle(120% at 50% 50%)", duration: 0.5, ease: "power3.in" }, 0)
+   .from("#ci-small", { y: 24, autoAlpha: 0, duration: 0.35, ease: "power3.out" }, 0.5)
+   .from("#ci-big", { y: 44, autoAlpha: 0, duration: 0.45, ease: "power4.out" }, 0.6)
+   .to("#ci-center", { autoAlpha: 0, scale: 0.96, duration: 0.3, ease: "power2.in" }, 1.85)
+   .to("#ci-cover", { clipPath: "circle(0% at 50% 50%)", duration: 0.5, ease: "power3.inOut" }, 2.0);
+</script>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; overflow: hidden; background: transparent; }
+  #stage { position: relative; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(90% 70% at 70% 20%, rgba(62,158,255,.10), transparent 60%),
+      radial-gradient(80% 60% at 20% 85%, rgba(77,208,225,.07), transparent 60%),
+      linear-gradient(135deg, #161c2a 0%, #0e1320 100%); }
+  .img-fallback { background: linear-gradient(135deg, #2a3447, #1b2333) !important;
+    display: flex; align-items: center; justify-content: center; }
+
+  #flow .diagram { position: absolute; top: 170px; left: 110px; width: 1080px; display: flex; gap: 26px; }
+  #flow .panel { flex: 1; background: #fff; border-radius: 22px; padding: 32px 34px; box-shadow: 0 16px 48px rgba(16,24,40,.24); }
+  #flow .panel h4 { font-size: 32px; font-weight: 900; color: #1a1a1a; margin-bottom: 22px; }
+  #flow .flow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  #flow .node { border-radius: 12px; padding: 12px 20px; font-size: 26px; font-weight: 800; color: #fff; background: #3e63dd; }
+  #flow .node.task { background: #1a1a1a; }
+  #flow .node.warn { background: #c5333a; }
+  #flow .arrow { font-size: 26px; color: #8b8d98; font-weight: 800; }
+  #flow .verdict { margin-top: 24px; border-radius: 14px; font-size: 34px; font-weight: 900; padding: 14px 0; text-align: center; }
+  #flow .ok .verdict { background: #e9f6ef; color: #1d7a4f; }
+  #flow .bad .verdict { background: #fdebec; color: #c5333a; }
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="flow">
+  <div class="diagram">
+    <div class="panel ok" id="flow-ok">
+      <h4>【正确做法标题】</h4>
+      <div class="flow">
+        <span class="node task">【输入】</span><span class="arrow">→</span><span class="node">【结果】</span>
+      </div>
+      <div class="verdict">【正向结论】 ✓</div>
+    </div>
+    <div class="panel bad" id="flow-bad">
+      <h4>【错误做法标题】</h4>
+      <div class="flow">
+        <span class="node task">【输入】</span><span class="arrow">→</span><span class="node warn">【坏结果】</span>
+      </div>
+      <div class="verdict">【负向结论】 ✗</div>
+    </div>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+
+<script>
+  (function fit() {
+    var s = window.innerWidth / 1920;
+    var st = document.getElementById("stage");
+    st.style.transform = "scale(" + s + ")";
+    document.body.style.height = (1080 * s) + "px";
+    window.addEventListener("resize", fit);
+  })();
+  // 缺失截图素材兜底为渐变占位（不影响真实 logo 等存在的资产）
+  document.querySelectorAll("img").forEach(function (im) {
+    var ph = function () { im.classList.add("img-fallback"); im.removeAttribute("src"); };
+    im.addEventListener("error", ph);
+    if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) ph();
+  });
+  var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.5, defaults: { ease: "power3.out" } });
+  var t0 = 0.4;
+  var tEnd = 5.4;
+  // snippet 通用上下文工具（工程里由 composition 提供，预览页内置）
+  function countUp(sel, end, dur, at, decimals, suffix) {
+    var obj = { v: 0 }, el = document.querySelector(sel);
+    tl.to(obj, { v: end, duration: dur, ease: "power1.out",
+      onUpdate: function () { el.textContent = obj.v.toFixed(decimals || 0) + (suffix || ""); } }, at);
+  }
+  if (!window.attachMotionBlur) window.attachMotionBlur = function () {};
+  try {
+
+tl.from("#flow-ok", { y: 110, opacity: 0, duration: .55, ease: "power3.out" }, t0 + 0.15);
+tl.from("#flow-bad", { y: 110, opacity: 0, duration: .55, ease: "power3.out" }, /* 跟口播 */ t0 + 3.6);
+tl.from("#flow-bad .verdict", { scale: .6, opacity: 0, duration: .4, ease: "back.out(1.8)" }, t0 + 4.3);
+tl.to("#flow .diagram", { y: 80, opacity: 0, duration: .38, ease: "power2.in" }, tEnd - 0.55);
+
+
+  } catch (e) {
+    document.getElementById("stage").innerHTML =
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:40px;font-weight:700">该模式需在工程内预览（' + e.message + '）</div>';
+  }
+  // snippet 自带的顶层 timeline 统一循环：paused 的（shader 系）play 起来，
+  // 一次性的（const b = gsap.timeline()）也续命循环，预览永不停在退场后的空白态
+  gsap.globalTimeline.getChildren(false, false, true).forEach(function (t) {
+    if (t === tl || !t.repeat) return;
+    t.repeat(-1); t.repeatDelay(0.8);
+    if (t.vars && t.vars.paused) t.play(0);
+    // 随机起始相位：避免网格里所有预览同相位循环（同一瞬间集体空白）
+    if (t.duration() > 1) t.time(t.duration() * (0.15 + Math.random() * 0.5));
+  });
+  // 预览 wrapper 主 timeline 也随机相位
+  if (tl.duration() > 1) tl.time(tl.duration() * (0.15 + Math.random() * 0.5));
+</script>
+</body>
+</html>

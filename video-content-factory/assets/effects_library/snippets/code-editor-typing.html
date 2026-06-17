@@ -1,0 +1,71 @@
+<!--
+模式：代码编辑器打字（code editor typing）【容器层 · 技术演示】
+适用场景：展示一段关键代码/命令（AI 技术博主标配），VS Code 风深色窗口逐字符打出。
+框架参数：
+  - LINES 数组：每行 { html 带语法色 span 的最终 HTML }（打字期间渲染纯文本，完成后替换为彩色）
+  - 文件名 tab、窗口尺寸（1240x720 默认，占屏 ~65%）、accent 描边色
+技术要点：
+  - 逐字符打字：state.n + plain.slice(0, n)，onComplete 时替换为带语法色 HTML
+    （比逐字符插 span 简单一个数量级，且彩色"点亮"瞬间本身就是节拍）
+  - 每行打字时长 = max(0.5, 字符数 x 0.035)，行间隔 0.85s
+  - 语法色用 Catppuccin 系：关键字 #cba6f7 / 函数 #89b4fa / 字符串 #a6e3a1 / 注释 #6c7086
+  - 注释行放结论（# 输出 → 单次: ¥0.21 ✓）= 代码块也讲故事
+-->
+<style>
+  #ce-win { position: absolute; left: 50%; top: 50%; width: 1240px; height: 720px;
+    border-radius: 18px; background: #1e1e2e; border: 1px solid rgba(255,255,255,.14); overflow: hidden;
+    box-shadow: 0 0 0 2px rgba(62,158,255,.35), 0 40px 110px rgba(0,0,0,.65); }
+  #ce-titlebar { height: 46px; background: #181825; display: flex; align-items: center; padding: 0 18px; gap: 8px; }
+  .ce-dot { width: 13px; height: 13px; border-radius: 50%; }
+  #ce-tab { margin-left: 22px; background: #1e1e2e; border-top: 2px solid #3e9eff; color: #cdd6f4;
+    font-size: 15px; padding: 10px 24px 9px; font-family: ui-monospace, Menlo, monospace; }
+  #ce-body { display: flex; height: calc(100% - 46px); }
+  #ce-gutter { width: 64px; padding: 22px 0; text-align: center; color: #45475a; font-size: 17px;
+    font-family: ui-monospace, Menlo, monospace; line-height: 2.1; background: #181825; }
+  #ce-code { flex: 1; padding: 22px 28px; font-family: ui-monospace, Menlo, monospace; font-size: 19px; line-height: 2.1; }
+  .ce-line { white-space: pre; color: #cdd6f4; }
+  .ce-kw { color: #cba6f7; } .ce-fn { color: #89b4fa; } .ce-str { color: #a6e3a1; } .ce-cm { color: #6c7086; } .ce-num { color: #fab387; }
+</style>
+
+<!-- beat 容器需加 data-layout-allow-overflow -->
+<div id="ce-win">
+  <div id="ce-titlebar">
+    <div class="ce-dot" style="background:#ff5f57"></div><div class="ce-dot" style="background:#febc2e"></div><div class="ce-dot" style="background:#28c840"></div>
+    <div id="ce-tab">【文件名.py】</div>
+  </div>
+  <div id="ce-body">
+    <div id="ce-gutter">1<br/>2<br/>3<br/>4<br/>5</div>
+    <div id="ce-code">
+      <div class="ce-line" id="ce-l1"></div>
+      <div class="ce-line" id="ce-l2"></div>
+      <div class="ce-line" id="ce-l3"></div>
+      <div class="ce-line" id="ce-l4"></div>
+      <div class="ce-line" id="ce-l5"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const b = gsap.timeline();
+  gsap.set("#ce-win", { xPercent: -50, yPercent: -50 });
+  const LINES = [
+    { id: "#ce-l1", html: '<span class="ce-cm"># 【注释：要做什么】</span>' },
+    { id: "#ce-l2", html: '<span class="ce-kw">from</span> 【模块】 <span class="ce-kw">import</span> 【对象】' },
+    { id: "#ce-l3", html: '【变量】 = 【对象】.<span class="ce-fn">【方法】</span>()' },
+    { id: "#ce-l4", html: '<span class="ce-fn">print</span>(<span class="ce-str">f"【输出模板】"</span>)' },
+    { id: "#ce-l5", html: '<span class="ce-cm"># 输出 → 【结论】 ✓</span>' },
+  ];
+  b.from("#ce-win", { autoAlpha: 0, y: 60, scale: 0.95, duration: 0.6, ease: "power3.out" }, 0);
+  LINES.forEach((L, li) => {
+    const el = document.querySelector(L.id);
+    const st = { n: 0 };
+    const tmp = document.createElement("div"); tmp.innerHTML = L.html;
+    const plain = tmp.textContent;
+    b.to(st, {
+      n: plain.length, duration: Math.max(0.5, plain.length * 0.035), ease: "none",
+      onUpdate() { el.textContent = plain.slice(0, Math.floor(st.n)); },
+      onComplete() { el.innerHTML = L.html; },
+    }, 0.7 + li * 0.85);
+  });
+  b.to("#ce-win", { autoAlpha: 0, y: 40, duration: 0.45, ease: "power2.in" }, 5.4);
+</script>

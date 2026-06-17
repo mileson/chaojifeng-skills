@@ -1,0 +1,40 @@
+<!--
+模式：证据网格 + 盖章（多方证据下定论）
+适用：多个来源都在说同一件事，最后砸一个大结论章（贵！）
+要点：2x2 网格宽 ≤ 1180px；印章压在网格右上角，白色半透明描边增强「章」感
+-->
+<style>
+  .shot-card { background: #fff; border-radius: 14px; box-shadow: 0 12px 36px rgba(16,24,40,.22); padding: 10px; }
+  .shot-card img { display: block; width: 100%; height: auto; border-radius: 8px; }
+  .chip { display: inline-block; padding: 12px 28px; border-radius: 999px; font-weight: 800; font-size: 30px; color: #fff; box-shadow: 0 8px 24px rgba(16,24,40,.25); }
+  #evi .chip { position: absolute; top: 118px; left: 80px; background: #e5484d; }
+  #evi .grid { position: absolute; top: 200px; left: 80px; width: 1180px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  #evi-stamp {
+    position: absolute; top: 96px; left: 1010px;
+    z-index: 10; /* 印章必须压在证据卡片之上 */
+    background: #e5484d; color: #fff; font-weight: 900;
+    font-size: 96px; padding: 18px 44px; border-radius: 18px;
+    transform: rotate(8deg); border: 6px solid rgba(255,255,255,.85);
+    box-shadow: 0 14px 40px rgba(16,24,40,.28);
+  }
+</style>
+
+<div id="evi">
+  <div class="chip">【铺垫语】</div>
+  <div id="evi-stamp">【定论】</div>
+  <div class="grid">
+    <div class="shot-card ev-card"><img src="assets/【证据1】.jpg" /></div>
+    <div class="shot-card ev-card"><img src="assets/【证据2】.jpg" /></div>
+    <div class="shot-card ev-card"><img src="assets/【证据3】.jpg" /></div>
+    <div class="shot-card ev-card"><img src="assets/【证据4】.jpg" /></div>
+  </div>
+</div>
+
+<script>
+tl.from("#evi .chip", { x: -90, opacity: 0, duration: .45, ease: "power3.out" }, t0 + 0.15);
+tl.from(".ev-card", { scale: .5, opacity: 0, duration: .45, ease: "back.out(2)", stagger: .12 }, t0 + 0.3);
+tl.from("#evi-stamp", { scale: 3.2, opacity: 0, rotation: 24, duration: .4, ease: "power4.in" }, t0 + 1.55);
+tl.to("#evi-stamp", { scale: 1.08, duration: .12, ease: "power2.out" }, t0 + 1.95);
+tl.to("#evi-stamp", { scale: 1, duration: .18, ease: "power2.inOut" }, t0 + 2.07);
+tl.to("#evi .chip, .ev-card, #evi-stamp", { y: 70, opacity: 0, duration: .32, ease: "power2.in", stagger: .03 }, tEnd - 0.5);
+</script>
