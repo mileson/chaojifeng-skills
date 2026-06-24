@@ -1,0 +1,21 @@
+version: 1
+
+generation:
+  default_engine: "codex_image_2"
+  external_api:
+    enabled: false
+    provider: ""
+    model: ""
+    endpoint_env: ""
+    api_key_secret_name: ""
+    notes: "外部 API 只保存非敏感配置；API key 必须走 secrets-vault 或环境变量。"
+
+reference_board:
+  max_caption_chars: 10
+  default_cols: 3
+  title: "复刻参考板"
+
+archive:
+  archive_persona_before_generation: true
+  ask_before_saving_album_image: true
+  refresh_boards_after_archive: true

@@ -1,31 +1,97 @@
+<div align="center">
+
 # 超级峰 Skill
 
-> 超级峰在日常 AI 使用过程中沉淀下来的实战经验 Skills，帮助更多人更高效地用 AI 提效
+> 把超级峰在真实 AI 工作流里反复验证的经验，沉淀成可安装、可复用、可迁移的 Agent Skills。
 
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Install](https://img.shields.io/badge/install-npx%20skills%20add-blue)](#一行安装)
+[![Skill Collection](https://img.shields.io/badge/Skill%20Collection-持续更新-7c3aed)](#skills-一览)
 
-## 简介
+<br>
 
-这里收录的是超级峰在日常 AI 使用过程中持续沉淀下来的实战经验 Skills，希望帮助更多人像超级峰一样，更高效地使用 AI 提效。
+**少一点临场发挥，多一点可复用流程。**
+
+这里收录超级峰在日常 AI 使用、内容生产、工作流自动化和工程协作中沉淀下来的实战 Skills。
+每个 Skill 都是一个独立目录，既可以一键安装，也可以直接阅读 `SKILL.md` 当作工作流模板复用。
+
+[Skills 一览](#skills-一览) · [一行安装](#一行安装) · [怎么使用](#怎么使用) · [仓库结构](#仓库结构) · [作者](#作者)
+
+</div>
+
+---
+
+## 这个仓库是什么
+
+这是一个公开的个人 Skill 集合。它不是教程合集，也不是泛泛的提示词库，而是把已经在真实场景里跑过的流程整理成可复用的 Agent Skill：
+
+- 面向具体任务，而不是抽象概念。
+- 保留执行门禁、输入要求和输出格式，减少每次重新解释。
+- 每个 Skill 自带必要脚本、模板或空数据骨架，方便安装后马上使用。
+- 私人素材、密钥、内部配置和未确认沉淀内容默认不进入公开仓库。
+
+## 一行安装
+
+安装整个仓库中的某个 Skill：
+
+```bash
+npx skills add mileson/chaojifeng-skills --skill shenbi-maliang
+```
+
+只安装到 Claude Code：
+
+```bash
+npx skills add mileson/chaojifeng-skills --skill shenbi-maliang --agent claude-code
+```
+
+把命令里的 `shenbi-maliang` 换成下方任意 Skill 名称即可。
 
 ## Skills 一览
 
-执行对应命令即可安装；如果你只想安装到 Claude Code，可在命令后追加 `--agent claude-code`。
-
 | Skill | 简介 | 核心能力 | 适用场景 | 安装命令 |
 | --- | --- | --- | --- | --- |
+| `shenbi-maliang` | 必须带真人形象照的人物迁移与参考图复刻流程 | 强制先确认形象照<br>支持单图、多图参考板和历史画册复用<br>内置形象照归档、画册归档和参考板脚本<br>公开版只保留空数据骨架，不包含私人图片 | 用自己的形象照复刻封面、头像、海报、生活照或内容创作配图风格 | `npx skills add mileson/chaojifeng-skills --skill shenbi-maliang` |
+| `video-content-factory` | 一体化口播视频内容工厂 | 阶段1：根据选题/背景材料生成口播稿与分镜稿<br>阶段2：ASR 转录、自动剪辑口误停顿、渲染透明特效轨<br>FFmpeg 合成、字幕/封面元数据、输出标准发布包 | 独立开发者、知识 IP、小团队稳定产出口播视频；B站/YouTube/抖音等平台 | `npx skills add mileson/chaojifeng-skills --skill video-content-factory` |
+| `skill-creator` | Skill 创建与更新工作流 | 支持品牌模板与仓库层 / Skill 层 / 产物层署名边界<br>支持 Mermaid 方案图 + 已明确授权时的直执行链路<br>覆盖 frontmatter、目录结构、示例、脚本和持久化记忆设计 | 新建 Skill、重构 Skill 结构、补规范、拆 references、整理模板和脚本 | `npx skills add mileson/chaojifeng-skills --skill skill-creator` |
 | `offboarding-handover` | 离职交接资料整理 | 支持可配置的分类规则，适配不同行业<br>自动生成 HTML 可视化入口页面<br>输出可打包交付的 ZIP 文件<br>多 Agent 协作：资料盘点、缺失检测、项目映射、风险检查 | 离职员工梳理零散工作资料、搭建交接目录、生成可视化入口 | `npx skills add mileson/chaojifeng-skills --skill offboarding-handover` |
-| `skill-creator` | Skill 创建与更新工作流 | 支持品牌模板与仓库层 / Skill 层 / 产物层署名边界<br>支持 Mermaid 方案图 + 已明确授权时的直执行链路<br>覆盖 frontmatter、目录结构、示例、脚本和持久化记忆设计<br>提供 `--exact-path` 初始化、快速校验和 Mermaid 渲染辅助脚本 | 新建 Skill、重构 Skill 结构、补规范、拆 references、整理模板和脚本 | `npx skills add mileson/chaojifeng-skills --skill skill-creator` |
-| `video-content-factory` | 一体化口播视频内容工厂 | 阶段1：根据选题/背景材料生成口播稿与分镜稿，按句预绑定特效模式 ID<br>阶段2：ASR 转录、自动剪辑口误停顿、按分镜渲染透明 hyperframes 特效轨<br>FFmpeg 合成、字幕/封面元数据、输出标准发布包 | 独立开发者、知识 IP、小团队稳定产出口播视频；B站/YouTube/抖音等平台 | `npx skills add mileson/chaojifeng-skills --skill video-content-factory` |
 
-## 正在筹备
+## 怎么使用
 
-- AI 与自动化：围绕日常 AI 工作流、Agent 协作、任务自动化和效率提升持续补充
-- 内容创作：覆盖写作、配图、排版整理和多平台发布等更轻量的创作场景
-- iOS 与客户端开发：聚焦功能开发、测试、本地化、发布和常见工程问题
-- 开发提效工具：整理代码审查、文档生成、项目规范和文件处理等通用能力
-- 文档与知识整理：沉淀表格、文档、图示、资料归档和结构化整理相关 Skill
-- 图片与媒体处理：补充截图标注、GIF/视频处理、图片生成和格式转换能力
+装好后，在支持 Agent Skills 的环境里直接点名调用：
+
+```text
+[$shenbi-maliang] 使用我的默认形象照，参考这张图，生成一张 B站 16:9 封面。
+```
+
+如果环境还不支持自动加载 Skill，也可以打开对应目录里的 `SKILL.md`，把内容作为任务说明交给 Agent。
+
+## 仓库结构
+
+```text
+.
+├── README.md
+├── publish-list.yaml
+├── sync-skills.py
+├── shenbi-maliang/
+│   ├── SKILL.md
+│   ├── scripts/
+│   ├── assets/outputs/
+│   └── data/
+│       ├── config.yaml
+│       ├── memory.md
+│       ├── personas/
+│       └── albums/
+├── skill-creator/
+├── video-content-factory/
+└── offboarding-handover/
+```
+
+## 发布原则
+
+- 公开仓库只保留可复用流程、脚本、模板和空数据骨架。
+- 不提交真实 API key、token、账号凭证或私人联系方式。
+- 不提交真人形象照、历史画册成品、未确认素材或本地运行产物。
+- 每个 Skill 的 `SKILL.md` 应清楚说明输入要求、执行门禁、输出格式和不适用场景。
 
 ## 许可证
 
@@ -42,4 +108,4 @@ MIT
 
 ---
 
-_持续更新中，欢迎 star 关注最新动态_
+_持续更新中，欢迎 star 关注最新 Skill。_
