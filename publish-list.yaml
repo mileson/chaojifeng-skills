@@ -3,7 +3,11 @@ published:
   offboarding-handover: '2026-06-04'
   skill-creator: '2026-06-05'
   video-content-factory: '2026-06-18'
-  shenbi-maliang: '2026-06-24'
+external:
+  shenbi-maliang:
+    repository: https://github.com/mileson/shenbi-maliang
+    published: '2026-06-24'
+    notes: 独立主仓库
 exclude:
   secrets-vault: 包含敏感信息管理
   feishu-card: 依赖内部飞书应用配置
