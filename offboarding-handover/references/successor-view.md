@@ -16,22 +16,23 @@ The package is for the successor, not for the person or agent who organized the 
 
 The first screen of `site/index.html` should show:
 
-- handover owner and successor
+- handover owner and successor (`交接人 → 接手人` in the header)
 - confirmed role or role still awaiting confirmation
-- current delivery state: draft or formal
-- first three reading steps
-- active risks and missing facts
+- current delivery state badge: draft or formal
+- KPI strip: included files, in-flight items, high-risk items, pending review, unconfirmed checks
+- `接手前必读` takeaways with anchor links to the matching sections
 
 Do not lead with scan mechanics.
 
-## Preferred Sections
+## Preferred Sections (in order)
 
-- `从这里开始`: practical reading path for the successor
-- `当前要接的事项`: active projects, unresolved issues, next actions
-- `风险与待确认`: accounts, sensitive data, contracts, customer risks, missing facts
-- `核心文档`: generated markdown previews
-- `文件预览`: quick previews for Office/PDF/image/text files when possible
-- `已纳入文件`: searchable file table with `查看预览` and `打开原文件`
+- `交接速览`: people, dates, KPIs, and takeaways
+- `马上要接的事`: in-flight work with status, next step, and jump-to-file actions
+- `风险与待确认`: accounts, sensitive data, contracts, customer risks, check-item statuses
+- `交接确认单`: printable sign-off table and signature grid for both sides plus the coordinator
+- `核心文档`: generated markdown previews as tabs
+- `交接材料`: searchable file table with inline expandable previews, `查看预览` and `打开原文件`
+- `附录` (collapsed): filtering explanation, assumptions, large files
 
 ## Copy Rules
 

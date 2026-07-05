@@ -53,7 +53,7 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 | [`shenbi-maliang`](https://github.com/mileson/shenbi-maliang) | 必须带真人形象照的人物迁移与参考图复刻流程 | 强制先确认形象照<br>支持单图、多图参考板和历史画册复用<br>内置形象照归档、画册归档和参考板脚本<br>独立主仓库只保留空数据骨架，不包含私人图片 | 用自己的形象照复刻封面、头像、海报、生活照或内容创作配图风格 | `npx skills add mileson/shenbi-maliang` |
 | `video-content-factory` | 一体化口播视频内容工厂 | 阶段1：根据选题/背景材料生成口播稿与分镜稿<br>阶段2：ASR 转录、自动剪辑口误停顿、渲染透明特效轨<br>FFmpeg 合成、字幕/封面元数据、输出标准发布包 | 独立开发者、知识 IP、小团队稳定产出口播视频；B站/YouTube/抖音等平台 | `npx skills add mileson/chaojifeng-skills --skill video-content-factory` |
 | `skill-creator` | Skill 创建与更新工作流 | 支持品牌模板与仓库层 / Skill 层 / 产物层署名边界<br>支持 Mermaid 方案图 + 已明确授权时的直执行链路<br>覆盖 frontmatter、目录结构、示例、脚本和持久化记忆设计 | 新建 Skill、重构 Skill 结构、补规范、拆 references、整理模板和脚本 | `npx skills add mileson/chaojifeng-skills --skill skill-creator` |
-| `offboarding-handover` | 离职交接资料整理 | 支持可配置的分类规则，适配不同行业<br>自动生成 HTML 可视化入口页面<br>输出可打包交付的 ZIP 文件<br>多 Agent 协作：资料盘点、缺失检测、项目映射、风险检查 | 离职员工梳理零散工作资料、搭建交接目录、生成可视化入口 | `npx skills add mileson/chaojifeng-skills --skill offboarding-handover` |
+| `offboarding-handover` | 离职交接资料整理 | 生成 HTML 交接工作台：进行中事项、风险清单、可打印交接确认单<br>文件表内直接预览 Word/PDF/表格/图片，无需翻原始文件夹<br>自动去重旧版本、排除他人材料，输出标准化命名的交接包与 ZIP<br>多 Agent 协作：资料盘点、缺失检测、项目映射、风险检查 | 离职员工、HR 与接手人三方完成资料梳理、交接确认与签收 | `npx skills add mileson/chaojifeng-skills --skill offboarding-handover` |
 
 ## 怎么使用
 

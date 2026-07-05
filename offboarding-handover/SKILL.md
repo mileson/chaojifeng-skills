@@ -285,8 +285,12 @@ The generated `site/index.html` is the front door for the whole handover package
 - Use the fixed technology-company internal portal style in `references/site-design-system.md`.
 - Use `#FBFCFE` as the page background.
 - Keep the interface clean, dense, searchable, and operational.
+- Order sections from highlights to detail: 交接速览 → 马上要接的事 → 风险与待确认 → 交接确认单 → 核心文档 → 交接材料 → 附录（折叠）.
+- Surface in-flight work, high-risk items, and unconfirmed checks before any document or file table.
+- Provide a printable sign-off section with a signature grid so HR and both parties can close the handover on paper.
+- Make file content viewable inside the page: core markdown documents render as embedded previews, and previewable files expand inline under their table rows.
+- Keep process information (filtering report, assumptions, large-file list) in a collapsed appendix, never as first-class sections.
 - Connect every generated core handover document from the site instead of making the successor browse the folder tree first.
-- Surface high-risk items, unfinished work, and missing facts before the full file table.
 - Do not imitate PPT or magazine layouts, horizontal slide navigation, WebGL hero backgrounds, decorative gradients, or large marketing-style hero sections.
 - Do not expose implementation details such as scripts, manifests, or internal scan steps in user-facing copy unless the user explicitly asks for technical output.
 

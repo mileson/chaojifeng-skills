@@ -913,7 +913,7 @@ def infer_inflight_items(records: list[dict[str, Any]]) -> list[dict[str, str]]:
                     "item": Path(record["relative_path"]).stem,
                     "module": record["domain"],
                     "status": "待确认",
-                    "next_step": "请补充下一步动作",
+                    "next_step": "与交接人核对当前进度和下一步",
                     "owner": "待指定",
                     "risk": "请补充风险提醒",
                     "link": record.get("staged_path") or record["relative_path"],
@@ -1273,10 +1273,11 @@ def normalize_version_group_key(record: dict[str, Any]) -> str:
     stem = re.sub(r"20\d{2}年[01]?\d月(?:[0-3]?\d日?)?", "", stem)
     stem = re.sub(r"(?<!\d)\d{6}(?!\d)", "", stem)
     stem = re.sub(r"v\d+(?:\.\d+)*", "", stem, flags=re.I)
-    stem = re.sub(r"最终版|终版|最新版|正式版|定稿|发布版|初稿|草稿|修订|复核后|副本|copy", "", stem, flags=re.I)
+    stem = re.sub(r"最终版|终版|最新版|正式版|定稿|发布版|初稿|草稿|修订|复核后|副本|copy|final|latest|fixed", "", stem, flags=re.I)
     stem = re.sub(r"\(\d+\)|（\d+）", "", stem)
     stem = clean_text_key(stem)
-    if len(stem) < 8:
+    min_len = 4 if re.search(r"[\u4e00-\u9fff]", stem) else 8
+    if len(stem) < min_len:
         return ""
     parent = path.parent.as_posix()
     return f"{parent}::{stem}::{path.suffix.lower()}"
@@ -1316,7 +1317,7 @@ def topic_label_for_record(record: dict[str, Any]) -> str:
     stem = re.sub(r"20\d{2}年[01]?\d月(?:[0-3]?\d日?)?", "", stem)
     stem = re.sub(r"(?<!\d)\d{6}(?!\d)", "", stem)
     stem = re.sub(r"v\d+(?:\.\d+)*", "", stem, flags=re.I)
-    stem = re.sub(r"最终版|终版|最新版|正式版|定稿|发布版|初稿|草稿|修订|复核后|副本|复制|copy", "", stem, flags=re.I)
+    stem = re.sub(r"最终版|终版|最新版|正式版|定稿|发布版|初稿|草稿|修订|复核后|副本|复制|copy|final|latest|fixed", "", stem, flags=re.I)
     stem = re.sub(r"\(\d+\)|（\d+）", "", stem)
     return clean_staged_part(stem, 40) or "交接资料"
 
@@ -1548,6 +1549,49 @@ def build_stats(
     }
 
 
+MISSING_GATE_LABELS = {
+    "material-folder-not-confirmed": "材料文件夹未确认",
+    "role-not-confirmed": "岗位方向未经本人确认",
+    "handover-person-missing": "交接人姓名未填写",
+    "role-missing": "岗位未填写",
+    "successor-missing": "接手人未确定",
+    "handover-coordinator-missing": "交接负责人未确定",
+    "last-working-day-missing": "最后工作日未填写",
+    "successor-view-not-confirmed": "接手人关注点未确认",
+    "deep-review-not-complete": "材料深度盘点未完成",
+}
+
+
+def humanize_missing_gates(missing: list[str]) -> list[str]:
+    return [MISSING_GATE_LABELS.get(item, item) for item in missing]
+
+
+def build_handover_checks(answers: dict[str, Any]) -> list[dict[str, str]]:
+    """Surface the answer-backed offboarding checks for HTML rendering."""
+    check_items = [
+        ("work_wechat", "工作微信 / 企微 / 客户群 / 运营账号"),
+        ("paper_notes", "涉密载体 / 纸质材料"),
+        ("otp_binding", "手机号绑定与验证码链路"),
+        ("oral_rules", "口头约定 / 非书面规则"),
+        ("reimbursement", "备用金 / 借款 / 未核销报销"),
+        ("group_owner", "群主责任 / 内容监管责任"),
+        ("customer_transfer", "客户资源与聊天沉淀可用性"),
+    ]
+    checks = answers.get("checks", {})
+    result: list[dict[str, str]] = []
+    for key, label in check_items:
+        note = (checks.get(key) or "").strip()
+        result.append(
+            {
+                "key": key,
+                "item": label,
+                "status": status_from_answer(note),
+                "note": note,
+            }
+        )
+    return result
+
+
 def missing_polished_gates(config: dict[str, Any]) -> list[str]:
     gates = config.get("gates", {})
     profile = config.get("profile", {})
@@ -1673,10 +1717,12 @@ def build_manifest(
     all_records: list[dict[str, Any]] | None = None,
     review_records: list[dict[str, Any]] | None = None,
     excluded_records: list[dict[str, Any]] | None = None,
+    answers: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     all_records = all_records if all_records is not None else records
     review_records = review_records or []
     excluded_records = excluded_records or []
+    answers = answers or deep_copy(DEFAULT_ANSWERS)
     stats = build_stats(records, all_records, review_records, excluded_records)
     modules = []
     by_domain = defaultdict(list)
@@ -1726,6 +1772,8 @@ def build_manifest(
         "excluded_reason_counts": dict(excluded_reason_counts.most_common()),
         "review_reason_counts": dict(review_reason_counts.most_common()),
         "high_risk_items": collect_high_risk_items(records),
+        "inflight_items": infer_inflight_items(records),
+        "handover_checks": build_handover_checks(answers),
         "missed_items_checklist": str(
             target / config["output"]["root_dir"] / STATUS_DIR / MISSED_ITEMS_NAME
         ),
@@ -1965,12 +2013,12 @@ def build_core_markdown_previews(target: Path, config: dict[str, Any]) -> list[d
     preview_candidates = [
         ("入口总览", output_root / "00-说明与导航/00-交接总览.md"),
         ("阅读顺序", output_root / "00-说明与导航/01-阅读顺序.md"),
-        ("筛选与排除报告", output_root / f"00-说明与导航/{FILTER_REPORT_NAME}"),
         ("交接信息", output_root / "01-交接信息/00-交接信息.md"),
         ("模块总览", output_root / "02-交接总览/00-交接总览.md"),
         ("进行中事项总表", output_root / f"{STATUS_DIR}/{INFLIGHT_SUMMARY_NAME}"),
         ("高遗漏检查清单", output_root / f"{STATUS_DIR}/{MISSED_ITEMS_NAME}"),
         ("交接结论说明", output_root / f"{STATUS_DIR}/{CONCLUSION_NAME}"),
+        ("筛选与排除报告", output_root / f"00-说明与导航/{FILTER_REPORT_NAME}"),
     ]
     previews: list[dict[str, str]] = []
     for title, path in preview_candidates:
@@ -1986,85 +2034,269 @@ def build_core_markdown_previews(target: Path, config: dict[str, Any]) -> list[d
 
 
 
+STATUS_CN_LABELS = {
+    "draft": "草稿",
+    "review": "评审中",
+    "final": "定稿",
+    "historical": "历史归档",
+}
+
+SENSITIVITY_CN_LABELS = {
+    "public": "公开",
+    "internal": "内部",
+    "restricted": "受限",
+    "confidential": "机密",
+}
+
+
+def status_pill(value: str) -> str:
+    safe = html.escape(STATUS_CN_LABELS.get(value, value))
+    css = {
+        "draft": "pill-warning",
+        "review": "pill-warning",
+        "final": "pill-success",
+        "historical": "pill-muted",
+    }.get(value, "pill-muted")
+    return f'<span class="pill {css}">{safe}</span>'
+
+
+def sensitivity_pill(value: str) -> str:
+    safe = html.escape(SENSITIVITY_CN_LABELS.get(value, value))
+    css = {
+        "public": "pill-muted",
+        "internal": "pill-info",
+        "restricted": "pill-warning",
+        "confidential": "pill-danger",
+    }.get(value, "pill-muted")
+    return f'<span class="pill {css}">{safe}</span>'
+
+
+def status_pill_cn(value: str) -> str:
+    safe = html.escape(value)
+    css = {
+        "待确认": "pill-warning",
+        "进行中": "pill-info",
+        "已完成": "pill-success",
+    }.get(value, "pill-warning")
+    return f'<span class="pill {css}">{safe}</span>'
+
+
+def check_status_pill(value: str) -> str:
+    safe = html.escape(value)
+    css = {
+        "待补充": "pill-warning",
+        "待确认": "pill-warning",
+        "已交接": "pill-success",
+        "已补充": "pill-info",
+        "无需交接": "pill-muted",
+        "线下办理": "pill-muted",
+    }.get(value, "pill-muted")
+    return f'<span class="pill {css}">{safe}</span>'
+
+
 def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previews: list[dict[str, str]] | None = None) -> str:
     title = html.escape(config["output"]["site_title"])
     profile = manifest.get("profile", {})
     stats = manifest.get("stats", {})
     files = manifest.get("files", [])
-    modules = manifest.get("modules", [])
+    modules = [module for module in manifest.get("modules", []) if module.get("count")]
     markdown_previews = markdown_previews or []
-    preview_map = {item["path"].replace("\\", "/"): str(idx) for idx, item in enumerate(markdown_previews)}
     preview_title_to_idx = {item["title"]: str(idx) for idx, item in enumerate(markdown_previews)}
     file_previews = build_file_previews(config, manifest)
     delivery = manifest.get("delivery", {})
     delivery_status = delivery.get("status", "draft")
     delivery_label = "草稿待确认" if delivery_status == "draft" else "正式交接包"
-    missing_gate_text = "、".join(delivery.get("missing_gates", [])) or "无"
+    missing_gate_labels = humanize_missing_gates(delivery.get("missing_gates", []))
+    inflight_items = manifest.get("inflight_items", [])
+    handover_checks = manifest.get("handover_checks", [])
+    high_risk_items = manifest.get("high_risk_items", [])
+    review_items = manifest.get("review_items", [])
+    excluded_items = manifest.get("excluded_items", [])
+    retention_stats = manifest.get("retention_stats", {})
+    pending_checks = sum(1 for check in handover_checks if check.get("status") == "待补充")
+    coordinator = handover_coordinator_value({"profile": profile})
+
+    employee = profile.get("employee_name") or "交接人待补充"
+    successor = profile.get("successor") or ""
+    handover_flow = f"{employee} → {successor}" if successor else employee
+    header_meta_parts = [part for part in [profile.get("role"), f"最后工作日 {profile.get('last_working_day')}" if profile.get("last_working_day") else ""] if part]
+    header_meta = " · ".join(header_meta_parts) or "岗位与最后工作日待补充"
 
     status_counts = Counter(item.get("status", "") for item in files)
     sensitivity_counts = Counter(item.get("sensitivity", "") for item in files)
-    profile_summary_parts = [
-        profile.get("department") or "",
-        profile.get("role") or "",
-        f"接手人：{profile.get('successor')}" if profile.get("successor") else "",
-    ]
-    profile_summary = " · ".join(part for part in profile_summary_parts if part) or "交接范围待补充"
 
-    def option_items(values: list[str], counts: Counter[str] | None = None) -> str:
+    def option_items(values: list[str], counts: Counter[str] | None = None, label_map: dict[str, str] | None = None) -> str:
         items = []
         for value in values:
-            label = value
+            label = (label_map or {}).get(value, value)
             if counts is not None:
-                label = f"{value} ({counts.get(value, 0)})"
+                label = f"{label} ({counts.get(value, 0)})"
             items.append(f'<option value="{html.escape(value)}">{html.escape(label)}</option>')
         return "".join(items)
 
     def doc_jump(title_key: str, label: str) -> str:
         preview_id = preview_title_to_idx.get(title_key)
         if preview_id is None:
-            return f'<span class="doc-action disabled">{html.escape(label)}</span>'
+            return ""
         return f'<button type="button" class="doc-action" data-preview-jump="{html.escape(preview_id)}">{html.escape(label)}</button>'
 
-    status_values = config.get("labels", {}).get("status", sorted(status_counts))
-    sensitivity_values = config.get("labels", {}).get("sensitivity", sorted(sensitivity_counts))
+    status_values = [value for value in config.get("labels", {}).get("status", sorted(status_counts)) if status_counts.get(value)]
+    sensitivity_values = [value for value in config.get("labels", {}).get("sensitivity", sorted(sensitivity_counts)) if sensitivity_counts.get(value)]
     domain_options = "".join(
-        f'<option value="{html.escape(module["name"])}">{html.escape(module["name"])}</option>'
+        f'<option value="{html.escape(module["name"])}">{html.escape(module["name"])} ({module["count"]})</option>'
         for module in modules
     )
-    status_options = option_items(status_values, status_counts)
-    sensitivity_options = option_items(sensitivity_values, sensitivity_counts)
+    status_options = option_items(status_values, status_counts, STATUS_CN_LABELS)
+    sensitivity_options = option_items(sensitivity_values, sensitivity_counts, SENSITIVITY_CN_LABELS)
 
-    module_items = "\n".join(
-        f"""
-        <article class="module-item" data-domain="{html.escape(module['name'])}">
-          <div>
-            <h3>{html.escape(module['name'])}</h3>
-            <p>{module['count']} 个文件</p>
-          </div>
-          <ul>{''.join(f"<li>{html.escape(item)}</li>" for item in module['sample_files'][:4]) or '<li>暂无文件</li>'}</ul>
-          <button type="button" class="subtle-button" data-domain-jump="{html.escape(module['name'])}">查看文件</button>
-        </article>
-        """
+    # ---- file table with inline expandable previews ----
+    file_rows: list[str] = []
+    row_by_relative: dict[str, str] = {}
+    row_by_staged: dict[str, str] = {}
+    for row_index, item in enumerate(files):
+        href = make_site_href(config, item.get("staged_path"))
+        normalized_target = (item.get("staged_path") or "").replace("\\", "/")
+        file_preview = file_previews.get(normalized_target) if normalized_target else None
+        row_id = f"file-row-{row_index}"
+        relative_path = item.get("relative_path", "")
+        if relative_path:
+            row_by_relative[relative_path] = row_id
+        if normalized_target:
+            row_by_staged[normalized_target] = row_id
+        staged_name = item.get("staged_name") or (Path(normalized_target).name if normalized_target else "") or Path(relative_path).name
+        actions: list[str] = []
+        if file_preview:
+            actions.append(f'<button type="button" class="file-preview-button" data-row-preview="{row_id}">查看预览</button>')
+        if item.get("staged_path"):
+            actions.append(f'<a class="file-open-link" href="{html.escape(href)}" target="_blank" rel="noopener noreferrer">打开原文件</a>')
+        actions_html = f'<div class="file-actions">{"".join(actions)}</div>' if actions else '<span class="muted">未分发</span>'
+        doctype_label = DOCTYPE_LABELS.get(item.get("doctype", ""), item.get("doctype", ""))
+        search_blob = " ".join(
+            [
+                item.get("domain", ""),
+                item.get("original_name", ""),
+                item.get("original_path", ""),
+                relative_path,
+                item.get("staged_name", ""),
+                item.get("staged_path", ""),
+                item.get("doctype", ""),
+                doctype_label,
+                item.get("status", ""),
+                item.get("sensitivity", ""),
+            ]
+        )
+        file_rows.append(
+            f"""<tr id="{row_id}" data-domain="{html.escape(item['domain'])}" data-status="{html.escape(item['status'])}" data-sensitivity="{html.escape(item['sensitivity'])}" data-search="{html.escape(search_blob.lower())}">
+<td class="file-name-cell"><strong>{html.escape(staged_name)}</strong><small>原文件：{html.escape(relative_path)}</small></td>
+<td>{html.escape(item['domain'])}</td>
+<td>{html.escape(doctype_label)}</td>
+<td>{status_pill(item['status'])}</td>
+<td>{sensitivity_pill(item['sensitivity'])}</td>
+<td>{bytes_to_human(item['size'])}</td>
+<td>{actions_html}</td>
+</tr>"""
+        )
+        if file_preview:
+            file_rows.append(
+                f"""<tr class="inline-preview-row" data-preview-of="{row_id}" hidden>
+<td colspan="7"><div class="inline-preview-body">{file_preview['html']}</div></td>
+</tr>"""
+            )
+    file_rows_html = "\n".join(file_rows) or '<tr class="empty-table"><td colspan="7">暂无文件。</td></tr>'
+
+    domain_chips = "".join(
+        f'<button type="button" class="domain-chip" data-domain-chip="{html.escape(module["name"])}">{html.escape(module["name"])} <b>{module["count"]}</b></button>'
         for module in modules
     )
 
-    risky_items = "\n".join(
-        f"""
-        <li class="risk-item">
-          <span class="risk-domain">{html.escape(item['domain'])}</span>
-          <span class="risk-path">{html.escape(item['relative_path'])}</span>
-          <span class="risk-level">{html.escape(item['sensitivity'])}</span>
-        </li>
-        """
-        for item in manifest.get("high_risk_items", [])
-    ) or '<li class="empty-state">未发现高风险条目。</li>'
+    # ---- executive takeaways ----
+    takeaways: list[str] = []
+    if inflight_items:
+        takeaways.append(f'<li><a href="#inflight">{len(inflight_items)} 项工作仍在推进</a>，先确认每件事的下一步和责任人。</li>')
+    if high_risk_items:
+        takeaways.append(f'<li><a href="#risks">{len(high_risk_items)} 个文件涉及账号、合同或敏感信息</a>，移交时逐项核对。</li>')
+    if pending_checks:
+        takeaways.append(f'<li><a href="#signoff">{pending_checks} 项离职检查还没有确认状态</a>（账号、纸质材料、报销等）。</li>')
+    if retention_stats.get("review"):
+        takeaways.append(f'<li>{retention_stats.get("review")} 个文件待确认是否纳入交接范围，详见页底附录。</li>')
+    if not takeaways:
+        takeaways.append('<li>材料已分类完毕，未发现待跟进风险，按核心文档顺序阅读即可。</li>')
+    takeaway_html = "\n".join(takeaways)
 
+    # ---- inflight section ----
+    inflight_rows: list[str] = []
+    for entry in inflight_items:
+        link = (entry.get("link") or "").replace("\\", "/")
+        row_id = row_by_staged.get(link) or row_by_relative.get(entry.get("link", ""))
+        if row_id:
+            link_cell = f'<button type="button" class="file-preview-button" data-row-jump="{row_id}">查看资料</button>'
+        else:
+            link_cell = f'<span class="muted">{html.escape(Path(link).name or "待补充")}</span>'
+        inflight_rows.append(
+            f"<tr><td>{html.escape(entry.get('item', ''))}</td><td>{html.escape(entry.get('module', ''))}</td>"
+            f"<td>{status_pill_cn(entry.get('status', '待确认'))}</td><td>{html.escape(entry.get('next_step', ''))}</td><td>{link_cell}</td></tr>"
+        )
+    inflight_table = "\n".join(inflight_rows) or '<tr><td colspan="5" class="empty-state">没有识别到进行中事项；如有口头跟进中的工作，请补充到「进行中事项总表」。</td></tr>'
+
+    # ---- risk section ----
+    risk_rows: list[str] = []
+    for item in high_risk_items:
+        row_id = row_by_relative.get(item.get("relative_path", ""))
+        jump = f'<button type="button" class="file-preview-button" data-row-jump="{row_id}">定位文件</button>' if row_id else ""
+        risk_rows.append(
+            f"""<li class="risk-item">
+<span class="risk-domain">{html.escape(item['domain'])}</span>
+<span class="risk-path">{html.escape(item['relative_path'])}</span>
+<span class="risk-level">{html.escape(SENSITIVITY_CN_LABELS.get(item['sensitivity'], item['sensitivity']))}</span>
+<span>{jump}</span>
+</li>"""
+        )
+    risky_items = "\n".join(risk_rows) or '<li class="empty-state">未发现高风险条目。</li>'
+
+    check_rows = "\n".join(
+        f"<tr><td>{html.escape(check['item'])}</td><td>{check_status_pill(check['status'])}</td><td>{html.escape(check.get('note') or '—')}</td></tr>"
+        for check in handover_checks
+    ) or '<tr><td colspan="3" class="empty-state">暂无检查项。</td></tr>'
+
+    signoff_universal = [
+        ("公司设备归还（电脑、门禁卡、工牌等）", "线下办理"),
+        ("系统账号与权限回收", "线下办理"),
+        ("交接包文件已移交并可正常打开", "待确认"),
+    ]
+    signoff_rows = "\n".join(
+        f"<tr><td>{html.escape(check['item'])}</td><td>{check_status_pill(check['status'])}</td><td>{html.escape(check.get('note') or '')}</td><td class=\"sign-cell\"></td></tr>"
+        for check in handover_checks
+    ) + "\n" + "\n".join(
+        f"<tr><td>{html.escape(label)}</td><td>{check_status_pill(status)}</td><td></td><td class=\"sign-cell\"></td></tr>"
+        for label, status in signoff_universal
+    )
+
+    # ---- core documents ----
+    doc_cards = "\n".join(
+        f"""
+        <button type="button" class="doc-link" data-preview-jump="{idx}">
+          <span>{html.escape(item["title"])}</span>
+          <small>{html.escape(item["path"])}</small>
+        </button>
+        """
+        for idx, item in enumerate(markdown_previews)
+    ) or '<p class="empty-state">暂无核心文档预览。</p>'
+    preview_buttons = "\n".join(
+        f'<button type="button" class="preview-tab" data-preview="{idx}">{html.escape(item["title"])}</button>'
+        for idx, item in enumerate(markdown_previews)
+    ) or '<span class="meta">暂无可预览文档</span>'
+    preview_panels = "\n".join(
+        f'''<article class="preview-panel" data-preview="{idx}">
+<div class="preview-source">来源：<code>{html.escape(item["path"])}</code></div>
+<div class="md-preview">{item["html"]}</div>
+</article>'''
+        for idx, item in enumerate(markdown_previews)
+    ) or '<p class="empty-state">当前没有可预览的核心文档。</p>'
+
+    # ---- appendix ----
     assumption_items = "\n".join(
         f"<li>{html.escape(item)}</li>" for item in manifest.get("assumptions", [])
     ) or "<li>暂无额外假设。</li>"
-    review_items = manifest.get("review_items", [])
-    excluded_items = manifest.get("excluded_items", [])
-    retention_stats = manifest.get("retention_stats", {})
     review_rows = "\n".join(
         f"<tr><td>{html.escape(item['relative_path'])}</td><td>{html.escape('、'.join(item.get('retain_reasons', [])) or '待确认')}</td></tr>"
         for item in review_items[:30]
@@ -2077,114 +2309,25 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
         f"<tr><td>{html.escape(item['relative_path'])}</td><td>{html.escape('、'.join(item.get('retain_reasons', [])) or '未纳入')}</td></tr>"
         for item in excluded_items[:30]
     ) or '<tr><td colspan="2">暂无未纳入文件。</td></tr>'
-
-    top_files = sorted(files, key=lambda item: item.get("size", 0), reverse=True)[:20]
+    top_files = sorted(files, key=lambda item: item.get("size", 0), reverse=True)[:10]
     top_file_rows = "\n".join(
-        f"<tr><td>{html.escape(item['domain'])}</td><td>{html.escape(item['relative_path'])}</td><td>{html.escape(item.get('staged_path', '-'))}</td><td>{bytes_to_human(item['size'])}</td></tr>"
+        f"<tr><td>{html.escape(item['domain'])}</td><td>{html.escape(item['relative_path'])}</td><td>{bytes_to_human(item['size'])}</td></tr>"
         for item in top_files
-    ) or '<tr><td colspan="4">暂无文件。</td></tr>'
+    ) or '<tr><td colspan="3">暂无文件。</td></tr>'
 
-    doc_cards = "\n".join(
-        f"""
-        <button type="button" class="doc-link" data-preview-jump="{idx}">
-          <span>{html.escape(item["title"])}</span>
-          <small>{html.escape(item["path"])}</small>
-        </button>
-        """
-        for idx, item in enumerate(markdown_previews)
-    ) or '<p class="empty-state">暂无核心文档预览。</p>'
-
-    preview_buttons = "\n".join(
-        f'<button type="button" class="preview-tab" data-preview="{idx}">{html.escape(item["title"])}</button>'
-        for idx, item in enumerate(markdown_previews)
-    ) or '<span class="meta">暂无可预览文档</span>'
-    preview_panels = "\n".join(
-        f'''<article class="preview-panel" data-preview="{idx}">
-<div class="preview-source">来源：<code>{html.escape(item["path"])}</code></div>
-<div class="md-preview">{item["html"]}</div>
-</article>'''
-        for idx, item in enumerate(markdown_previews)
-    ) or '<p class="empty-state">当前没有可预览的核心 Markdown 文档。</p>'
-
-    file_preview_tabs = "\n".join(
-        f'<button type="button" class="file-preview-tab" data-file-preview="{html.escape(item["id"])}">{html.escape(Path(item["title"]).name)}</button>'
-        for item in file_previews.values()
-    ) or '<span class="meta">暂无可预览文件</span>'
-    file_preview_panels = "\n".join(
-        f'''<article class="file-preview-panel" data-file-preview="{html.escape(item["id"])}">
-<div class="preview-source">文件：<code>{html.escape(item["staged_path"])}</code></div>
-<div class="md-preview file-preview-body">{item["html"]}</div>
-</article>'''
-        for item in file_previews.values()
-    ) or '<p class="empty-state">当前没有可预览的文件。可从文件表打开原文件。</p>'
-
-    def status_pill(value: str) -> str:
-        safe = html.escape(value)
-        css = {
-            "draft": "pill-warning",
-            "review": "pill-warning",
-            "final": "pill-success",
-            "historical": "pill-muted",
-        }.get(value, "pill-muted")
-        return f'<span class="pill {css}">{safe}</span>'
-
-    def sensitivity_pill(value: str) -> str:
-        safe = html.escape(value)
-        css = {
-            "public": "pill-muted",
-            "internal": "pill-info",
-            "restricted": "pill-warning",
-            "confidential": "pill-danger",
-        }.get(value, "pill-muted")
-        return f'<span class="pill {css}">{safe}</span>'
-
-    file_rows: list[str] = []
-    for item in files:
-        href = make_site_href(config, item.get("staged_path"))
-        display_target = item.get("staged_path", "")
-        normalized_target = display_target.replace("\\", "/")
-        preview_id = preview_map.get(normalized_target)
-        if item.get("staged_path"):
-            file_preview = file_previews.get(normalized_target)
-            open_link = f'<a class="file-open-link" href="{html.escape(href)}" target="_blank" rel="noopener noreferrer">打开原文件</a>'
-            target_cell = (
-                f'<a href="#documents" class="md-preview-link" data-preview-target="{html.escape(preview_id)}">{html.escape(display_target)}</a>'
-                if preview_id is not None
-                else (
-                    f'<div class="file-actions"><button type="button" class="file-preview-button" data-file-preview-jump="{html.escape(file_preview["id"])}">查看预览</button>{open_link}</div><small>{html.escape(display_target)}</small>'
-                    if file_preview
-                    else f'<div class="file-actions">{open_link}</div><small>{html.escape(display_target)}</small>'
-                )
-            )
-        else:
-            target_cell = '<span class="muted">未分发</span>'
-        search_blob = " ".join(
-            [
-                item.get("domain", ""),
-                item.get("original_name", ""),
-                item.get("original_path", ""),
-                item.get("relative_path", ""),
-                item.get("staged_name", ""),
-                item.get("staged_path", ""),
-                item.get("doctype", ""),
-                item.get("scope", ""),
-                item.get("status", ""),
-                item.get("sensitivity", ""),
-            ]
+    if delivery_status == "draft":
+        gate_text = "、".join(missing_gate_labels[:4]) + ("…" if len(missing_gate_labels) > 4 else "")
+        banner_html = (
+            f'<div class="delivery-banner draft"><strong>草稿待确认</strong>'
+            f'<span>以下信息补齐后才能作为正式交接包交付：{html.escape(gate_text or "无")}。</span></div>'
         )
-        file_rows.append(
-            f"""<tr data-domain="{html.escape(item['domain'])}" data-status="{html.escape(item['status'])}" data-sensitivity="{html.escape(item['sensitivity'])}" data-search="{html.escape(search_blob.lower())}">
-<td>{html.escape(item['domain'])}</td>
-<td>{html.escape(item['relative_path'])}</td>
-<td>{target_cell}</td>
-<td>{html.escape(item['doctype'])}</td>
-<td>{html.escape(item['scope'])}</td>
-<td>{status_pill(item['status'])}</td>
-<td>{sensitivity_pill(item['sensitivity'])}</td>
-<td>{bytes_to_human(item['size'])}</td>
-</tr>"""
+    else:
+        banner_html = (
+            '<div class="delivery-banner polished"><strong>正式交接包</strong>'
+            '<span>交接信息已确认，可直接移交给接手人和交接负责人。</span></div>'
         )
-    file_rows_html = "\n".join(file_rows) or '<tr class="empty-table"><td colspan="8">暂无文件。</td></tr>'
+
+    generated_at = html.escape(manifest.get("generated_at", ""))
 
     return f"""<!doctype html>
 <html lang="zh-CN">
@@ -2207,7 +2350,6 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       --success: #0E9F6E;
       --warning: #B7791F;
       --danger: #C2410C;
-      --shadow: 0 14px 36px rgba(23, 32, 51, 0.08);
     }}
     * {{ box-sizing: border-box; }}
     html {{ scroll-behavior: smooth; }}
@@ -2215,7 +2357,6 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       margin: 0;
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      letter-spacing: 0;
       background: var(--page);
     }}
     a {{ color: var(--primary-ink); text-decoration: none; }}
@@ -2236,27 +2377,33 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
     .header-inner {{
       max-width: 1440px;
       margin: 0 auto;
-      padding: 18px 28px;
+      padding: 14px 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 18px;
     }}
-    .eyebrow {{
-      margin: 0 0 4px;
-      color: var(--primary-ink);
-      font-size: 12px;
-      font-weight: 700;
-    }}
+    .header-title {{ display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }}
     h1, h2, h3, p {{ margin-top: 0; }}
-    h1 {{ margin-bottom: 4px; font-size: 24px; line-height: 1.25; }}
-    h2 {{ margin-bottom: 8px; font-size: 20px; line-height: 1.35; }}
+    h1 {{ margin-bottom: 0; font-size: 20px; line-height: 1.3; }}
+    h2 {{ margin-bottom: 8px; font-size: 19px; line-height: 1.35; }}
     h3 {{ margin-bottom: 6px; font-size: 15px; line-height: 1.4; }}
     p, li, td, th {{ line-height: 1.6; }}
-    .header-copy, .muted, .meta {{ color: var(--muted); }}
-    .header-copy {{ margin: 0; font-size: 14px; }}
+    .muted, .meta {{ color: var(--muted); }}
+    .header-flow {{ color: var(--ink); font-weight: 700; }}
+    .header-meta {{ color: var(--muted); font-size: 13px; }}
+    .state-badge {{
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }}
+    .state-badge.draft {{ background: #FFF7ED; color: #B45309; border: 1px solid #FED7AA; }}
+    .state-badge.polished {{ background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }}
     .header-actions {{ display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }}
-    .primary-button, .secondary-button, .subtle-button, .doc-action, .preview-tab, .doc-link, .file-preview-tab, .file-preview-button {{
+    .primary-button, .secondary-button, .doc-action, .preview-tab, .doc-link, .file-preview-button, .domain-chip {{
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface);
@@ -2267,24 +2414,21 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       border-color: var(--primary);
       background: var(--primary);
       color: #fff;
-      padding: 10px 14px;
+      padding: 9px 14px;
       font-weight: 700;
     }}
-    .secondary-button {{
-      padding: 10px 14px;
-      font-weight: 600;
-    }}
+    .secondary-button {{ padding: 9px 14px; font-weight: 600; }}
     .app-shell {{
       max-width: 1440px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 236px minmax(0, 1fr);
+      grid-template-columns: 220px minmax(0, 1fr);
     }}
     .side-nav {{
       position: sticky;
-      top: 73px;
+      top: 65px;
       align-self: start;
-      min-height: calc(100vh - 73px);
+      min-height: calc(100vh - 65px);
       padding: 24px 18px;
       border-right: 1px solid var(--line);
     }}
@@ -2301,92 +2445,65 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       color: var(--primary-ink);
       text-decoration: none;
     }}
-    main {{ min-width: 0; padding: 26px 32px 72px; }}
+    main {{ min-width: 0; padding: 24px 32px 72px; }}
     .section {{
-      padding: 28px 0;
+      padding: 26px 0;
       border-bottom: 1px solid var(--line);
-      scroll-margin-top: 96px;
+      scroll-margin-top: 88px;
     }}
-    .section:first-child {{ padding-top: 4px; }}
-    .section-header {{
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 16px;
-    }}
-    .section-header p {{ margin: 0; max-width: 760px; color: var(--muted); }}
-    .kpi-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }}
-    .kpi, .doc-link, .module-item, .preview-shell, .risk-panel, .table-panel {{
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }}
-    .kpi {{ padding: 15px; }}
-    .kpi strong {{ display: block; margin-bottom: 4px; font-size: 24px; line-height: 1.2; }}
-    .kpi span {{ color: var(--muted); font-size: 13px; }}
+    .section:first-of-type {{ padding-top: 4px; }}
+    .section-header {{ margin-bottom: 14px; }}
+    .section-header p {{ margin: 0; max-width: 760px; color: var(--muted); font-size: 14px; }}
     .profile-grid {{
       display: grid;
-      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
       gap: 1px;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--line);
+      margin: 0 0 14px;
     }}
-    .profile-grid div {{ padding: 12px; background: var(--surface); }}
+    .profile-grid div {{ padding: 11px 12px; background: var(--surface); }}
     .profile-grid dt {{ color: var(--muted); font-size: 12px; }}
     .profile-grid dd {{ margin: 4px 0 0; font-weight: 650; }}
-    .path-list {{
+    .kpi-grid {{
       display: grid;
-      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
+      margin-bottom: 16px;
     }}
-    .path-list li {{
-      min-height: 150px;
-      padding: 16px;
+    .kpi, .doc-link, .preview-shell, .risk-panel, .table-panel, .takeaway-panel, .signoff-grid div {{
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
     }}
-    .step-no {{ display: inline-flex; margin-bottom: 12px; color: var(--primary-ink); font-weight: 800; }}
-    .doc-action {{
-      margin-top: 10px;
-      padding: 7px 10px;
-      color: var(--primary-ink);
-      font-weight: 700;
-    }}
-    .doc-action.disabled {{ display: inline-block; color: var(--muted); cursor: default; }}
+    .kpi {{ padding: 13px 15px; }}
+    .kpi strong {{ display: block; margin-bottom: 2px; font-size: 24px; line-height: 1.2; }}
+    .kpi span {{ color: var(--muted); font-size: 13px; }}
+    .kpi.alert strong {{ color: var(--danger); }}
+    .takeaway-panel {{ padding: 14px 18px; border-left: 4px solid var(--primary); }}
+    .takeaway-panel h3 {{ margin-bottom: 8px; }}
+    .takeaway-panel ul {{ margin: 0; padding-left: 18px; }}
+    .takeaway-panel li {{ margin: 6px 0; }}
     .delivery-banner {{
       margin-bottom: 16px;
-      padding: 12px 14px;
+      padding: 11px 14px;
       border: 1px solid var(--line);
       border-left: 4px solid var(--warning);
       border-radius: 8px;
       background: #FFFDF7;
-      color: var(--ink);
     }}
-    .delivery-banner.polished {{
-      border-left-color: var(--success);
-      background: #F0FDF4;
-    }}
+    .delivery-banner.polished {{ border-left-color: var(--success); background: #F0FDF4; }}
     .delivery-banner strong {{ margin-right: 8px; }}
     .doc-grid {{
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 10px;
     }}
     .doc-link {{
-      min-height: 88px;
-      padding: 13px;
+      min-height: 80px;
+      padding: 12px;
       text-align: left;
       display: flex;
       flex-direction: column;
@@ -2395,53 +2512,30 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
     }}
     .doc-link span {{ color: var(--ink); font-weight: 700; }}
     .doc-link small {{ color: var(--muted); overflow-wrap: anywhere; }}
-    .module-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
-    }}
-    .module-item {{ padding: 15px; display: grid; gap: 12px; }}
-    .module-item p {{ margin: 0; color: var(--muted); font-size: 13px; }}
-    .module-item ul {{ margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }}
-    .subtle-button {{
-      justify-self: start;
-      padding: 7px 10px;
-      color: var(--primary-ink);
-      font-weight: 700;
-    }}
-    .risk-panel {{ padding: 16px; }}
+    .doc-action {{ padding: 7px 10px; color: var(--primary-ink); font-weight: 700; }}
     .risk-grid {{
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr);
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
       gap: 14px;
     }}
-    .risk-list, .assumption-list {{ margin: 0; padding: 0; list-style: none; }}
+    .risk-panel {{ padding: 16px; }}
+    .risk-list {{ margin: 0; padding: 0; list-style: none; }}
     .risk-item {{
       display: grid;
-      grid-template-columns: 96px minmax(0, 1fr) 110px;
+      grid-template-columns: 86px minmax(0, 1fr) 96px auto;
       gap: 10px;
-      align-items: start;
-      padding: 10px 0;
+      align-items: center;
+      padding: 9px 0;
       border-bottom: 1px solid var(--line);
     }}
     .risk-item:last-child {{ border-bottom: 0; }}
-    .risk-domain, .risk-level {{
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--danger);
-    }}
-    .risk-path {{ overflow-wrap: anywhere; }}
-    .assumption-list li {{
-      padding: 9px 0;
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
-    }}
-    .assumption-list li:last-child {{ border-bottom: 0; }}
+    .risk-domain, .risk-level {{ font-size: 12px; font-weight: 800; color: var(--danger); }}
+    .risk-path {{ overflow-wrap: anywhere; font-size: 13px; }}
     .toolbar {{
       display: grid;
-      grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(150px, 190px)) auto;
+      grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(140px, 180px)) auto;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }}
     .toolbar input, .toolbar select {{
       width: 100%;
@@ -2452,8 +2546,12 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       background: var(--surface);
       color: var(--ink);
     }}
+    .domain-chips {{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }}
+    .domain-chip {{ padding: 6px 11px; font-size: 13px; font-weight: 600; color: var(--muted); }}
+    .domain-chip b {{ color: var(--ink); margin-left: 2px; }}
+    .domain-chip.active {{ border-color: var(--primary); background: #EFF6FF; color: var(--primary-ink); }}
+    .domain-chip.active b {{ color: var(--primary-ink); }}
     .table-panel {{ overflow: hidden; }}
-    .selection-examples {{ margin-top: 14px; }}
     .table-wrap {{ width: 100%; overflow-x: auto; }}
     table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
     th, td {{
@@ -2463,9 +2561,14 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       vertical-align: top;
       white-space: nowrap;
     }}
-    td:nth-child(2), td:nth-child(3) {{ white-space: normal; min-width: 220px; overflow-wrap: anywhere; }}
     th {{ background: var(--surface-alt); color: var(--muted); font-size: 12px; font-weight: 800; }}
     tbody tr:hover {{ background: #F8FAFC; }}
+    .file-name-cell {{ white-space: normal; min-width: 260px; }}
+    .file-name-cell strong {{ display: block; overflow-wrap: anywhere; }}
+    .file-name-cell small {{ color: var(--muted); overflow-wrap: anywhere; }}
+    .inflight-table td:nth-child(1), .inflight-table td:nth-child(4) {{ white-space: normal; min-width: 180px; overflow-wrap: anywhere; }}
+    .signoff-table td:nth-child(1), .signoff-table td:nth-child(3) {{ white-space: normal; min-width: 180px; overflow-wrap: anywhere; }}
+    .appendix-table td {{ white-space: normal; overflow-wrap: anywhere; }}
     .pill {{
       display: inline-flex;
       align-items: center;
@@ -2484,10 +2587,10 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
     .preview-shell {{ padding: 16px; }}
     .document-preview {{ margin-top: 14px; }}
     .preview-tabs {{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }}
-    .preview-tab, .file-preview-tab {{ padding: 8px 11px; font-weight: 700; }}
-    .preview-tab.active, .file-preview-tab.active {{ border-color: var(--primary); background: #EFF6FF; color: var(--primary-ink); }}
-    .preview-panel, .file-preview-panel {{ display: none; border-top: 1px solid var(--line); padding-top: 14px; }}
-    .preview-panel.active, .file-preview-panel.active {{ display: block; }}
+    .preview-tab {{ padding: 8px 11px; font-weight: 700; }}
+    .preview-tab.active {{ border-color: var(--primary); background: #EFF6FF; color: var(--primary-ink); }}
+    .preview-panel {{ display: none; border-top: 1px solid var(--line); padding-top: 14px; }}
+    .preview-panel.active {{ display: block; }}
     .preview-source {{ color: var(--muted); font-size: 13px; margin-bottom: 10px; }}
     .md-preview {{ max-width: 980px; }}
     .md-preview h1, .md-preview h2, .md-preview h3 {{ color: var(--ink); margin: 16px 0 10px; }}
@@ -2500,7 +2603,7 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
     .md-table-wrap {{ overflow-x: auto; margin: 12px 0; }}
     .md-table {{ min-width: 640px; }}
     .md-table th, .md-table td {{ border: 1px solid var(--line); padding: 8px 10px; white-space: normal; }}
-    .file-actions {{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }}
+    .file-actions {{ display: flex; flex-wrap: wrap; gap: 8px; }}
     .file-open-link, .file-preview-button {{
       display: inline-flex;
       align-items: center;
@@ -2509,12 +2612,53 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       border-radius: 8px;
       font-size: 12px;
       font-weight: 800;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      cursor: pointer;
     }}
-    .file-open-link {{ border: 1px solid var(--line); background: var(--surface); }}
     .file-preview-button {{ color: var(--primary-ink); }}
-    .file-image-preview {{ max-width: 100%; max-height: 640px; border: 1px solid var(--line); border-radius: 8px; }}
-    .file-frame-preview {{ width: 100%; min-height: 640px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }}
-    .file-preview-body pre {{ white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface-alt); padding: 12px; border-radius: 8px; }}
+    .inline-preview-row td {{ background: var(--surface-alt); white-space: normal; }}
+    .inline-preview-body {{
+      max-height: 560px;
+      overflow: auto;
+      padding: 6px 4px;
+    }}
+    .inline-preview-body pre {{ white-space: pre-wrap; overflow-wrap: anywhere; background: var(--surface); padding: 12px; border-radius: 8px; }}
+    .inline-preview-body ul {{ margin: 4px 0; padding-left: 20px; }}
+    .row-flash {{ animation: rowflash 1.6s ease; }}
+    @keyframes rowflash {{
+      0% {{ background: #DBEAFE; }}
+      100% {{ background: transparent; }}
+    }}
+    .file-image-preview {{ max-width: 100%; max-height: 520px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }}
+    .file-frame-preview {{ width: 100%; min-height: 520px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }}
+    .signoff-grid {{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }}
+    .signoff-grid div {{ padding: 14px; min-height: 96px; }}
+    .signoff-grid dt {{ color: var(--muted); font-size: 12px; }}
+    .signoff-grid dd {{ margin: 26px 0 0; border-bottom: 1px solid var(--line-strong); min-height: 24px; }}
+    .sign-cell {{ min-width: 110px; border-bottom-style: solid; }}
+    details.appendix {{ margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }}
+    details.appendix > summary {{
+      cursor: pointer;
+      padding: 13px 16px;
+      font-weight: 700;
+      color: var(--muted);
+      list-style: none;
+    }}
+    details.appendix > summary::before {{ content: "▸ "; color: var(--primary-ink); }}
+    details.appendix[open] > summary::before {{ content: "▾ "; }}
+    details.appendix > .appendix-body {{ padding: 0 16px 16px; }}
+    .appendix-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+    }}
+    .assumption-list {{ margin: 0; padding-left: 18px; color: var(--muted); }}
     code {{
       background: #EEF4FF;
       border-radius: 6px;
@@ -2524,6 +2668,7 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
     }}
     .empty-state, .empty-table td {{ color: var(--muted); }}
     #file-count {{ margin: 10px 0 0; color: var(--muted); font-size: 13px; }}
+    .generated-at {{ margin-top: 28px; color: var(--muted); font-size: 12px; }}
     @media (max-width: 980px) {{
       .app-shell {{ display: block; }}
       .side-nav {{
@@ -2538,23 +2683,25 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       }}
       .side-nav a {{ white-space: nowrap; }}
       main {{ padding: 22px 18px 56px; }}
-      .kpi-grid, .profile-grid, .path-list, .risk-grid {{ grid-template-columns: 1fr 1fr; }}
+      .kpi-grid, .risk-grid, .signoff-grid {{ grid-template-columns: 1fr 1fr; }}
+      .profile-grid {{ grid-template-columns: repeat(3, 1fr); }}
       .toolbar {{ grid-template-columns: 1fr 1fr; }}
       .header-inner {{ align-items: flex-start; flex-direction: column; }}
       .header-actions {{ justify-content: flex-start; }}
     }}
     @media (max-width: 640px) {{
-      .kpi-grid, .profile-grid, .path-list, .risk-grid, .toolbar {{ grid-template-columns: 1fr; }}
+      .kpi-grid, .profile-grid, .risk-grid, .toolbar, .signoff-grid {{ grid-template-columns: 1fr; }}
       .risk-item {{ grid-template-columns: 1fr; }}
-      h1 {{ font-size: 22px; }}
       main {{ padding-left: 14px; padding-right: 14px; }}
     }}
     @media print {{
-      .app-header, .side-nav, .toolbar, .preview-tabs, .subtle-button, .doc-action {{ display: none !important; }}
+      .app-header, .side-nav, .toolbar, .preview-tabs, .doc-action, .file-actions,
+      #documents, #files, .appendix, .domain-chips, .file-preview-button {{ display: none !important; }}
       .app-shell {{ display: block; }}
       main {{ padding: 0; }}
-      .section {{ break-inside: avoid; }}
+      .section {{ break-inside: avoid; border-bottom: 0; }}
       body {{ background: #fff; }}
+      .sign-cell {{ border-bottom: 1px solid #999; }}
     }}
   </style>
 </head>
@@ -2562,81 +2709,119 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
   <header class="app-header">
     <div class="header-inner">
       <div>
-        <p class="eyebrow">交接工作台</p>
-        <h1>{title}</h1>
-        <p class="header-copy">{html.escape(profile_summary)}。先确认范围，再处理风险与未完事项。</p>
+        <div class="header-title">
+          <h1>{title}</h1>
+          <span class="header-flow">{html.escape(handover_flow)}</span>
+          <span class="state-badge {'draft' if delivery_status == 'draft' else 'polished'}">{html.escape(delivery_label)}</span>
+        </div>
+        <p class="header-meta">{html.escape(header_meta)}</p>
       </div>
       <div class="header-actions">
         <button type="button" class="secondary-button" id="focus-search">搜索文件</button>
-        <a class="primary-button" href="#documents">查看核心文档</a>
+        <button type="button" class="primary-button" id="print-signoff">打印交接确认单</button>
       </div>
     </div>
   </header>
   <div class="app-shell">
     <nav class="side-nav" aria-label="交接导航">
-      <a href="#overview">总览</a>
-      <a href="#start">从这里开始</a>
-      <a href="#documents">核心文档</a>
-      <a href="#file-preview">文件预览</a>
-      <a href="#modules">专项模块</a>
-      <a href="#selection">筛选结果</a>
+      <a href="#overview">交接速览</a>
+      <a href="#inflight">马上要接的事</a>
       <a href="#risks">风险与待确认</a>
-      <a href="#large-files">重点文件</a>
-      <a href="#files">已纳入文件</a>
+      <a href="#signoff">交接确认单</a>
+      <a href="#documents">核心文档</a>
+      <a href="#files">交接材料</a>
     </nav>
     <main>
-      <div class="delivery-banner {'polished' if delivery_status == 'polished' else 'draft'}">
-        <strong>{html.escape(delivery_label)}</strong>
-        <span>{html.escape(delivery.get('message', '仍需确认后才能作为正式交接包交付。'))}</span>
-        <span class="meta"> 缺失项：{html.escape(missing_gate_text)}</span>
-      </div>
+      {banner_html}
       <section id="overview" class="section">
         <div class="section-header">
-          <div>
-            <h2>交接总览</h2>
-            <p>这个页面是交接包入口，用来快速确认范围、风险、核心文档和全部文件位置。</p>
-          </div>
-        </div>
-        <div class="kpi-grid" aria-label="扫描概览">
-          <div class="kpi"><strong>{stats.get('scanned_files', 0)}</strong><span>扫描文件</span></div>
-          <div class="kpi"><strong>{retention_stats.get('include', len(files))}</strong><span>已纳入</span></div>
-          <div class="kpi"><strong>{retention_stats.get('review', 0)}</strong><span>需要确认</span></div>
-          <div class="kpi"><strong>{retention_stats.get('exclude', 0)}</strong><span>未纳入</span></div>
-          <div class="kpi"><strong>{len(manifest.get('high_risk_items', []))}</strong><span>高风险条目</span></div>
+          <h2>交接速览</h2>
         </div>
         <dl class="profile-grid">
           <div><dt>交接人</dt><dd>{html.escape(profile.get('employee_name') or '待补充')}</dd></div>
           <div><dt>部门</dt><dd>{html.escape(profile.get('department') or '待补充')}</dd></div>
           <div><dt>岗位</dt><dd>{html.escape(profile.get('role') or '待补充')}</dd></div>
           <div><dt>最后工作日</dt><dd>{html.escape(profile.get('last_working_day') or '待补充')}</dd></div>
-          <div><dt>交接负责人/确认人</dt><dd>{html.escape(handover_coordinator_value({'profile': profile}) or '待补充')}</dd></div>
           <div><dt>接手人</dt><dd>{html.escape(profile.get('successor') or '待补充')}</dd></div>
-          <div><dt>行业模板</dt><dd>{html.escape(profile.get('industry') or 'internet')}</dd></div>
-          <div><dt>交接包位置</dt><dd><code>{html.escape(manifest.get('output_root', '待补充'))}</code></dd></div>
+          <div><dt>交接负责人</dt><dd>{html.escape(coordinator or '待补充')}</dd></div>
         </dl>
+        <div class="kpi-grid" aria-label="交接概览">
+          <div class="kpi"><strong>{retention_stats.get('include', len(files))}</strong><span>已纳入文件</span></div>
+          <div class="kpi{' alert' if inflight_items else ''}"><strong>{len(inflight_items)}</strong><span>进行中事项</span></div>
+          <div class="kpi{' alert' if high_risk_items else ''}"><strong>{len(high_risk_items)}</strong><span>高风险条目</span></div>
+          <div class="kpi"><strong>{retention_stats.get('review', 0)}</strong><span>待确认文件</span></div>
+          <div class="kpi{' alert' if pending_checks else ''}"><strong>{pending_checks}</strong><span>检查项未确认</span></div>
+        </div>
+        <div class="takeaway-panel">
+          <h3>接手前必读</h3>
+          <ul>{takeaway_html}</ul>
+        </div>
       </section>
 
-      <section id="start" class="section">
+      <section id="inflight" class="section">
         <div class="section-header">
-          <div>
-            <h2>从这里开始</h2>
-            <p>按这个顺序阅读，接手人可以先掌握范围，再处理仍需要跟进的事项。</p>
+          <h2>马上要接的事</h2>
+          <p>仍在推进中的工作，接手后第一周需要逐项确认状态、下一步和责任人。</p>
+        </div>
+        <div class="table-panel">
+          <div class="table-wrap">
+            <table class="inflight-table">
+              <thead><tr><th>事项</th><th>所属模块</th><th>当前状态</th><th>下一步</th><th>资料</th></tr></thead>
+              <tbody>{inflight_table}</tbody>
+            </table>
           </div>
         </div>
-        <ol class="path-list">
-          <li><span class="step-no">01</span><h3>确认交接范围</h3><p class="muted">先看入口总览和交接信息，确认人、部门、接手人和最后工作日。</p>{doc_jump('交接信息', '打开交接信息')}</li>
-          <li><span class="step-no">02</span><h3>浏览模块总览</h3><p class="muted">看每个专项模块里有多少文件，先判断资料覆盖是否完整。</p>{doc_jump('模块总览', '打开模块总览')}</li>
-          <li><span class="step-no">03</span><h3>处理未完事项</h3><p class="muted">把进行中事项、下一步、责任人和风险提醒补齐。</p>{doc_jump('进行中事项总表', '打开事项总表')}</li>
-          <li><span class="step-no">04</span><h3>核对高遗漏项</h3><p class="muted">重点核对账号权限、纸质材料、证照、结算和客户关系。</p>{doc_jump('高遗漏检查清单', '打开检查清单')}</li>
-        </ol>
+        {doc_jump('进行中事项总表', '打开进行中事项总表')}
+      </section>
+
+      <section id="risks" class="section">
+        <div class="section-header">
+          <h2>风险与待确认</h2>
+          <p>涉及账号、合同、敏感资料的文件，以及离职流程中容易遗漏的检查项。</p>
+        </div>
+        <div class="risk-grid">
+          <div class="risk-panel">
+            <h3>优先核对的文件</h3>
+            <ul class="risk-list">{risky_items}</ul>
+          </div>
+          <div class="risk-panel">
+            <h3>离职检查项</h3>
+            <div class="table-wrap">
+              <table class="signoff-table">
+                <thead><tr><th>检查项</th><th>状态</th><th>说明</th></tr></thead>
+                <tbody>{check_rows}</tbody>
+              </table>
+            </div>
+            {doc_jump('高遗漏检查清单', '打开完整检查清单')}
+          </div>
+        </div>
+      </section>
+
+      <section id="signoff" class="section">
+        <div class="section-header">
+          <h2>交接确认单</h2>
+          <p>供交接双方与负责人核对签字使用，可直接打印。</p>
+        </div>
+        <div class="table-panel">
+          <div class="table-wrap">
+            <table class="signoff-table">
+              <thead><tr><th>确认项</th><th>当前状态</th><th>说明</th><th>确认签字</th></tr></thead>
+              <tbody>{signoff_rows}</tbody>
+            </table>
+          </div>
+        </div>
+        <dl class="signoff-grid">
+          <div><dt>交接人签字 / 日期</dt><dd></dd></div>
+          <div><dt>接手人签字 / 日期</dt><dd></dd></div>
+          <div><dt>交接负责人签字 / 日期</dt><dd></dd></div>
+          <div><dt>HR / 行政备注</dt><dd></dd></div>
+        </dl>
       </section>
 
       <section id="documents" class="section">
         <div class="section-header">
-          <div>
-            <h2>核心文档</h2>
-            <p>这些文档串起交接包的主线，点击后可在下方预览。</p>
-          </div>
+          <h2>核心文档</h2>
+          <p>交接包的主线文档，点击直接在本页阅读。</p>
         </div>
         <div class="doc-grid">{doc_cards}</div>
         <div class="preview-shell document-preview">
@@ -2645,110 +2830,15 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
         </div>
       </section>
 
-      <section id="file-preview" class="section">
-        <div class="section-header">
-          <div>
-            <h2>文件预览</h2>
-            <p>优先在这里快速看内容；需要编辑或查看完整格式时，再打开原文件。</p>
-          </div>
-        </div>
-        <div class="preview-shell">
-          <div class="preview-tabs">{file_preview_tabs}</div>
-          {file_preview_panels}
-        </div>
-      </section>
-
-      <section id="modules" class="section">
-        <div class="section-header">
-          <div>
-            <h2>专项交接模块</h2>
-            <p>模块用于组织交接内容，Word、PPT、Excel、PDF 只作为文件类型保留。</p>
-          </div>
-        </div>
-        <div class="module-grid">{module_items}</div>
-      </section>
-
-      <section id="selection" class="section">
-        <div class="section-header">
-          <div>
-            <h2>筛选结果</h2>
-            <p>交接包只复制已纳入的文件；需要确认和未纳入的文件保留在原始目录，并在这里说明原因。</p>
-          </div>
-        </div>
-        <div class="risk-grid">
-          <div class="table-panel">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>需要确认的文件</th><th>原因</th></tr></thead>
-                <tbody>{review_rows}</tbody>
-              </table>
-            </div>
-          </div>
-          <div class="table-panel">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>未纳入原因</th><th>数量</th></tr></thead>
-                <tbody>{excluded_reason_rows}</tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="table-panel selection-examples">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>未纳入文件示例</th><th>原因</th></tr></thead>
-              <tbody>{excluded_examples_rows}</tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section id="risks" class="section">
-        <div class="section-header">
-          <div>
-            <h2>风险与待确认</h2>
-            <p>先处理资产权限、合规结算、敏感资料和仍不确定的信息。</p>
-          </div>
-        </div>
-        <div class="risk-grid">
-          <div class="risk-panel">
-            <h3>优先核对</h3>
-            <ul class="risk-list">{risky_items}</ul>
-          </div>
-          <div class="risk-panel">
-            <h3>当前假设</h3>
-            <ul class="assumption-list">{assumption_items}</ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="large-files" class="section">
-        <div class="section-header">
-          <div>
-            <h2>大文件与重点文件</h2>
-            <p>大文件通常承载方案、附件、素材或历史归档，建议优先确认是否需要接手。</p>
-          </div>
-        </div>
-        <div class="table-panel">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>分类域</th><th>源文件</th><th>输出位置</th><th>大小</th></tr></thead>
-              <tbody>{top_file_rows}</tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       <section id="files" class="section">
         <div class="section-header">
-          <div>
-            <h2>已纳入文件</h2>
-            <p>这里只展示已经复制到交接包的文件；需要确认和未纳入的文件请看筛选结果。</p>
-          </div>
+          <h2>交接材料</h2>
+          <p>已纳入交接包的全部文件。点「查看预览」直接在表格内阅读，需要编辑时再打开原文件。</p>
         </div>
+        <div class="domain-chips">{domain_chips}</div>
         <div class="toolbar">
-          <input id="file-search" type="search" placeholder="搜索文件名、类型、状态、敏感级别">
-          <select id="domain-filter"><option value="">全部分类域</option>{domain_options}</select>
+          <input id="file-search" type="search" placeholder="搜索文件名、原路径、类型、状态">
+          <select id="domain-filter"><option value="">全部分类</option>{domain_options}</select>
           <select id="status-filter"><option value="">全部状态</option>{status_options}</select>
           <select id="sensitivity-filter"><option value="">全部敏感级别</option>{sensitivity_options}</select>
           <button type="button" class="secondary-button" id="clear-filters">清除筛选</button>
@@ -2758,14 +2848,13 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
             <table>
               <thead>
                 <tr>
-                  <th>分类域</th>
-                  <th>源文件</th>
-                  <th>输出位置</th>
+                  <th>交接材料</th>
+                  <th>分类</th>
                   <th>类型</th>
-                  <th>范围</th>
                   <th>状态</th>
                   <th>敏感级别</th>
                   <th>大小</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody id="file-table-body">{file_rows_html}</tbody>
@@ -2773,6 +2862,48 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
           </div>
         </div>
         <p id="file-count"></p>
+
+        <details class="appendix">
+          <summary>附录：筛选说明、整理假设与大文件清单</summary>
+          <div class="appendix-body">
+            <div class="appendix-grid">
+              <div>
+                <h3>待确认是否纳入</h3>
+                <div class="table-wrap"><table class="appendix-table">
+                  <thead><tr><th>文件</th><th>原因</th></tr></thead>
+                  <tbody>{review_rows}</tbody>
+                </table></div>
+              </div>
+              <div>
+                <h3>未纳入原因统计</h3>
+                <div class="table-wrap"><table class="appendix-table">
+                  <thead><tr><th>原因</th><th>数量</th></tr></thead>
+                  <tbody>{excluded_reason_rows}</tbody>
+                </table></div>
+              </div>
+            </div>
+            <div class="appendix-grid">
+              <div>
+                <h3>未纳入文件示例</h3>
+                <div class="table-wrap"><table class="appendix-table">
+                  <thead><tr><th>文件</th><th>原因</th></tr></thead>
+                  <tbody>{excluded_examples_rows}</tbody>
+                </table></div>
+              </div>
+              <div>
+                <h3>大文件清单</h3>
+                <div class="table-wrap"><table class="appendix-table">
+                  <thead><tr><th>分类</th><th>文件</th><th>大小</th></tr></thead>
+                  <tbody>{top_file_rows}</tbody>
+                </table></div>
+              </div>
+            </div>
+            <h3>整理时的假设</h3>
+            <ul class="assumption-list">{assumption_items}</ul>
+            {doc_jump('筛选与排除报告', '打开完整筛选报告')}
+          </div>
+        </details>
+        <p class="generated-at">交接包生成时间：{generated_at}</p>
       </section>
     </main>
   </div>
@@ -2784,16 +2915,27 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
       const sensitivityFilter = document.getElementById("sensitivity-filter");
       const clearFilters = document.getElementById("clear-filters");
       const focusSearch = document.getElementById("focus-search");
+      const printSignoff = document.getElementById("print-signoff");
       const fileRows = Array.from(document.querySelectorAll("#file-table-body tr[data-search]"));
       const fileCount = document.getElementById("file-count");
       const previewTabs = Array.from(document.querySelectorAll(".preview-tab"));
       const previewPanels = Array.from(document.querySelectorAll(".preview-panel"));
-      const previewLinks = Array.from(document.querySelectorAll(".md-preview-link"));
       const docJumps = Array.from(document.querySelectorAll("[data-preview-jump]"));
-      const filePreviewTabs = Array.from(document.querySelectorAll(".file-preview-tab"));
-      const filePreviewPanels = Array.from(document.querySelectorAll(".file-preview-panel"));
-      const filePreviewJumps = Array.from(document.querySelectorAll("[data-file-preview-jump]"));
-      const domainJumps = Array.from(document.querySelectorAll("[data-domain-jump]"));
+      const rowPreviewButtons = Array.from(document.querySelectorAll("[data-row-preview]"));
+      const rowJumps = Array.from(document.querySelectorAll("[data-row-jump]"));
+      const domainChips = Array.from(document.querySelectorAll("[data-domain-chip]"));
+
+      function previewRowFor(rowId) {{
+        return document.querySelector(`tr[data-preview-of="${{rowId}}"]`);
+      }}
+
+      function setPreviewOpen(rowId, open) {{
+        const previewRow = previewRowFor(rowId);
+        if (!previewRow) return;
+        previewRow.hidden = !open;
+        const button = document.querySelector(`[data-row-preview="${{rowId}}"]`);
+        if (button) button.textContent = open ? "收起预览" : "查看预览";
+      }}
 
       function syncFileRows() {{
         const selectedDomain = domainFilter.value;
@@ -2808,9 +2950,13 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
           const matchesQuery = !query || row.dataset.search.includes(query);
           const show = matchesDomain && matchesStatus && matchesSensitivity && matchesQuery;
           row.style.display = show ? "" : "none";
+          if (!show) setPreviewOpen(row.id, false);
           if (show) visible += 1;
         }});
         fileCount.textContent = `当前展示 ${{visible}} / ${{fileRows.length}} 个文件`;
+        domainChips.forEach((chip) => {{
+          chip.classList.toggle("active", chip.dataset.domainChip === selectedDomain);
+        }});
       }}
 
       function activatePreview(id) {{
@@ -2818,9 +2964,19 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
         previewPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.preview === id));
       }}
 
-      function activateFilePreview(id) {{
-        filePreviewTabs.forEach((item) => item.classList.toggle("active", item.dataset.filePreview === id));
-        filePreviewPanels.forEach((panel) => panel.classList.toggle("active", panel.dataset.filePreview === id));
+      function jumpToRow(rowId) {{
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        searchInput.value = "";
+        domainFilter.value = "";
+        statusFilter.value = "";
+        sensitivityFilter.value = "";
+        syncFileRows();
+        setPreviewOpen(rowId, true);
+        row.scrollIntoView({{ behavior: "smooth", block: "center" }});
+        row.classList.remove("row-flash");
+        void row.offsetWidth;
+        row.classList.add("row-flash");
       }}
 
       [searchInput, domainFilter, statusFilter, sensitivityFilter].forEach((control) => {{
@@ -2837,24 +2993,9 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
         document.getElementById("files")?.scrollIntoView({{ behavior: "smooth", block: "start" }});
         setTimeout(() => searchInput.focus(), 240);
       }});
+      if (printSignoff) printSignoff.addEventListener("click", () => window.print());
       previewTabs.forEach((tab) => {{
         tab.addEventListener("click", () => activatePreview(tab.dataset.preview));
-      }});
-      previewLinks.forEach((link) => {{
-        link.addEventListener("click", (event) => {{
-          event.preventDefault();
-          activatePreview(link.dataset.previewTarget);
-          document.getElementById("documents")?.scrollIntoView({{ behavior: "smooth", block: "start" }});
-        }});
-      }});
-      filePreviewTabs.forEach((tab) => {{
-        tab.addEventListener("click", () => activateFilePreview(tab.dataset.filePreview));
-      }});
-      filePreviewJumps.forEach((jump) => {{
-        jump.addEventListener("click", () => {{
-          activateFilePreview(jump.dataset.filePreviewJump);
-          document.getElementById("file-preview")?.scrollIntoView({{ behavior: "smooth", block: "start" }});
-        }});
       }});
       docJumps.forEach((jump) => {{
         jump.addEventListener("click", () => {{
@@ -2863,22 +3004,31 @@ def render_site(config: dict[str, Any], manifest: dict[str, Any], markdown_previ
           document.getElementById("documents")?.scrollIntoView({{ behavior: "smooth", block: "start" }});
         }});
       }});
-      domainJumps.forEach((jump) => {{
-        jump.addEventListener("click", () => {{
-          domainFilter.value = jump.dataset.domainJump || "";
+      rowPreviewButtons.forEach((button) => {{
+        button.addEventListener("click", () => {{
+          const rowId = button.dataset.rowPreview;
+          const previewRow = previewRowFor(rowId);
+          if (!previewRow) return;
+          setPreviewOpen(rowId, previewRow.hidden);
+        }});
+      }});
+      rowJumps.forEach((jump) => {{
+        jump.addEventListener("click", () => jumpToRow(jump.dataset.rowJump));
+      }});
+      domainChips.forEach((chip) => {{
+        chip.addEventListener("click", () => {{
+          const value = chip.dataset.domainChip || "";
+          domainFilter.value = domainFilter.value === value ? "" : value;
           syncFileRows();
-          document.getElementById("files")?.scrollIntoView({{ behavior: "smooth", block: "start" }});
         }});
       }});
       if (previewTabs.length) activatePreview(previewTabs[0].dataset.preview);
-      if (filePreviewTabs.length) activateFilePreview(filePreviewTabs[0].dataset.filePreview);
       syncFileRows();
     }})();
   </script>
 </body>
 </html>
 """
-
 
 def export_zip(target: Path, config: dict[str, Any]) -> Path:
     zip_path = target / config["output"]["zip_name"]
@@ -2959,7 +3109,7 @@ def bootstrap(target: Path, args: argparse.Namespace) -> dict[str, Any]:
         included_records, review_records, excluded_records = partition_records(all_records)
         records = stage_records(target, config, included_records, args.stage_mode)
 
-    manifest = build_manifest(target, config, records, assumptions, all_records, review_records, excluded_records)
+    manifest = build_manifest(target, config, records, assumptions, all_records, review_records, excluded_records, answers)
     overview_path = target / config["output"]["root_dir"] / "00-说明与导航/00-交接总览.md"
     readme_path = target / config["output"]["root_dir"] / "00-说明与导航/01-阅读顺序.md"
     filter_report_path = target / config["output"]["root_dir"] / f"00-说明与导航/{FILTER_REPORT_NAME}"

@@ -5,9 +5,12 @@ Use this checklist before treating a generated handover site as polished.
 ## P0 Must Pass
 
 - The page opens as a local standalone HTML file.
-- The first screen shows what this package is, who it is for, and where to start.
-- If the package is a draft, the first screen clearly says what still needs confirmation.
-- The first screen shows handover owner/person, successor, handover coordinator, role boundary, and last working day, or clearly marks unknown facts as draft blockers.
+- Sections follow the highlights-to-detail order: 交接速览 → 马上要接的事 → 风险与待确认 → 交接确认单 → 核心文档 → 交接材料 → 附录.
+- The first screen shows what this package is, who it is for, and the `接手前必读` takeaways.
+- If the package is a draft, the banner says what still needs confirmation in human language, never internal gate slugs.
+- The first screen shows handover owner/person, successor, handover coordinator, role, and last working day, or clearly marks unknown facts as draft blockers.
+- In-flight work is a first-class section with status, next step, and a working jump-to-file action.
+- A printable sign-off section exists with check-item statuses and a signature grid; print view hides navigation, documents, file table, and appendix.
 - Every generated core document is reachable from the site:
   - `00-交接总览.md`
   - `01-阅读顺序.md`
@@ -15,15 +18,16 @@ Use this checklist before treating a generated handover site as polished.
   - `00-进行中事项总表.md`
   - `01-高遗漏检查清单.md`
   - `02-交接结论说明.md`
-- High-risk items are visible without scrolling through the full file table.
+- High-risk items are visible without scrolling through the full file table, and each one can locate its file row.
 - The site shows how many files were included, need review, and were excluded.
-- The filtering report is reachable from the core document area.
+- The filtering report, assumptions, and large-file list live in a collapsed appendix, not first-class sections.
 - The site or filtering report shows other-person exclusions and review candidates when such files were detected.
 - The site or filtering report shows version-collapsed files and their retained representative.
-- The site or file table shows standardized staged names and preserves original file names/paths.
-- File search and domain filters work.
+- The file table shows standardized staged names (bold) with original paths preserved (muted).
+- File search and domain filters work; filtering a row away also collapses its inline preview.
 - Local staged file links use relative paths that work from `site/index.html`.
-- Office/PDF/image/text files either have a useful local preview or a clear `打开原文件` action.
+- Office/PDF/image/text/CSV files have inline expandable previews under their rows, or a clear `打开原文件` action when no preview is possible.
+- Status and sensitivity labels render in Chinese for business users.
 - File actions do not use `下载` wording unless the browser action is truly download-only.
 - Text does not overlap or overflow on desktop or mobile widths.
 - No clearly unrelated other-person personal material appears in the core file table.
