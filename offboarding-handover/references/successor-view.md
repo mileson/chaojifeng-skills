@@ -1,51 +1,51 @@
-# Successor View
+# 接手人视角
 
-Use this reference when writing generated markdown, the HTML site, and file-level summaries.
+撰写生成的 markdown、HTML 站点和文件级摘要时使用本参考。
 
-The package is for the successor, not for the person or agent who organized the folder. The successor needs to answer:
+交接包是给接手人的，不是给整理文件夹的人或代理的。接手人需要能回答：
 
-1. What am I taking over?
-2. What should I read first?
-3. What is still in progress?
-4. Who should I contact?
-5. Which files support each project or decision?
-6. What is risky, sensitive, overdue, or easy to miss?
-7. Which files can I preview here, and which should I open in Office/WPS?
+1. 我要接手什么？
+2. 我应该先读什么？
+3. 还有什么在进行中？
+4. 我该联系谁？
+5. 每个项目或决策由哪些文件支撑？
+6. 什么有风险、敏感、逾期或容易遗漏？
+7. 哪些文件可以在这里直接预览，哪些应该用 Office/WPS 打开？
 
-## Required First Screen
+## 首屏必备
 
-The first screen of `site/index.html` should show:
+`site/index.html` 的首屏应展示：
 
-- handover owner and successor (`交接人 → 接手人` in the header)
-- confirmed role or role still awaiting confirmation
-- current delivery state badge: draft or formal
-- KPI strip: included files, in-flight items, high-risk items, pending review, unconfirmed checks
-- `接手前必读` takeaways with anchor links to the matching sections
+- 交接人和接手人（页眉中的 `交接人 → 接手人`）
+- 已确认的角色，或标明角色仍待确认
+- 当前交付状态徽章：草稿或正式
+- KPI 条：纳入文件数、进行中事项、高风险事项、待评审、未确认检查项
+- `接手前必读` 要点，附指向对应区块的锚点链接
 
-Do not lead with scan mechanics.
+不要以扫描机制开场。
 
-## Preferred Sections (in order)
+## 推荐区块（按顺序）
 
-- `交接速览`: people, dates, KPIs, and takeaways
-- `马上要接的事`: in-flight work with status, next step, and jump-to-file actions
-- `风险与待确认`: accounts, sensitive data, contracts, customer risks, check-item statuses
-- `交接确认单`: printable sign-off table and signature grid for both sides plus the coordinator
-- `核心文档`: generated markdown previews as tabs
-- `交接材料`: searchable file table with inline expandable previews, `查看预览` and `打开原文件`
-- `附录` (collapsed): filtering explanation, assumptions, large files
+- `交接速览`：人员、日期、KPI、要点
+- `马上要接的事`：进行中工作，含状态、下一步、跳转到文件的操作
+- `风险与待确认`：账号、敏感数据、合同、客户风险、检查项状态
+- `交接确认单`：可打印的确认表格，含交接双方和协调人的签字栏
+- `核心文档`：以标签页形式呈现的生成 markdown 预览
+- `交接材料`：可搜索的文件表，含行内展开预览、`查看预览` 和 `打开原文件`
+- `附录`（折叠）：过滤说明、假设、大文件
 
-## Copy Rules
+## 文案规则
 
-- Good: `接手人先看这里`
-- Good: `打开原文件`
-- Good: `查看预览`
-- Good: `仍需确认后才能作为正式交接包交付`
-- Avoid: `扫描完成`
-- Avoid: `manifest`
-- Avoid: `parser`
-- Avoid: `pipeline`
-- Avoid: `下载文件` unless the action truly downloads a file
+- 好：`接手人先看这里`
+- 好：`打开原文件`
+- 好：`查看预览`
+- 好：`仍需确认后才能作为正式交接包交付`
+- 避免：`扫描完成`
+- 避免：`manifest`
+- 避免：`parser`
+- 避免：`pipeline`
+- 避免：`下载文件`（除非该操作真的会下载文件）
 
-## Draft State
+## 草稿状态
 
-If role, successor, handover owner, last working day, or deep review is missing, the site must clearly state that it is a draft. A draft can help review the scan, but it should not be presented as the final handover package.
+角色、接手人、交接人、最后工作日或深度评审缺失时，站点必须清晰标注为草稿。草稿可以用来审阅扫描结果，但不应被呈现为最终交接包。

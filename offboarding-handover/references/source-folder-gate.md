@@ -1,43 +1,43 @@
-# Source Folder Gate
+# 源文件夹门禁
 
-Use this reference at the very beginning of every first-run handover task.
+每次首轮交接任务开始时，先使用本参考。
 
-The agent must know where the handover materials are before scanning. If the user starts the skill without a folder path, ask one short question and wait:
+代理必须先知道交接材料在哪里才能扫描。如果用户启动 skill 时没有给文件夹路径，问一句简短的问题并等待：
 
 `需要交接的材料在哪个文件夹？你可以回复“当前文件夹”，也可以给一个路径。`
 
-## Accepted Answers
+## 可接受的回答
 
-- `当前文件夹`: use the current working directory.
-- absolute path: expand and validate the path.
-- relative path: resolve it against the current working directory, then validate it.
+- `当前文件夹`：使用当前工作目录。
+- 绝对路径：展开并校验该路径。
+- 相对路径：相对当前工作目录解析后再校验。
 
-## Validation
+## 校验
 
-Before inventory:
+盘点之前：
 
-- confirm the path exists
-- confirm it is a directory
-- confirm it is readable
-- show a small top-level preview if useful
+- 确认路径存在
+- 确认是目录
+- 确认可读
+- 有帮助时展示一个简短的顶层预览
 
-If the path is missing, unclear, or unreadable, stop and ask again. Do not infer a folder from nearby paths, recent history, or output folders.
+路径缺失、不明确或不可读时，停下来再次询问。不要从相邻路径、最近历史或输出文件夹推断源文件夹。
 
-## Do Not Scan These As Source Roots
+## 不得作为源根目录扫描
 
-Do not treat these as the source material folder unless the user explicitly says so:
+除非用户明确说明，不要把以下内容当作材料源文件夹：
 
-- an existing `离职交接包`
+- 已存在的 `离职交接包`
 - `.offboarding-handover`
 - `site`
-- a ZIP export
-- a previous generated handover output directory
+- ZIP 导出文件
+- 之前生成的交接输出目录
 
-## User-Facing Wording
+## 面向用户的措辞
 
-Keep the question plain:
+问题保持朴素：
 
-- Good: `需要交接的材料在哪个文件夹？`
-- Good: `我可以用当前文件夹，也可以用你给的路径。`
-- Avoid: `请传入 target_dir 参数`
-- Avoid: `执行 bootstrap_handover.py`
+- 好：`需要交接的材料在哪个文件夹？`
+- 好：`我可以用当前文件夹，也可以用你给的路径。`
+- 避免：`请传入 target_dir 参数`
+- 避免：`执行 bootstrap_handover.py`

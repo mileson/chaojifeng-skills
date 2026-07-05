@@ -1,53 +1,53 @@
-# Role Detection and Ask-User Reference
+# 角色探测与提问参考
 
-Use this reference when the folder is messy and you need to:
+文件夹杂乱、需要以下能力时使用本参考：
 
-1. infer the user's likely role from file signals
-2. decide which first-run questions have the highest information gain
-3. choose an industry or role overlay without hard-coding the whole classification
+1. 从文件信号推断用户的可能角色
+2. 决定哪些首轮问题的信息增益最高
+3. 在不硬编码整套分类的情况下选择行业或角色适配层
 
-Keep this file for **early routing only**. Do not treat it as a final role verdict.
+本文件只用于**早期路由**。不要把它当作最终角色判定。
 
-## Core Principles
+## 核心原则
 
-- Infer by **evidence combinations**, not by one file.
-- Prefer **business object and recurring artifacts** over job titles written inside documents.
-- Ask the user only the **smallest set of questions** needed to reduce ambiguity.
-- Treat role detection as a **routing hint**, not a truth source.
-- A detected role is not confirmed until the user accepts or corrects it.
+- 用**证据组合**推断，不靠单个文件。
+- 优先看**业务对象和反复出现的产物**，而不是文档里写的职位头衔。
+- 只问减少歧义所需的**最小问题集**。
+- 把角色探测当作**路由提示**，不是真相来源。
+- 在用户接受或纠正之前，探测出的角色不算确认。
 
-## Confidence Rule
+## 置信度规则
 
-Use these confidence levels:
+使用以下置信度级别：
 
-- **High**: 3+ strong signals align
-- **Medium**: 2 strong signals align, but cross-functional overlap exists
-- **Low**: only generic files such as meeting notes, weekly reports, or screenshots
+- **高**：3 个以上强信号一致
+- **中**：2 个强信号一致，但存在跨职能重叠
+- **低**：只有会议纪要、周报、截图等通用文件
 
-Strong signals include:
+强信号包括：
 
-- stable folder names
-- repeated artifact types
-- role-specific keywords
-- role-specific systems or tools
+- 稳定的文件夹名
+- 反复出现的产物类型
+- 角色专属关键词
+- 角色专属的系统或工具
 
-## Default First-Run Routing
+## 默认首轮路由
 
-On first run, try to answer these 4 questions before asking deeper follow-ups:
+首次运行时，先设法回答这 4 个问题，再问更深的追问：
 
-1. What kind of work does this folder mostly represent?
-2. Does it include client or project handover?
-3. Are there unfinished items that someone must continue?
-4. Are there accounts, permissions, devices, contracts, or other sensitive items?
+1. 这个文件夹主要代表哪类工作？
+2. 是否包含客户或项目交接？
+3. 是否有必须有人继续的未完成事项？
+4. 是否有账号、权限、设备、合同或其他敏感事项？
 
-## Recommended First-Run Questions
+## 推荐首轮问题
 
-Use short user-facing wording.
+使用简短的用户措辞。
 
 ### Q1
 **这批资料最接近你哪类工作？**
 
-Recommended options:
+推荐选项：
 
 - 产品/需求/方案
 - 项目实施/交付
@@ -60,7 +60,7 @@ Recommended options:
 ### Q2
 **这里面主要是内部资料，还是也包含客户/项目资料？**
 
-Recommended options:
+推荐选项：
 
 - 主要是内部资料
 - 内部和客户/项目资料都有
@@ -70,7 +70,7 @@ Recommended options:
 ### Q3
 **有没有还在推进、还没收尾的事？**
 
-Recommended options:
+推荐选项：
 
 - 有，且比较多
 - 有，但不多
@@ -80,26 +80,26 @@ Recommended options:
 ### Q4
 **有没有账号、权限、设备或敏感资料需要交接？**
 
-Recommended options:
+推荐选项：
 
 - 有，比较多
 - 有，少量
 - 基本没有
 - 还不确定
 
-Optional final free-text prompt:
+可选的自由文本收尾：
 
 - **还有哪类内容最怕漏掉？**
 
-After the scan, ask a confirmation question before polished output:
+扫描之后、精修输出之前，再问一个确认问题：
 
 - **我推断这批资料主要按「{角色/职责}」交接，是否准确？如果不准确，请直接改。**
 
-## Role Signal Matrix
+## 角色信号矩阵
 
-Use this as a quick lookup table. The goal is not perfect classification. The goal is better follow-up questions.
+作为快速查找表使用。目标不是完美分类，而是问出更好的追问。
 
-| Likely role | Strong file signals | Typical keywords | Typical systems/tools | Main confusion boundary |
+| 可能角色 | 强文件信号 | 典型关键词 | 典型系统/工具 | 主要混淆边界 |
 |---|---|---|---|---|
 | 产品经理 | PRD, 需求池, 路线图, 原型说明, 竞品分析, 用户调研 | 需求, 版本, 优先级, 验收, 迭代, 功能 | Jira Product Discovery, Aha!, Axure, 墨刀, Figma | 容易和项目经理、设计混淆 |
 | 项目经理/交付 | 项目计划, 里程碑, 风险台账, 周报, RAID, 验收 | 里程碑, 资源, 风险, 进度, 交付, 验收 | Jira, MS Project, Asana, 飞书项目 | 容易和产品、实施、运营混淆 |
@@ -113,27 +113,27 @@ Use this as a quick lookup table. The goal is not perfect classification. The go
 | 设计 | 设计稿, 组件库, 交互稿, 视觉规范, 切图, 设计走查 | 视觉, 交互, 组件, 版式, 动效, 品牌 | Figma, Sketch, PS, AE | 容易和产品混淆 |
 | 数据/BI | SQL, 指标口径, 看板, 报表, 埋点, ETL | 指标, 口径, SQL, 看板, 留存, 转化 | Tableau, Power BI, Looker, 数据平台 | 容易和产品、运营混淆 |
 
-## Fast Role Heuristics
+## 快速角色启发式
 
-Use these shortcut rules:
+使用这些捷径规则：
 
-- If you see `PRD + 原型 + 版本规划`, lean **产品**
-- If you see `项目计划 + 风险台账 + 验收`, lean **项目经理/交付**
-- If you see `SOP + 日报周报 + 活动排期`, lean **运营**
-- If you see `报价单 + 商机台账 + 客户跟进`, lean **销售**
-- If you see `凭证 + 发票 + 对账`, lean **财务**
-- If you see `红线合同 + 审查意见 + 用印`, lean **法务**
-- If you see `简历 + Offer + 入转调离`, lean **HR**
-- If you see `源码 + 配置 + 部署`, lean **研发**
-- If you see `测试用例 + 缺陷单 + 回归报告`, lean **测试**
-- If you see `Figma/Sketch + 组件库 + 视觉规范`, lean **设计**
-- If you see `SQL + 指标口径 + 看板`, lean **数据/BI**
+- 看到 `PRD + 原型 + 版本规划`，倾向**产品**
+- 看到 `项目计划 + 风险台账 + 验收`，倾向**项目经理/交付**
+- 看到 `SOP + 日报周报 + 活动排期`，倾向**运营**
+- 看到 `报价单 + 商机台账 + 客户跟进`，倾向**销售**
+- 看到 `凭证 + 发票 + 对账`，倾向**财务**
+- 看到 `红线合同 + 审查意见 + 用印`，倾向**法务**
+- 看到 `简历 + Offer + 入转调离`，倾向**HR**
+- 看到 `源码 + 配置 + 部署`，倾向**研发**
+- 看到 `测试用例 + 缺陷单 + 回归报告`，倾向**测试**
+- 看到 `Figma/Sketch + 组件库 + 视觉规范`，倾向**设计**
+- 看到 `SQL + 指标口径 + 看板`，倾向**数据/BI**
 
-## Industry Overlay
+## 行业适配层
 
-Use industry as a second-layer hint, not the first verdict.
+把行业当作第二层提示，不是第一判定。
 
-| Industry | More likely roles | More likely file signals | Better follow-up question |
+| 行业 | 更可能的角色 | 更可能的文件信号 | 更好的追问 |
 |---|---|---|---|
 | 互联网/软件 | 产品, 研发, 测试, 运维, 数据, 增长运营 | PRD, 接口文档, 发布记录, 埋点表, 看板权限 | 你主要交接的是产品线、系统、数据，还是线上权限？ |
 | 制造 | 生产, PMC, 工艺, 质量, 设备, 采购 | BOM, SOP, 工艺卡, 排产表, 巡检记录 | 你负责的是产线、工艺、质量、设备，还是供应商？ |
@@ -144,93 +144,93 @@ Use industry as a second-layer hint, not the first verdict.
 | 物流供应链 | 仓储, 调度, 计划, 物流规划 | 路由表, 时效SLA, 异常工单, 供应计划 | 你更偏仓、运、配、计划，还是承运商管理？ |
 | 地产/工程 | 项目管理, 招采, 造价, 设计管理 | 图纸, 签证变更, 招投标, 进度计划 | 是否涉及项目现场、图纸、合同或结算？ |
 
-## Ask-User Branching Rules
+## 提问分支规则
 
-After Q1-Q4, branch like this:
+Q1-Q4 之后，按以下分支追问：
 
-### If likely 产品
-Ask:
+### 若倾向 产品
+问：
 - 你更想优先交接需求背景、功能方案、原型说明，还是迭代状态？
 - 有没有口头约定但没写进文档的业务规则？
 
-### If likely 项目/交付
-Ask:
+### 若倾向 项目/交付
+问：
 - 现在还有哪些项目或客户在推进中？
 - 哪些项目最需要优先交接？
 
-### If likely 运营
-Ask:
+### 若倾向 运营
+问：
 - 需要优先整理活动、日常SOP、数据复盘，还是异常处理规则？
 - 有没有依赖个人经验才能跑通的流程？
 
-### If likely 销售/售前
-Ask:
+### 若倾向 销售/售前
+问：
 - 有没有还在跟进的客户机会、报价或投标事项？
 - 哪些客户最需要优先说明当前状态？
 
-### If likely 财务/法务/HR
-Ask:
+### 若倾向 财务/法务/HR
+问：
 - 有没有证照、合同、用印、发票、报销、经办身份或纸质材料？
 - 哪些内容只适合小范围查看？
 
-### If likely 研发/测试/数据
-Ask:
+### 若倾向 研发/测试/数据
+问：
 - 有没有脚本、环境配置、测试账号、报表口径或上线遗留问题？
 - 哪些内容如果没人接手最容易出问题？
 
-## Misclassification Warnings
+## 误判警告
 
-- `Figma` alone does not mean design. Product also uses it.
-- `合同` alone does not mean legal. Sales, procurement, and HR also handle contracts.
-- `周报/会议纪要` alone does not mean project manager.
-- `报表` alone does not mean finance. Data, operations, and sales also maintain reports.
-- `客户群/客户沟通` alone does not mean sales. Customer success and project delivery often maintain them too.
+- 只有 `Figma` 不代表设计。产品也用它。
+- 只有 `合同` 不代表法务。销售、采购、HR 也处理合同。
+- 只有 `周报/会议纪要` 不代表项目经理。
+- 只有 `报表` 不代表财务。数据、运营、销售也维护报表。
+- 只有 `客户群/客户沟通` 不代表销售。客户成功和项目交付也常维护。
 
-## Output Expectation
+## 输出预期
 
-When using this reference, produce:
+使用本参考时，产出：
 
-1. a likely role guess
-2. confidence level
-3. top evidence signals
-4. the next 2-4 questions worth asking
-5. whether the role is confirmed or still draft-only
+1. 一个可能角色的猜测
+2. 置信度级别
+3. 主要证据信号
+4. 值得问的下 2-4 个问题
+5. 角色是已确认还是仅草稿
 
-Good example:
+好的示例：
 
-- likely role: 产品经理
-- confidence: medium
-- evidence: `PRD`, `需求池`, `Figma原型`, `版本规划`
-- next questions:
+- 可能角色：产品经理
+- 置信度：中
+- 证据：`PRD`、`需求池`、`Figma原型`、`版本规划`
+- 下一步问题：
   - 你更想优先交接需求背景、方案，还是迭代状态？
   - 这里面是否也包含客户/项目资料？
 
-## Sources
+## 来源
 
-These sources informed the role and artifact patterns. Some role-to-file mappings are inferred from those role definitions.
+以下来源支撑了角色与产物模式。部分角色到文件的映射由这些角色定义推断得出。
 
 - 人社部职业分类与数字职业说明  
   https://chinajob.mohrss.gov.cn/h5/c/2022-10-28/363398.shtml
 - Boss 直聘职业百科与岗位说明（互联网、制造、零售、电商、教育、物流、工程等）  
   https://www.zhipin.com/
-- Atlassian product and project management references  
+- Atlassian 产品与项目管理参考  
   https://www.atlassian.com/agile/product-management/product-manager  
   https://www.atlassian.com/agile/project-management/product-vs-project-management
-- Asana operations and project artifacts references  
+- Asana 运营与项目产物参考  
   https://asana.com/teams/operations  
   https://asana.com/resources/how-project-status-reports
-- HubSpot and Salesforce sales process references  
+- HubSpot 与 Salesforce 销售流程参考  
   https://blog.hubspot.com/sales/sales-pipeline  
   https://www.salesforce.com/resources/articles/sales-process/
-- Thomson Reuters and Ironclad contract workflow references  
+- Thomson Reuters 与 Ironclad 合同工作流参考  
   https://legal.thomsonreuters.com/en/solutions/contract-lifecycle-management  
   https://ironcladapp.com/product/ironclad-for-legal/
-- SHRM and ADP HR references  
+- SHRM 与 ADP HR 参考  
   https://sps.shrm.org/sites/sps.shrm.org/files/HRBPPosting.pdf  
   https://www.adp.com/resources.aspx
-- BrowserStack testing references  
+- BrowserStack 测试参考  
   https://www.browserstack.com/guide/test-planning  
   https://www.browserstack.com/test-management/features/reports-analytics/what-is-test-execution-report
-- Figma design system and handoff references  
+- Figma 设计系统与交接参考  
   https://www.figma.com/design-systems/  
   https://www.figma.com/design-handoff/

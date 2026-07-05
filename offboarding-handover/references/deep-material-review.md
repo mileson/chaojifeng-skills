@@ -1,48 +1,48 @@
-# Deep Material Review
+# 深度材料评审
 
-Use this reference before generating a polished handover package from a large or mixed folder.
+从大型或混杂文件夹生成精修交接包之前，先使用本参考。
 
-Fast filename sorting is not enough. The agent must review enough evidence to explain why the kept materials matter to the successor.
+只靠文件名快速排序是不够的。代理必须审阅足够的证据，能解释被保留的材料为什么对接手人重要。
 
-## Minimum Review Layers
+## 最少评审层次
 
-1. Folder and filename inventory
-2. Role and project clustering
-3. Relevance filtering: include, review, exclude
-4. Version grouping and latest/final representative selection
-5. Targeted content sampling for high-value documents
-6. Successor-facing synthesis: current status, next action, risk, owner/contact, supporting files
+1. 文件夹与文件名清单
+2. 角色与项目聚类
+3. 相关性过滤：include、review、exclude
+4. 版本分组，并选出最新/定稿代表
+5. 对高价值文档做定向内容抽样
+6. 面向接手人的综合：当前状态、下一步动作、风险、负责人/联系人、支撑文件
 
-## Targeted Content Sampling
+## 定向内容抽样
 
-Read small excerpts instead of full documents unless the user asks for full extraction.
+读取小段摘录而不是全文，除非用户要求完整提取。
 
-Prioritize:
+优先：
 
-- PRD, BRD, product plans, blueprints, implementation plans
-- project schedules, launch plans, acceptance reports, issue logs
-- customer-facing documents and training materials
-- Excel/CSV files with tracking, budget, measurement, reconciliation, or backlog signals
-- documents with `待解决`, `问题`, `风险`, `上线`, `结项`, `确认`, `最新`, `最终`
+- PRD、BRD、产品方案、蓝图、实施计划
+- 项目排期、上线计划、验收报告、问题记录
+- 面向客户的文档和培训材料
+- 带有跟踪、预算、测算、对账或积压信号的 Excel/CSV 文件
+- 含 `待解决`、`问题`、`风险`、`上线`、`结项`、`确认`、`最新`、`最终` 的文档
 
-## Gate Before Polished Output
+## 精修输出前的门禁
 
-Do not generate a polished site or ZIP until:
+以下条件满足之前，不得生成精修站点或 ZIP：
 
-- source folder is confirmed
-- role or role family is confirmed
-- successor-oriented questions are answered or explicitly marked unknown
-- subagent/deep scan evidence has been synthesized
-- the output directory structure reflects the confirmed role
+- 源文件夹已确认
+- 角色或角色族已确认
+- 面向接手人的问题已回答或明确标记为未知
+- 子代理/深度扫描证据已完成综合
+- 输出目录结构体现了已确认的角色
 
-If any item is missing, produce a draft scan report and state what still needs confirmation.
+任一项缺失时，产出草稿版扫描报告，并说明还需确认什么。
 
-## Successor Summary Shape
+## 接手人摘要结构
 
-For each important project or material cluster, synthesize:
+为每个重要项目或材料簇综合出：
 
-- `接什么`: project, system, client, or workflow
-- `当前状态`: active, historical, done, unknown
-- `下一步`: concrete action or `待确认`
-- `风险`: sensitive data, owner gap, version ambiguity, pending decision
-- `资料`: linked files or previewable files
+- `接什么`：项目、系统、客户或工作流
+- `当前状态`：进行中、历史、已完成、未知
+- `下一步`：具体动作或 `待确认`
+- `风险`：敏感数据、负责人缺位、版本含糊、待决策事项
+- `资料`：关联文件或可预览文件

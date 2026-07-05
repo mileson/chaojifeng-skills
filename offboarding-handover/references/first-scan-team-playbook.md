@@ -1,156 +1,156 @@
-# First-Scan Team Playbook
+# 首次扫描团队手册
 
-Use this playbook when the first scan is too large or too ambiguous for one agent to classify confidently.
+首次扫描规模过大或过于含糊、单代理无法自信分类时，使用本手册。
 
-This is the recommended execution pattern for the offboarding-handover skill.
+这是 offboarding-handover skill 推荐的执行模式。
 
-## Objective
+## 目标
 
-Before generating the first polished HTML, the team should answer:
+生成第一版精修 HTML 之前，团队应回答：
 
-1. what role or role family most likely owns this folder
-2. whether the materials are mostly internal, client/project, or mixed
-3. what unfinished work exists
-4. what assets, permissions, and compliance risks exist
-5. what minimum questions should be asked before rendering
+1. 这个文件夹最可能属于哪个角色或角色族
+2. 材料主要是内部、客户/项目，还是混合
+3. 存在哪些未完成工作
+4. 存在哪些资产、权限和合规风险
+5. 渲染之前至少要问哪些问题
 
-Before all of that, the coordinator should establish a full inventory baseline as described in `references/full-inventory-and-sharding.md`.
+在这一切之前，协调者应按 `references/full-inventory-and-sharding.md` 建立完整清单基线。
 
-## Hard Trigger Rule
+## 硬触发规则
 
-After the inventory baseline is built, the coordinator **must** enter parallel subagent mode if any of the following is true:
+清单基线建立后，满足以下任一条件时协调者**必须**进入并行子代理模式：
 
-- total file count is greater than 3000
-- meaningful top-level branches are greater than 8
-- internal materials, client/project materials, and risk/compliance signals are all present
-- likely role confidence is not high
+- 文件总数大于 3000
+- 有效顶层分支大于 8
+- 内部材料、客户/项目材料、风险/合规信号同时出现
+- 可能角色的置信度不高
 
-If none of the above is true, single-agent mode is allowed.
+以上均不满足时，允许单代理模式。
 
-## Subagent Shape
+## 子代理形态
 
-Use **1 coordinator + up to 4 subagents**.
+使用 **1 个协调者 + 至多 4 个子代理**。
 
-### Coordinator
+### 协调者
 
-Owns:
+负责：
 
-- kickoff and worker assignment
-- reading only the minimum required references
-- conflict resolution
-- synthesis
-- ask-user question design
-- final rendering decision
+- 启动与 worker 分配
+- 只读取最少量必要的参考
+- 冲突消解
+- 综合分析
+- 设计问用户的问题
+- 最终渲染决策
 
-### Worker A — Role Detector
+### Worker A — 角色探测器
 
-Owns:
+负责：
 
-- likely role inference
-- confidence and ambiguity boundaries
-- top signals that support role detection
+- 可能角色的推断
+- 置信度与含糊边界
+- 支撑角色判断的关键信号
 
-Read:
+阅读：
 
 - `references/role-detection-and-ask-user.md`
 - `references/agent-classification.md`
 
-### Worker B — Project and Domain Mapper
+### Worker B — 项目与领域映射器
 
-Owns:
+负责：
 
-- clustering by project, product line, customer, internal initiative, or historical archive
-- identifying what should become the main sections under `03-专项交接`
+- 按项目、产品线、客户、内部专项或历史归档聚类
+- 确定 `03-专项交接` 下应有哪些主区块
 
-Read:
+阅读：
 
 - `references/default-taxonomy.md`
 - `references/agent-classification.md`
 
-### Worker C — Risk and Asset Checker
+### Worker C — 风险与资产检查器
 
-Owns:
+负责：
 
-- accounts
-- permissions
-- devices
-- credentials
-- legal/compliance signals
-- sensitive materials
+- 账号
+- 权限
+- 设备
+- 凭证
+- 法务/合规信号
+- 敏感材料
 
-Read:
+阅读：
 
 - `references/high-risk-missed-items.md`
 - `references/default-taxonomy.md`
 
-### Worker D — Inflight and Missing-Facts Detector
+### Worker D — 进行中事项与缺失事实探测器
 
-Owns:
+负责：
 
-- unfinished work
-- pending status
-- likely `待补充` fields
-- first-run question candidates
+- 未完成工作
+- 待定状态
+- 可能的 `待补充` 字段
+- 首轮问题候选
 
-Read:
+阅读：
 
 - `references/first-run-questions.md`
 - `references/update-mode.md`
 
-## Execution Steps
+## 执行步骤
 
-### Step 0 — Coordinator inventory baseline
+### 第 0 步 — 协调者清单基线
 
-Coordinator first builds a light but complete inventory:
+协调者先建立轻量但完整的清单：
 
-- total files
-- total dirs
-- top-level branches
-- file counts by branch
-- extension distribution
+- 文件总数
+- 目录总数
+- 顶层分支
+- 各分支文件数
+- 扩展名分布
 
-Then coordinator decides whether to stay single-agent or switch to parallel subagent mode.
+然后决定继续单代理还是切换到并行子代理模式。
 
-### Step 1 — Coordinator triage
+### 第 1 步 — 协调者初筛
 
-Do a very light scan first.
+先做非常轻量的扫描。
 
-If the folder is obviously small and clean, single-agent mode is allowed.
+文件夹明显小而干净时，允许单代理模式。
 
-If the hard trigger rule is hit, parallel subagent mode is mandatory.
+命中硬触发规则时，并行子代理模式为强制。
 
-### Step 2 — Spawn subagents in parallel
+### 第 2 步 — 并行启动子代理
 
-Each worker should inspect a different concern, and for large folders should also have bounded path ownership.
+每个 worker 检查不同的关注点，大文件夹还应有边界明确的路径归属。
 
-**One backgrounded agent alone does not count as parallel subagent mode.**
+**只有一个后台代理不算并行子代理模式。**
 
-Parallel subagent mode means:
+并行子代理模式意味着：
 
-- one coordinator
-- plus at least 2 parallel subagents
+- 一个协调者
+- 加至少 2 个并行子代理
 
-Recommended target:
+推荐目标：
 
-- 1 coordinator + 4 subagents
+- 1 个协调者 + 4 个子代理
 
-Before spawning them, the coordinator should explicitly announce the fan-out step in natural language.
+启动之前，协调者应用自然语言显式宣布扇出步骤。
 
-Recommended announcement pattern:
+推荐宣布模式：
 
 - `清单基线已完成，已命中并行扫描条件。现在我将并行调用以下 subagents：role-detector、project-mapper、risk-checker、missing-facts-detector。`
 
-If only two or three are needed, the coordinator should still explicitly name them.
+只需要两三个时，也应显式点名。
 
-Bad pattern:
+坏模式：
 
-- silently launching one extra worker
-- saying only `继续扫描`
-- implying that inventory alone already satisfied the parallel requirement
+- 悄悄启动一个额外 worker
+- 只说 `继续扫描`
+- 暗示仅清单就已满足并行要求
 
-### Step 3 — Worker outputs
+### 第 3 步 — worker 输出
 
-Each worker must return:
+每个 worker 必须返回：
 
 - `scope`
 - `findings`
@@ -158,75 +158,75 @@ Each worker must return:
 - `conflicts`
 - `questions`
 
-### Step 4 — Coordinator synthesis
+### 第 4 步 — 协调者综合
 
-Coordinator merges outputs into:
+协调者把输出合并为：
 
-- likely role
-- likely industry overlay
-- likely folder split
-- likely high-risk checklist
-- minimum ask-user question set
+- 可能的角色
+- 可能的行业适配层
+- 可能的文件夹划分
+- 可能的高风险清单
+- 最小的问用户问题集
 
-### Step 5 — Coverage check
+### 第 5 步 — 覆盖率检查
 
-Before asking the user, coordinator verifies:
+问用户之前，协调者验证：
 
-- all meaningful branches were covered
-- no major path slice was dropped
-- duplicate ownership is understood
+- 所有有效分支都已覆盖
+- 没有丢掉主要路径切片
+- 重复归属已被理解
 
-### Step 6 — Ask the user
+### 第 6 步 — 询问用户
 
-Ask the smallest high-value question set needed to avoid a low-quality first HTML.
+问避免低质量首版 HTML 所需的最小高价值问题集。
 
-Prefer:
+优先：
 
-- role/work-type question
-- internal vs client/project question
-- unfinished-work question
-- assets/sensitive-content question
-- key people and dates question
+- 角色/工作类型问题
+- 内部 vs 客户/项目问题
+- 未完成工作问题
+- 资产/敏感内容问题
+- 关键人员与日期问题
 
-### Step 7 — Generate
+### 第 7 步 — 生成
 
-Only after the answers are collected:
+回答收集完成之后才：
 
-- update config
-- update answers state
-- build manifest
-- render markdown
-- render HTML
-- prune empty directories
+- 更新配置
+- 更新回答状态
+- 构建 manifest
+- 渲染 markdown
+- 渲染 HTML
+- 清理空目录
 
-## Output Contract for the Coordinator
+## 协调者的输出契约
 
-Before generation, coordinator should be able to state:
+生成之前，协调者应能说清：
 
-- likely role:
-- likely industry:
-- customer/project mix:
-- risk profile:
-- unanswered critical facts:
-- next questions to ask:
+- 可能的角色：
+- 可能的行业：
+- 客户/项目占比：
+- 风险画像：
+- 未回答的关键事实：
+- 接下来要问的问题：
 
-## Important Rule
+## 重要规则
 
-Workers should not write the final handover outputs in parallel.
+worker 不得并行写最终交接输出。
 
-Only the coordinator should update:
+只有协调者应更新：
 
-- config
-- answers
+- 配置
+- 回答
 - manifest
-- final markdown pages
+- 最终 markdown 页面
 - HTML
 
-This prevents merge conflicts and inconsistent handover state.
+这可以避免合并冲突和不一致的交接状态。
 
-## Never Skip These Rules
+## 永不跳过的规则
 
-- Never treat inventory alone as sufficient parallel execution
-- Never jump from inventory directly to final generation when parallel subagent mode was triggered
-- Never ask the user before worker findings have been synthesized
-- Never declare first scan complete without a coverage check
+- 永远不要把仅有清单当作足够的并行执行
+- 触发并行子代理模式后，永远不要从清单直接跳到最终生成
+- 永远不要在 worker 发现被综合之前问用户
+- 永远不要在没有覆盖率检查的情况下宣布首次扫描完成

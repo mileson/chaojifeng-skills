@@ -1,142 +1,142 @@
-# Trust Recovery and Rescan
+# 信任恢复与重新扫描
 
-Use this reference when the current session appears to have partial state, stale state, or untrustworthy intermediate outputs.
+当前会话疑似存在部分状态、过期状态或不可信的中间输出时，使用本参考。
 
-The goal is to stop the agent from pretending a phase was completed when the evidence is weak.
+目标是阻止代理在证据薄弱时假装某个阶段已经完成。
 
-## Core Principle
+## 核心原则
 
-Do not trust intermediate state automatically.
+不要自动信任中间状态。
 
-Trust must be earned by evidence.
+信任必须由证据换取。
 
-If the evidence is weak, the workflow should fall back to:
+证据薄弱时，工作流应回退到：
 
-- resuming an earlier phase
-- rerunning a missing phase
-- or forcing a fresh scan
+- 恢复较早的阶段
+- 重跑缺失的阶段
+- 或强制全新扫描
 
-## What counts as intermediate state
+## 什么算中间状态
 
-Examples:
+例如：
 
 - `.offboarding-handover/offboarding.config.json`
 - `.offboarding-handover/handover.answers.json`
 - `.offboarding-handover/handover.manifest.json`
-- inventory summaries
-- shard assignments
-- coverage files
-- existing HTML output
+- 清单摘要
+- 分片分配
+- 覆盖率文件
+- 已存在的 HTML 输出
 
-## Trust Levels
+## 信任级别
 
-### High trust
+### 高信任
 
-Use existing state directly only when:
+仅当满足以下条件时直接使用既有状态：
 
-- state files exist
-- they match the current expected structure
-- they are internally consistent
-- they reflect the current folder state closely enough
-- there is no sign a required phase was skipped
+- 状态文件存在
+- 与当前预期结构匹配
+- 内部一致
+- 足够贴近当前文件夹状态
+- 没有迹象表明某个必要阶段被跳过
 
-### Medium trust
+### 中信任
 
-Use the state as hints only when:
+仅当出现以下情况时把状态当作提示：
 
-- some state exists, but it is incomplete
-- some expected files are missing
-- output exists without clear generation evidence
-- manifest exists but coverage evidence is absent
+- 存在部分状态，但不完整
+- 部分预期文件缺失
+- 输出存在但缺少清晰的生成证据
+- manifest 存在但缺少覆盖率证据
 
-In this case:
+此时：
 
-- reuse what is safe
-- rerun missing phases
+- 复用安全的部分
+- 重跑缺失的阶段
 
-### Low trust
+### 低信任
 
-Treat current state as non-authoritative when:
+出现以下情况时，把当前状态视为不具权威性：
 
-- scaffold files are missing or obviously stale
-- manifest exists but output is absent and the generation chain is unclear
-- inventory exists but parallel subagent mode should have triggered and did not
-- user explicitly asks to “仔细调研”, “重新扫描”, “重新看看效果”, or similar
-- the current folder structure no longer matches the recorded state
+- 脚手架文件缺失或明显过期
+- manifest 存在但输出缺失，且生成链条不清晰
+- 清单存在，但本应触发并行子代理模式却没有触发
+- 用户明确要求“仔细调研”、“重新扫描”、“重新看看效果”等
+- 当前文件夹结构与记录的状态不再匹配
 
-In this case:
+此时：
 
-- rerun from an earlier phase
-- prefer a fresh first-scan path if needed
+- 从较早阶段重跑
+- 必要时优先走全新的首次扫描路径
 
-## Rescan Triggers
+## 重扫触发条件
 
-Force at least a partial rescan when any of these are true:
+满足以下任一条件时，至少强制部分重扫：
 
-- `handover.manifest.json` is missing
-- output directory is missing and there is no trustworthy render trace
-- inventory baseline is missing
-- coverage evidence is missing after a triggered parallel scan
-- parallel threshold was hit but fewer than 2 specialist subagents were actually launched
-- top-level branches now differ materially from the recorded baseline
-- file counts differ materially from the recorded baseline
+- `handover.manifest.json` 缺失
+- 输出目录缺失且没有可信的渲染痕迹
+- 清单基线缺失
+- 已触发并行扫描但缺少覆盖率证据
+- 命中并行阈值但实际启动的专职子代理少于 2 个
+- 顶层分支与记录的基线有实质差异
+- 文件数量与记录的基线有实质差异
 
-## Phase Recovery Rules
+## 阶段恢复规则
 
-### If Phase 1 is untrusted
+### Phase 1 不可信时
 
-Return to:
+回到：
 
-- Phase 1 — Inventory Baseline
+- Phase 1 — 清单基线
 
-### If Phase 2 trigger decision is untrusted
+### Phase 2 触发决策不可信时
 
-Return to:
+回到：
 
-- Phase 1 or 2, depending on whether the inventory is still trustworthy
+- Phase 1 或 2，取决于清单是否仍可信
 
-### If Phase 3 fan-out is untrusted
+### Phase 3 扇出不可信时
 
-Return to:
+回到：
 
-- Phase 3 — Parallel Subagent Fan-Out
+- Phase 3 — 并行子代理扇出
 
-Do not continue to ask-user or render.
+不得继续进入提问或渲染。
 
-### If Phase 4 synthesis is untrusted
+### Phase 4 综合不可信时
 
-Return to:
+回到：
 
-- Phase 4 — Synthesis and Coverage Check
+- Phase 4 — 综合分析与覆盖率检查
 
-### If Phase 5 answers are untrusted
+### Phase 5 回答不可信时
 
-Return to:
+回到：
 
-- Phase 5 — Ask User
+- Phase 5 — 询问用户
 
-### If Phase 6 render is untrusted
+### Phase 6 渲染不可信时
 
-Return to:
+回到：
 
-- Phase 6 — Render
+- Phase 6 — 渲染
 
-## Strong Recovery Rule
+## 强恢复规则
 
-If the hard trigger rule was hit, but the current evidence only shows:
+如果命中了硬触发规则，但当前证据只有：
 
-- inventory
-- or inventory + one worker
+- 清单
+- 或清单 + 一个 worker
 
-then Phase 3 must be treated as incomplete.
+那么 Phase 3 必须视为未完成。
 
-Do not reinterpret that as “good enough”.
+不得把它重新解读为“已经够用”。
 
-## Recommended Transcript Pattern
+## 推荐话术模式
 
-When trust is low, the agent should say so explicitly.
+信任度低时，代理应明确说出来。
 
-Examples:
+例如：
 
 - `当前中间状态可信度不足，我将回退到清单基线阶段重新核对。`
 - `已命中并行条件，但缺少足够的 subagent 执行证据。我将重新进入并行扫描阶段。`

@@ -1,229 +1,229 @@
-# Multi-Agent Orchestration
+# 多代理编排
 
-Use this reference when the offboarding folder is large, mixed, role-ambiguous, or contains both business and compliance risk.
+离职文件夹大、混杂、角色含糊，或同时含业务与合规风险时，使用本参考。
 
-This is an **agent execution strategy**, not a user-facing feature.
+这是一种**代理执行策略**，不是面向用户的功能。
 
-## Why use multiple agents on first scan
+## 为什么首次扫描要用多个代理
 
-For small or clean folders, a single agent is enough.
+小而干净的文件夹，单代理足够。
 
-For large or messy folders, multiple agents improve:
+大而杂乱的文件夹，多代理能提升：
 
-- speed through parallel exploration
-- classification quality through separated concerns
-- question quality by cross-checking role, project, and risk signals
+- 速度：并行探索
+- 分类质量：关注点分离
+- 问题质量：交叉核对角色、项目、风险信号
 
-## External Product Research Summary
+## 外部产品调研摘要
 
 ### OpenAI Codex
 
-Current official materials emphasize parallel agent workflows:
+当前官方材料强调并行代理工作流：
 
-- OpenAI says Codex can work on many tasks in parallel, each in its own isolated environment.
-- The Codex app is described as a command center for managing multiple agents at once, with parallel work and built-in worktrees.
-- OpenAI also recommends using AGENTS.md to provide persistent instructions, and recommends parallel exploration patterns such as Best-of-N for alternative solutions.
+- OpenAI 表示 Codex 可以并行处理多个任务，每个任务运行在独立环境中。
+- Codex 应用被描述为同时管理多个代理的指挥中心，支持并行工作和内置 worktree。
+- OpenAI 还建议用 AGENTS.md 提供持久指令，并推荐 Best-of-N 等并行探索模式来获得备选方案。
 
-Practical implication for this skill:
+对本 skill 的实际含义：
 
-- Use a **coordinator + parallel workers** pattern
-- Keep workers isolated by responsibility
-- Feed the final result back into one synthesized handover view
+- 使用**协调者 + 并行 worker** 模式
+- worker 按职责隔离
+- 最终结果汇入一份综合的交接视图
 
 ### Claude Code
 
-Current official materials distinguish between:
+当前官方材料区分了：
 
-- **subagents**: focused workers inside one session, each with its own context window
-- **agent teams**: multiple Claude Code sessions coordinated by one lead, better when workers need parallel collaboration
+- **subagents**：单个会话内的专注 worker，各自拥有独立上下文窗口
+- **agent teams**：由一个 lead 协调的多个 Claude Code 会话，适合 worker 需要并行协作的场景
 
-Claude’s official guidance says:
+Claude 官方指南说：
 
-- use subagents when only the result matters
-- use agent teams when workers need to coordinate or challenge each other
-- avoid teams for sequential or highly coupled tasks
+- 只关心结果时用 subagents
+- worker 需要相互协调或互相质疑时用 agent teams
+- 顺序性强或高度耦合的任务避免用 teams
 
-Practical implication for this skill:
+对本 skill 的实际含义：
 
-- first scan should be modeled **subagent-first**
-- one lead coordinates multiple specialized subagents
-- agent teams are optional, not required, for this workflow
-- workers should operate independently and return structured findings
+- 首次扫描应以 **subagent 优先** 建模
+- 一个 lead 协调多个专职 subagent
+- agent teams 对本工作流是可选项，不是必需项
+- worker 应独立工作并返回结构化发现
 
-## Recommended Subagent Topology
+## 推荐子代理拓扑
 
-Use **1 coordinator + up to 4 subagents**.
+使用 **1 个协调者 + 至多 4 个子代理**。
 
-Do not exceed 5 agents total unless the user explicitly wants deep research.
+除非用户明确要求深度调研，总数不超过 5 个代理。
 
-### Team Lead
+### 团队负责人（Team Lead）
 
-**Role:** Handover coordinator
+**角色：** 交接协调者
 
-Responsibilities:
+职责：
 
-- inspect whether the folder is small enough for single-agent handling
-- decide whether multi-agent mode is worth the token cost
-- assign bounded scan tasks
-- collect findings
-- detect conflicts between workers
-- decide the first-round ask-user questions
-- synthesize final classification and trigger rendering
+- 判断文件夹是否小到单代理即可处理
+- 决定多代理模式是否值得 token 成本
+- 分配有边界的扫描任务
+- 收集发现
+- 检测 worker 之间的冲突
+- 决定首轮问用户的问题
+- 综合最终分类并触发渲染
 
-### Worker 1: Role Detector
+### Worker 1：角色探测器
 
-Responsibilities:
+职责：
 
-- infer likely role from filenames, directories, artifacts, and tool names
-- output top 1-3 likely roles with confidence
-- highlight ambiguity boundaries
+- 从文件名、目录、产物和工具名推断可能的角色
+- 输出置信度最高的 1-3 个可能角色
+- 标出含糊边界
 
-Best for:
+擅长：
 
-- product vs project vs operations
-- engineering vs testing vs data
-- finance vs HR vs legal
+- 产品 vs 项目 vs 运营
+- 工程 vs 测试 vs 数据
+- 财务 vs 人事 vs 法务
 
-### Worker 2: Project and Business Mapper
+### Worker 2：项目与业务映射器
 
-Responsibilities:
+职责：
 
-- cluster files by project, product line, customer, or business stream
-- identify current vs historical materials
-- detect whether customer-facing or project-delivery content exists
+- 按项目、产品线、客户或业务流聚类文件
+- 区分现行与历史材料
+- 检测是否存在面向客户或项目交付的内容
 
-Best for:
+擅长：
 
 - “这批资料主要是内部还是客户/项目资料”
-- first draft of `03-专项交接`
+- `03-专项交接` 的初稿
 
-### Worker 3: Risk and Asset Checker
+### Worker 3：风险与资产检查器
 
-Responsibilities:
+职责：
 
-- identify accounts, permissions, devices, credentials, contracts, invoices, seals, or sensitive files
-- flag high-risk missing items likely to become `待补充`
+- 识别账号、权限、设备、凭证、合同、发票、印章或敏感文件
+- 标记很可能变成 `待补充` 的高风险遗漏项
 
-Best for:
+擅长：
 
 - `资产权限`
 - `合规结算`
-- first-round risk questions
+- 首轮风险问题
 
-### Worker 4: Inflight and Missing-Facts Detector
+### Worker 4：进行中事项与缺失事实探测器
 
-Responsibilities:
+职责：
 
-- identify unfinished work, pending status, follow-up tasks, and unresolved handover facts
-- detect what must be asked before the first polished HTML is generated
+- 识别未完成工作、待定状态、跟进任务和未解决的交接事实
+- 检测生成第一版精修 HTML 之前必须问什么
 
-Best for:
+擅长：
 
 - `00-进行中事项总表.md`
 - `01-高遗漏检查清单.md`
-- update mode question lists
+- 更新模式的问题清单
 
-## When to Use Parallel Subagent Mode
+## 何时使用并行子代理模式
 
-Enable parallel subagent mode when any of these are true:
+满足以下任一条件时启用：
 
-- file count is large
-- many top-level folders or mixed business domains exist
-- role is ambiguous
-- both internal and customer/project materials appear
-- assets/compliance risk appears non-trivial
-- the initial single-agent scan would likely produce too many `待补充`
+- 文件数量大
+- 顶层文件夹众多或业务领域混杂
+- 角色含糊
+- 内部与客户/项目材料同时出现
+- 资产/合规风险不可忽视
+- 单代理首扫很可能产出大量 `待补充`
 
-Prefer single-agent mode when:
+优先单代理模式，当：
 
-- the folder is already clean
-- the role is obvious
-- there are few files
-- the task is mainly to refresh missing facts, not reclassify the whole package
+- 文件夹已经干净
+- 角色明显
+- 文件很少
+- 任务主要是补齐缺失事实，而非重新分类整个包
 
-## Recommended First-Scan Workflow
+## 推荐首次扫描工作流
 
-1. Coordinator performs a very light scan
-2. Coordinator decides single-agent or parallel-subagent mode
-3. If parallel-subagent mode:
-   - spawn subagents in parallel
-   - give each worker a disjoint responsibility
-4. Workers return:
-   - findings
-   - confidence
-   - unresolved questions
-5. Coordinator synthesizes:
-   - likely role
-   - likely industry overlay
-   - likely project/customer split
-   - likely risk profile
-6. Coordinator asks the smallest high-value question set
-7. Coordinator generates config + answers + manifest + HTML
+1. 协调者做非常轻量的扫描
+2. 协调者决定单代理还是并行子代理模式
+3. 若并行子代理模式：
+   - 并行启动子代理
+   - 给每个 worker 互不重叠的职责
+4. worker 返回：
+   - 发现
+   - 置信度
+   - 未解决的问题
+5. 协调者综合出：
+   - 可能的角色
+   - 可能的行业适配层
+   - 可能的项目/客户划分
+   - 可能的风险画像
+6. 协调者问最小的高价值问题集
+7. 协调者生成配置 + 回答 + manifest + HTML
 
-## Required Worker Output Format
+## 必需的 worker 输出格式
 
-Each worker should return:
+每个 worker 应返回：
 
-- `scope`: what slice it inspected
-- `findings`: top findings
-- `confidence`: high / medium / low
-- `conflicts`: where another role or interpretation might also fit
-- `questions`: 2-5 follow-up questions worth asking the user
+- `scope`：检查了哪个切片
+- `findings`：主要发现
+- `confidence`：取值 high、medium 或 low
+- `conflicts`：可能也符合其他角色或解读的地方
+- `questions`：值得问用户的 2-5 个追问
 
-## Anti-Patterns
+## 反模式
 
-Do not use parallel subagent mode like this:
+不要这样使用并行子代理模式：
 
-- multiple workers reading the same whole folder without role separation
-- multiple workers all trying to produce the final classification
-- teams for tiny refresh-only tasks
-- workers editing the same files or same output slices in parallel
+- 多个 worker 不分职责地读同一个完整文件夹
+- 多个 worker 都试图产出最终分类
+- 为只需刷新的小任务组建团队
+- worker 并行编辑相同文件或相同输出切片
 
-## How this maps to the current Codex environment
+## 与当前 Codex 环境的对应关系
 
-In this Codex environment, the practical pattern is:
+在 Codex 环境中，实用模式是：
 
-- use one main agent as coordinator
-- use `spawn_agent` for bounded parallel workers
-- keep each worker read-heavy and write-light
-- let only the main agent update the final skill outputs
+- 一个主代理作为协调者
+- 用 `spawn_agent` 启动有边界的并行 worker
+- 每个 worker 重读轻写
+- 只有主代理更新最终的 skill 输出
 
-This matches the official product direction from both Codex and Claude Code:
+这与 Codex 和 Claude Code 的官方产品方向一致：
 
-- parallel workers are useful
-- isolated contexts reduce pollution
-- one lead should synthesize and decide
+- 并行 worker 有用
+- 隔离上下文减少污染
+- 由一个 lead 综合并决策
 
-## Claude Code Practical Rule
+## Claude Code 实用规则
 
-For this skill, Claude Code subagents are the default parallel mechanism.
+对本 skill，Claude Code subagents 是默认的并行机制。
 
-Do not block the workflow on experimental agent teams.
+不要让工作流阻塞在实验性的 agent teams 上。
 
-If experimental agent teams are available, they may be used as an optional enhancement for extremely large or highly collaborative scans, but they are not required for normal execution.
+如果实验性 agent teams 可用，可以在超大规模或高协作度的扫描中作为可选增强，但普通执行不需要它。
 
-## Sources
+## 来源
 
-### Official OpenAI sources
+### OpenAI 官方来源
 
-- Introducing Codex  
+- Codex 发布公告（Introducing Codex）  
   https://openai.com/index/introducing-codex/
-- Introducing the Codex app  
+- Codex 应用发布公告（Introducing the Codex app）  
   https://openai.com/index/introducing-the-codex-app/
-- Using Codex with your ChatGPT plan  
+- 在 ChatGPT 订阅中使用 Codex 的帮助文档  
   https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan
-- How OpenAI uses Codex  
+- OpenAI 内部如何使用 Codex  
   https://cdn.openai.com/pdf/6a2631dc-783e-479b-b1a4-af0cfbd38630/how-openai-uses-codex.pdf
 
-### Official Anthropic / Claude Code sources
+### Anthropic / Claude Code 官方来源
 
-- Claude Code subagents  
+- Claude Code 子代理文档  
   https://code.claude.com/docs/en/sub-agents
-- Claude Code settings  
+- Claude Code 设置文档  
   https://code.claude.com/docs/en/settings
-- Claude Code agent teams  
+- Claude Code 代理团队文档  
   https://code.claude.com/docs/en/agent-teams
 
-## Context7 note
+## Context7 说明
 
-I first checked Context7 for Claude Code. It returned usable but incomplete material, mostly mirrored or repository-based documentation. I therefore supplemented it with official Anthropic docs for the authoritative behavior details above.
+调研时先查了 Context7 的 Claude Code 资料，可用但不完整，多为镜像或仓库文档，因此上面的权威行为细节以 Anthropic 官方文档补充为准。

@@ -1,5 +1,5 @@
 name = "offboarding-missing-facts-detector"
-description = "Detect unfinished work, unresolved status, pending handover facts, and likely future 待补充 items."
+description = "检测未完成工作、未解决状态、待定交接事实和可能的未来待补充项。"
 model = "gpt-5.1-codex-mini"
 
 developer_instructions = """
@@ -7,11 +7,11 @@ managed-by: offboarding-handover
 managed-version: 1
 Preferred tools: Read, Grep, Glob, LS, BashOutput
 
-You are a missing-facts and inflight-work specialist for offboarding handover analysis.
+你是离职交接分析的缺失事实与进行中工作专家。
 
-Output:
-- Potential Inflight Items
-- Likely Missing Facts
-- Questions to Ask Before First HTML
-- Questions That Can Wait Until Refresh
+输出：
+- 疑似进行中事项
+- 可能缺失的事实
+- 第一版 HTML 之前要问的问题
+- 可以等到刷新再问的问题
 """

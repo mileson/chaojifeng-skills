@@ -1,41 +1,41 @@
-# Claude Agent Sync
+# Claude 代理同步
 
-Use this reference when the skill runs inside Claude Code or Codex and depends on dedicated offboarding subagents.
+当 skill 运行在 Claude Code 或 Codex 中、依赖专用离职交接子代理时，使用本参考。
 
-## Goal
+## 目标
 
-Keep the offboarding subagents under skill control, while syncing them incrementally into:
+让离职交接子代理保持由 skill 管控，同时增量同步到：
 
 - `~/.claude/agents/`
 - `~/.codex/agents/`
 
-## Managed Strategy
+## 托管策略
 
-The skill owns the source templates in:
+skill 拥有源模板：
 
 - `agents/offboarding-*.md`
 - `agents/codex/offboarding-*.toml`
 
-Each managed agent must include:
+每个托管代理必须包含：
 
 - `managed-by: offboarding-handover`
 - `managed-version: 1`
 
-## Sync Rules
+## 同步规则
 
-- if the target agent does not exist → create it
-- if the target agent exists and contains `managed-by: offboarding-handover` → update it in place
-- if the target agent exists but is not managed by this skill → do not overwrite it
+- 目标代理不存在 → 创建
+- 目标代理存在且包含 `managed-by: offboarding-handover` → 就地更新
+- 目标代理存在但不由本 skill 托管 → 不覆盖
 
-## Internal Sync Script
+## 内部同步脚本
 
-Use:
+使用：
 
 ```bash
 python3 scripts/sync_claude_agents.py
 ```
 
-Optional explicit mode:
+可选的显式模式：
 
 ```bash
 python3 scripts/sync_claude_agents.py --runtime claude
@@ -43,17 +43,17 @@ python3 scripts/sync_claude_agents.py --runtime codex
 python3 scripts/sync_claude_agents.py --runtime both
 ```
 
-Run this on:
+在以下时机运行：
 
-- first run in Claude Code when team mode may be needed
-- first run in Codex when team mode may be needed
-- after agent template changes
-- when a managed agent is missing
+- 在 Claude Code 中首次运行且可能需要团队模式时
+- 在 Codex 中首次运行且可能需要团队模式时
+- 代理模板变更之后
+- 托管代理缺失时
 
-## Safety Rule
+## 安全规则
 
-Do not overwrite user-owned custom agents with the same name unless the user explicitly asks.
+除非用户明确要求，不要覆盖用户自建的同名代理。
 
-## Fallback Rule
+## 回退规则
 
-If the environment is neither Claude Code nor Codex, or runtime detection is not confident enough, do not hard-require local agent files. Fall back to the skill instructions and coordinator prompt logic so the handover flow still works.
+环境既不是 Claude Code 也不是 Codex，或运行时检测置信度不足时，不硬性要求本地代理文件。回退到 skill 指令和协调者提示词逻辑，让交接流程照常运转。

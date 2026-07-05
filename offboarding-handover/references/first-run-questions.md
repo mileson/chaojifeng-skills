@@ -1,20 +1,20 @@
-# First-Run Questions
+# 首轮问题
 
-Use this reference on the first run after a light folder scan.
+首次运行、轻量文件夹扫描之后使用本参考。
 
-The goal is not to interview the user at length. The goal is to eliminate the highest-value unknowns before generating the first HTML site.
+目标不是对用户做冗长访谈，而是在生成第一版 HTML 站点之前消除价值最高的未知项。
 
-The user is answering the skill in natural conversation. The agent may store those answers through internal state files or internal script parameters, but should not assume the user is running commands manually.
+用户是在自然对话中回答 skill 的问题。代理可以通过内部状态文件或内部脚本参数存储这些回答，但不应假设用户在手动运行命令。
 
-## Source Folder Question
+## 源文件夹问题
 
-Ask this before inventory if the user did not provide a folder:
+用户未提供文件夹时，在盘点之前先问：
 
 `需要交接的材料在哪个文件夹？你可以回复“当前文件夹”，也可以给一个路径。`
 
-Do not ask the role/profile questions until the folder exists and the inventory baseline is available.
+在文件夹存在且清单基线可用之前，不要问角色/画像问题。
 
-## Ask These First
+## 优先问这些
 
 1. `这批资料的交接人是谁？有没有常用简称、英文名、花名或文件里常见的别名？`
 2. `我推断的岗位/职责边界是否准确？如果不准确，请直接改。`
@@ -27,9 +27,9 @@ Do not ask the role/profile questions until the folder exists and the inventory 
 9. `有没有账号、权限、设备或敏感资料需要交接？`
 10. `是否有其他同事的个人材料、述职、试用期、岗位说明或交接包混在里面？这些默认不放进核心交接包，可以吗？`
 
-## Optional Follow-Ups
+## 可选追问
 
-Ask only when the folder or first answers suggest risk:
+仅当文件夹或首轮回答提示风险时才追问：
 
 - `如果文件名出现其他同事姓名，哪些属于项目共用材料，哪些应该排除？`
 - `同一文档多个版本时，是否默认只保留最终版或最新版本，并把旧版本写入排除说明？`
@@ -42,12 +42,12 @@ Ask only when the folder or first answers suggest risk:
 - `是否有群主责任或内容监管责任？`
 - `客户关系或对接人是否已经明确移交？`
 
-## Rules
+## 规则
 
-- Prefer single-choice or short factual answers
-- Do not ask questions the scan already answered with high confidence
-- Stop once the generated site will no longer be full of `待补充`
-- A guessed role can only produce a draft. The user must confirm or correct it before polished output.
-- Ask these questions only after source folder validation, inventory baseline, trigger handling, synthesis, and coverage check.
-- If successor, handover coordinator, last working day, or role boundary remain unknown, the output must stay draft unless the user explicitly marks them intentionally unknown.
-- If the user agrees to default behavior, other-person personal materials are excluded, ambiguous shared materials go to `review`, and duplicate versions are collapsed before staging.
+- 优先单选或简短事实性回答
+- 扫描已高置信度回答的问题不要再问
+- 生成的站点不再充满 `待补充` 时即可停止提问
+- 猜测的角色只能产出草稿。精修输出之前用户必须确认或纠正。
+- 只有在源文件夹校验、清单基线、触发处理、综合分析、覆盖率检查完成后才问这些问题。
+- 接手人、交接协调人、最后工作日或职责边界仍未知时，除非用户明确标记为有意留空，输出必须保持草稿。
+- 用户同意默认行为时：排除他人个人材料，含糊的共享材料进 `review`，重复版本在落盘前折叠。

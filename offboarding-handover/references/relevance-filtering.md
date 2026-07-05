@@ -1,168 +1,168 @@
-# Relevance Filtering
+# 相关性过滤
 
-Use this reference when the user gives a broad team, department, customer, or company folder and expects a personal handover package.
+用户给出宽泛的团队、部门、客户或公司文件夹却期望个人交接包时，使用本参考。
 
-The goal is not to move every file into a nicer folder. The goal is to reduce successor review cost by keeping files that have handover value and explaining why other files were left out.
+目标不是把每个文件搬进更好看的文件夹，而是通过保留有交接价值的文件并解释其余文件为何被排除，来降低接手人的审阅成本。
 
-## Core Principle
+## 核心原则
 
-Do not use the employee name as the only inclusion gate.
+不要把员工姓名当作唯一的纳入门槛。
 
-- A file that names the employee is a strong include signal.
-- A file that does not name the employee can still be highly relevant if it belongs to the person's role, project, customer, current delivery, account, risk, or operational responsibility.
-- A file should be excluded only when there is a clear reason it is not useful for this handover.
-- If ownership or handover value is unclear, put it in `review` instead of copying it silently or excluding it silently.
+- 出现员工姓名的文件是强纳入信号。
+- 没有员工姓名的文件，只要属于当事人的角色、项目、客户、当前交付、账号、风险或运营职责，仍可能高度相关。
+- 只有存在“对本次交接无用”的明确理由时才排除。
+- 归属或交接价值不明时，放入 `review`，不要悄悄复制也不要悄悄排除。
 
-## Retention Decisions
+## 保留决定
 
-Every scanned file should receive one of these decisions before staging:
+每个被扫描的文件在落盘前应获得以下决定之一：
 
-- `include`: copy into the handover package.
-- `review`: do not copy by default; list it for the user or successor to confirm.
-- `exclude`: do not copy; list the reason in the filtering report.
+- `include`：复制进交接包。
+- `review`：默认不复制；列出来让用户或接手人确认。
+- `exclude`：不复制；在过滤报告中列出原因。
 
-The decision should be recorded in the manifest with concise reasons.
+决定应连同简洁的理由记录在 manifest 中。
 
-## Identity and Ownership Baseline
+## 身份与归属基线
 
-Before copying files, the coordinator must have a working identity baseline:
+复制文件之前，协调者必须掌握可用的身份基线：
 
-- handover owner/person
-- known aliases, initials, department names, product-line names, and common project ownership markers
-- role or responsibility boundary confirmed by the user, or marked as draft-only
-- successor and handover coordinator, or intentionally unknown
+- 交接人/当事人
+- 已知别名、缩写、部门名、产品线名和常见项目归属标记
+- 用户确认的角色或职责边界，或标记为仅草稿
+- 接手人和交接协调人，或有意留空
 
-Use this baseline for routing, but do not use it as a single hard inclusion gate. A file without the owner name can still be relevant; a file with another person's name can still be a shared project artifact. The decision must be explained.
+用这个基线做路由，但不要把它当作唯一的硬性纳入门槛。没有当事人姓名的文件仍可能相关；出现他人姓名的文件仍可能是共享项目产物。每个决定都必须给出解释。
 
-## Strong Include Signals
+## 强纳入信号
 
-Include when there is no stronger exclusion signal and the file matches at least one of these:
+没有更强排除信号、且文件匹配以下至少一项时纳入：
 
-- employee name, known alias, initials, or role-specific owner marker
-- current customer or project materials that match the employee's handover scope
-- plans, milestones, delivery notes, launch materials, issues, risks, or follow-up records
-- account, permission, device, system, customer, contract, reimbursement, invoice, or settlement materials
-- handover-critical generated markdown produced by this skill
-- final reports, current training decks, blueprints, operating manuals, SOPs, metrics, dashboards, or stakeholder maps
+- 员工姓名、已知别名、缩写或角色专属归属标记
+- 匹配员工交接范围的现行客户或项目材料
+- 计划、里程碑、交付记录、上线材料、问题、风险或跟进记录
+- 账号、权限、设备、系统、客户、合同、报销、发票或结算材料
+- 本 skill 生成的交接关键 markdown
+- 定稿报告、现行培训材料、蓝图、操作手册、SOP、指标、看板或干系人图谱
 
-## Strong Exclusion Signals
+## 强排除信号
 
-Exclude when the file is clearly not useful for this employee's handover:
+文件对该员工的交接明显无用时排除：
 
-- macOS resource files such as `._*` and `.DS_Store`
-- temporary Office files such as `~$*.docx`
-- other people's handover folders such as `工作交接-某人` when the folder does not name the employee
-- other people's personal review, personal summary, personal role description, or talent inventory files
-- other people's personal presentations, probation/trial forms, performance-review materials, personal OKR/goal decks, personal role descriptions, and private work summaries unless explicitly confirmed as part of this handover
-- company-wide templates, public policies, general examples, and reference cases unless tied to a current handover item
-- old versions superseded by a newer or final version of the same document
-- generated prototype export assets such as `images/`, `resources/`, `js`, `css`, icon sprites, fonts, and static demo files
-- dependency/vendor/cache folders or tool-generated build output
+- macOS 资源文件，如 `._*` 和 `.DS_Store`
+- Office 临时文件，如 `~$*.docx`
+- 他人的交接文件夹，如未出现当事人姓名的 `工作交接-某人`
+- 他人的个人述职、个人总结、个人岗位说明或人才盘点文件
+- 他人的个人演示、试用期/转正表格、绩效材料、个人 OKR/目标演示、个人岗位说明和私人工作总结，除非明确确认属于本次交接
+- 全公司模板、公开制度、通用示例和参考案例，除非与现行交接事项直接相关
+- 已被同一文档更新版或定稿版取代的旧版本
+- 生成的原型导出资产，如 `images/`、`resources/`、`js`、`css`、图标雪碧图、字体和静态演示文件
+- 依赖/vendor/缓存文件夹或工具生成的构建产物
 
-## Review Signals
+## 待评审信号
 
-Put files in `review` when they may matter but should not be copied without confirmation:
+文件可能重要但不应未经确认就复制时，放入 `review`：
 
-- team-authored material with no clear personal owner
-- customer/project folders that match the department but not the employee's known role
-- archives such as `.zip`, `.rar`, or `.7z` that may contain many unrelated files
-- public templates that appear to be attached to an active customer/project delivery
-- prototype entry files where the source design file is missing
-- materials with multiple names where the employee is one of several contributors
-- shared meeting decks, project plans, customer materials, or demos that mention another person but appear tied to the confirmed handover scope
+- 没有明确个人归属的团队共创材料
+- 匹配部门但不匹配员工已知角色的客户/项目文件夹
+- 可能包含大量无关文件的压缩包，如 `.zip`、`.rar`、`.7z`
+- 看起来附属于进行中客户/项目交付的公开模板
+- 缺少源设计文件的原型入口文件
+- 员工只是多位贡献者之一的多人署名材料
+- 提到他人但看起来与已确认交接范围相关的共享会议材料、项目计划、客户材料或演示
 
-## Other-Person Material Guard
+## 他人材料防线
 
-When a file path or name contains a person name that is not the confirmed handover owner or alias:
+文件路径或名称包含非当事人（含别名）的人名时：
 
-1. If the file is clearly personal, choose `exclude`.
-   - examples: personal述职, personal总结, trial/probation forms, talent inventory, role description, another person's handover folder
-2. If the file is a shared project/customer/workflow artifact, choose `review` unless the confirmed scope proves it is handover-critical.
-   - examples: project meeting decks, customer presentations, training material, demo notes, cross-functional reports
-3. If the user confirms this other-person file is required supporting evidence, choose `include` and record the confirmation reason.
-4. Never copy a file with another person's name into the core package silently.
+1. 明显是个人材料 → `exclude`。
+   - 例如：个人述职、个人总结、试用期/转正表格、人才盘点、岗位说明、他人的交接文件夹
+2. 是共享的项目/客户/工作流产物 → `review`，除非已确认范围证明它是交接关键项。
+   - 例如：项目会议材料、客户演示、培训材料、演示笔记、跨部门报告
+3. 用户确认该他人文件是必要的支撑证据 → `include`，并记录确认理由。
+4. 绝不把带他人姓名的文件悄悄复制进核心交接包。
 
-The filtering report should show representative other-person exclusions and review candidates.
+过滤报告应展示有代表性的他人材料排除项和待评审候选。
 
-## Version Deduplication
+## 版本去重
 
-When several files look like versions of the same document:
+多个文件疑似同一文档的不同版本时：
 
-1. Normalize the name by removing dates, version suffixes, copy markers, and final/draft markers.
-2. Group only within the same or closely related folder and same extension.
-3. Keep the best representative:
-   - explicit final/release/fixed version first
-   - newest explicit date second
-   - newest modified time third
-4. Mark the older versions as `exclude` with a superseded reason.
-5. Keep the superseded file path and retained file path in the manifest or filtering report.
+1. 去掉日期、版本后缀、副本标记、final/draft 标记，归一化名称。
+2. 只在相同或紧密相关的文件夹内、相同扩展名之间分组。
+3. 保留最佳代表：
+   - 显式的 final/发布/定稿版本优先
+   - 其次是最新的显式日期
+   - 最后是最新修改时间
+4. 把旧版本标为 `exclude`，理由写“已被取代”。
+5. 在 manifest 或过滤报告中保留被取代文件路径和保留文件路径。
 
-Do not deduplicate files with different business meaning just because their names are short or generic.
+不要仅因名称短或通用就对业务含义不同的文件去重。
 
-## Staged Filename Normalization
+## 落盘文件名标准化
 
-Files copied into the handover package should be renamed for successor reading and sorting. Rename staged copies only; never rename original source files unless the user explicitly asks for in-place reorganization.
+复制进交接包的文件应为接手人的阅读和排序重命名。只重命名落盘副本；除非用户明确要求就地重组，绝不重命名原始源文件。
 
-Recommended staged filename pattern:
+推荐落盘文件名模式：
 
 ```text
 {序号}-{项目或客户简称}-{主题}-{材料类型}-{状态}-{日期}-{版本}.{扩展名}
 ```
 
-Field rules:
+字段规则：
 
-- `序号`: three digits within a section, based on reading priority or stable manifest order, such as `001`
-- `项目或客户简称`: stable short label such as `DBN大北农`, `越秀`, `猪联网Pro`, or `供应链`
-- `主题`: the cleaned business topic after removing noise such as `副本`, `复制`, repeated `最终`, bracket counters, and temporary markers
-- `材料类型`: controlled terms such as `需求说明`, `培训材料`, `蓝图设计`, `会议纪要`, `对账表`, `项目计划`, `操作手册`, `评估报告`, `原型源文件`
-- `状态`: controlled values such as `current`, `final`, `review`, or `historical`
-- `日期`: `YYYYMMDD`, using explicit filename date first, then document date, then modified time
-- `版本`: `v01`, `v02`, or `final`; collapsed old versions should not be copied into core output
+- `序号`：区块内三位数字，按阅读优先级或稳定的 manifest 顺序，如 `001`
+- `项目或客户简称`：稳定短标签，如 `DBN大北农`、`越秀`、`猪联网Pro`、`供应链`
+- `主题`：去掉 `副本`、`复制`、重复的 `最终`、括号计数器、临时标记等噪音后的业务主题
+- `材料类型`：受控词，如 `需求说明`、`培训材料`、`蓝图设计`、`会议纪要`、`对账表`、`项目计划`、`操作手册`、`评估报告`、`原型源文件`
+- `状态`：受控值，如 `current`、`final`、`review`、`historical`
+- `日期`：`YYYYMMDD`，优先取文件名显式日期，其次文档日期，最后修改时间
+- `版本`：`v01`、`v02` 或 `final`；被折叠的旧版本不应复制进核心输出
 
-Staged filename constraints:
+落盘文件名约束：
 
-- keep the original file extension
-- avoid path separators, control characters, emoji, repeated whitespace, and punctuation that is unsafe across systems
-- prefer concise names; keep the filename understandable without relying on the source folder
-- if two staged names collide, append a short stable suffix and record the collision resolution
-- if the agent cannot generate a safe meaningful staged name, put the item in `review`
+- 保留原始扩展名
+- 避免路径分隔符、控制字符、emoji、重复空白，以及跨系统不安全的标点
+- 名称尽量简洁；不依赖源文件夹也能看懂
+- 两个落盘名冲突时，追加简短稳定后缀并记录冲突处理
+- 无法自信地生成安全且有意义的落盘名时，把该项放入 `review`
 
-Manifest records should include:
+manifest 记录应包含：
 
 - `original_name`
 - `original_path`
 - `staged_name`
 - `staged_path`
 - `rename_reason`
-- `version_group_key` when applicable
-- `superseded_by` when applicable
+- `version_group_key`（适用时）
+- `superseded_by`（适用时）
 
-## Prototype and Generated Asset Folding
+## 原型与生成资产折叠
 
-For prototype or UI folders, do not copy every exported static asset.
+对原型或 UI 文件夹，不要复制每个导出的静态资产。
 
-Prefer:
+优先：
 
-- source files such as `.rp`, `.fig`, `.sketch`, `.drawio`, `.vsdx`
-- a single entry HTML if it is the only readable artifact
-- compressed bundles when they are clearly the intended deliverable
-- a short index in the filtering report explaining that generated assets were folded
+- 源文件，如 `.rp`、`.fig`、`.sketch`、`.drawio`、`.vsdx`
+- 若唯一可读产物是入口 HTML，保留单个入口 HTML
+- 明显是预期交付物的压缩包
+- 在过滤报告中用简短索引说明生成资产已折叠
 
-## Output Expectations
+## 输出预期
 
-The final package should include:
+最终交接包应包含：
 
-- copied `include` files only
-- `review` candidates listed in the site and filtering report
-- `exclude` counts and representative examples
-- version groups where older files were excluded
-- original-to-staged filename mapping for copied files
-- reasons that a normal business user can understand
+- 仅复制 `include` 文件
+- `review` 候选在站点和过滤报告中列出
+- `exclude` 数量和代表性示例
+- 旧版本被排除的版本组
+- 复制文件的原名到落盘名映射
+- 普通业务用户能理解的理由
 
-The successor should be able to answer:
+接手人应能回答：
 
-- What did we keep?
-- What still needs confirmation?
-- What did we intentionally leave out?
-- Which duplicate versions were collapsed?
-- What is the readable handover filename, and where did the original file come from?
+- 我们保留了什么？
+- 什么还需要确认？
+- 我们有意排除了什么？
+- 哪些重复版本被折叠了？
+- 可读的交接文件名是什么，原始文件来自哪里？

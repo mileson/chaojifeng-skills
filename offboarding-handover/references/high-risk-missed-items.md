@@ -1,21 +1,20 @@
-# High-Risk Missed Items
+# 高遗漏风险事项
 
-Use this checklist after the main handover structure is done. It focuses on things ordinary white-collar employees often forget, but which later block operations, create disputes, or leave security gaps.
+主交接结构完成后使用本清单。它聚焦普通白领员工常忘记、但后期会阻塞业务、引发纠纷或留下安全缺口的事项。
 
-## How to Use
+## 使用方法
 
-1. Review this table before finalizing the manifest and site.
-2. Mark each item as one of:
+1. 定稿 manifest 和站点之前先过一遍下表。
+2. 每一项标记为：
    - `已确认无需交接`
    - `已交接`
    - `待补充`
-3. If an item exists but is not yet represented in the handover package, add it to:
+3. 如果某项存在但尚未体现在交接包中，按其性质加入：
    - `资产权限`
    - `合规结算`
    - `交接状态`
-   depending on its nature.
 
-## Agent Checklist Table
+## 代理检查表
 
 | 序号 | 检查项 | 典型内容 | 建议放置位置 | 状态 | 当前持有人/责任人 | 接手人 | 补充说明 |
 |---|---|---|---|---|---|---|---|
@@ -38,462 +37,462 @@ Use this checklist after the main handover structure is done. It focuses on thin
 | 17 | 证照原件/复印件的实际保管 | 营业执照、资质证照、复印件、扫描件保管位置 | 交接状态 / 合规结算 | 待补充 |  |  |  |
 | 18 | 应收款 / 催收中的尾项 | 谁欠款、催收到哪一步、谁继续跟进 | 合规结算 / 关系人 | 待补充 |  |  |  |
 
-## Detailed Guidance
+## 详细指引
 
-### 1. Unit operator identities
+### 1. 单位经办人身份
 
-Check whether the departing employee is registered as an operator, handler, or administrator for:
+检查离职员工是否是以下系统登记的经办人、办理人或管理员：
 
-- housing fund accounts
-- tax systems
-- social insurance systems
-- bank or treasury platforms
-- invoice or reimbursement systems
+- 公积金账户
+- 税务系统
+- 社保系统
+- 银行或资金平台
+- 发票或报销系统
 
-Why it is missed:
+为什么容易漏：
 
-- this is not a normal login account, but a unit-facing service identity
+- 这不是普通登录账号，而是面向单位的办事身份
 
-What to capture:
+需要记录：
 
-- system name
-- current operator identity
-- replacement operator
-- change procedure or pending step
+- 系统名称
+- 当前经办身份
+- 接替经办人
+- 变更流程或待办步骤
 
-References:
+参考：
 
 - https://zjj.sz.gov.cn/hdjl/ywzs/gjj/jcl/content/post_12518057.html
 - https://gjj.gz.gov.cn/bsfw/cjwt/jc/content/post_10295421.html
 
-### 2. Work WeChat / enterprise messaging / customer groups / operated social accounts
+### 2. 工作微信 / 企微 / 客户群 / 运营账号
 
-Check whether the employee controls:
+检查员工是否掌控：
 
-- work WeChat accounts
-- Enterprise WeChat external contacts
-- customer group chats
-- official account backends
-- mini-program backends
-- video or social media brand accounts
+- 工作微信号
+- 企业微信外部联系人
+- 客户群聊
+- 公众号后台
+- 小程序后台
+- 视频号或社媒品牌账号
 
-Why it is missed:
+为什么容易漏：
 
-- these are often mixed with personal phones or personal chat habits
+- 这些常和个人手机、个人聊天习惯混在一起
 
-What to capture:
+需要记录：
 
-- account or platform
-- bound phone number or email
-- admin or owner role
-- customer relationship impact
-- transfer target
+- 账号或平台
+- 绑定手机号或邮箱
+- 管理员或群主角色
+- 对客户关系的影响
+- 移交对象
 
-References:
+参考：
 
 - https://www.sdcourt.gov.cn/wfwcqfy/443527/443501/12509536/index.html
 - https://news.cctv.com/2023/12/28/ARTIVYIPvVn22XOVavjxIrLS231228.shtml
 
-### 3. Tax UKey / bank UShield / bank seal specimen / payment credentials
+### 3. 税务 UKey / 网银 U盾 / 支付凭证
 
-Check whether the employee holds or controls:
+检查员工是否持有或掌控：
 
-- tax UKey
-- banking UShield
-- payment approval token
-- invoice issuance permissions
-- bank reserved seal specimen process
+- 税控 UKey
+- 网银 U盾
+- 付款审批 token
+- 开票权限
+- 银行预留印鉴流程
 
-Why it is missed:
+为什么容易漏：
 
-- these are often treated as small physical tools, but they directly affect payments and invoicing
+- 常被当成小的实体工具，但直接影响付款和开票
 
-What to capture:
+需要记录：
 
-- credential type
-- serial or identifier
-- physical holder
-- return status
-- successor or custodian
+- 凭证类型
+- 序列号或标识
+- 实际持有人
+- 归还状态
+- 接手人或保管人
 
-References:
+参考：
 
 - https://www.gz.gov.cn/xw/zwlb/content/mpost_5734246.html
 - https://pccz.court.gov.cn/filedownloads/2024/2024-08-28/%E7%A1%AE%E8%AE%A4%E6%B8%85%E7%AE%97%E6%96%B9%E6%A1%88%E6%B0%91%E4%BA%8B%E8%A3%81%E5%AE%9A%E4%B9%A61724830715605.pdf?fn=%E7%A1%AE%E8%AE%A4%E6%B8%85%E7%AE%97%E6%96%B9%E6%A1%88%E6%B0%91%E4%BA%8B%E8%A3%81%E5%AE%9A%E4%B9%A6.pdf
 
-### 4. Electronic seals / physical seals / business license originals
+### 4. 电子印章 / 实体印章 / 营业执照原件
 
-Check whether the employee can access or physically holds:
+检查员工能否接触或实际持有：
 
-- company seal
-- finance seal
-- legal representative seal
-- electronic seal account
-- business license original or copies used operationally
+- 公章
+- 财务章
+- 法人章
+- 电子印章账号
+- 日常使用的营业执照原件或复印件
 
-Why it is missed:
+为什么容易漏：
 
-- many small or fast-moving teams keep these with whoever actually handles work
+- 很多小团队或快节奏团队把这些放在实际干活的人手里
 
-What to capture:
+需要记录：
 
-- item name
-- storage location
-- holder
-- return or transfer confirmation
+- 物品名称
+- 存放位置
+- 持有人
+- 归还或移交确认
 
-References:
+参考：
 
 - https://www.gov.cn/xinwen/2020-08/07/content_5533146.htm
 - https://pccz.court.gov.cn/filedownloads/2024/2024-08-28/%E7%A1%AE%E8%AE%A4%E6%B8%85%E7%AE%97%E6%96%B9%E6%A1%88%E6%B0%91%E4%BA%8B%E8%A3%81%E5%AE%9A%E4%B9%A61724830715605.pdf?fn=%E7%A1%AE%E8%AE%A4%E6%B8%85%E7%AE%97%E6%96%B9%E6%A1%88%E6%B0%91%E4%BA%8B%E8%A3%81%E5%AE%9A%E4%B9%A6.pdf
 
-### 5. Confidential media and paper materials
+### 5. 涉密载体与纸质材料
 
-Check whether the employee has:
+检查员工是否持有：
 
-- USB drives
-- external hard drives
-- printed contracts
-- printed quotations
-- meeting packets
-- handwritten notes with customer, pricing, or credential details
+- U 盘
+- 移动硬盘
+- 纸质合同
+- 纸质报价单
+- 会议材料包
+- 含客户、价格或凭证信息的手写笔记
 
-Why it is missed:
+为什么容易漏：
 
-- teams focus on files and forget physical carriers
+- 团队盯着电子文件，忘了实体载体
 
-What to capture:
+需要记录：
 
-- media type
-- content type
-- storage place
-- handover or destruction status
+- 载体类型
+- 内容类型
+- 存放地点
+- 移交或销毁状态
 
-References:
+参考：
 
 - https://gfdy.tj.gov.cn/ztzl/rfzs/202402/t20240222_6541644.html
 
-### 6. Housing fund sealing or transfer follow-up
+### 6. 公积金封存或转移的后续责任
 
-Check whether the package says not only that housing fund stops, but also:
+检查交接包是否不止写了公积金停缴，还写清：
 
-- who handles sealing
-- who handles transfer
-- what the next responsible person is
-- what supporting documents are needed
+- 谁办封存
+- 谁办转移
+- 后续责任人是谁
+- 需要哪些材料
 
-Why it is missed:
+为什么容易漏：
 
-- many handovers stop at “will be stopped” and never define who actually finishes the procedure
+- 很多交接只写“会停缴”，从不定义谁把手续办完
 
-What to capture:
+需要记录：
 
-- current state
-- next step
-- responsible party
-- evidence or receipt
+- 当前状态
+- 下一步
+- 责任方
+- 凭证或回执
 
-References:
+参考：
 
 - https://www.yw.gov.cn/art/2024/5/16/art_1229142865_1804614.html
 
-### 7. Bound phone numbers and verification chains
+### 7. 手机号绑定与验证链路
 
-Check whether systems are actually transferable, or whether they depend on:
+检查系统是否真的可移交，还是依赖：
 
-- one personal mobile number
-- one personal mailbox
-- one person's OTP or SMS reception
-- one person's authenticator app
+- 某个个人手机号
+- 某个个人邮箱
+- 某个人接收 OTP 或短信验证码
+- 某个人的验证器 App
 
-Typical systems:
+典型系统：
 
-- social accounts
-- mini-programs
-- advertising platforms
-- payment systems
-- developer platforms
-- domain or cloud accounts
+- 社媒账号
+- 小程序
+- 广告平台
+- 支付系统
+- 开发者平台
+- 域名或云账号
 
-What to capture:
+需要记录：
 
-- bound identifier
-- system name
-- replacement plan
-- transfer blocked or not
+- 绑定标识
+- 系统名称
+- 替换方案
+- 移交是否受阻
 
-Reference:
+参考：
 
 - https://www.sichuanpeace.gov.cn/azsf/20250829/2992286.html
 
-### 8. Personal workstation assets
+### 8. 个人工作台资产
 
-Check whether the employee relies on hidden productivity materials that never entered official docs:
+检查员工是否依赖从未进入正式文档的隐性生产力材料：
 
-- browser bookmarks
-- local scripts
-- SQL snippets
-- Postman collections
-- spreadsheet macros
-- local templates
-- note-taking vaults
-- personal cloud folders used for company work
+- 浏览器书签
+- 本地脚本
+- SQL 片段
+- Postman 集合
+- 表格宏
+- 本地模板
+- 笔记库
+- 用于公司工作的个人云盘文件夹
 
-Why it is missed:
+为什么容易漏：
 
-- it lives in the employee's workflow, not in the formal project system
+- 它们活在员工的工作流里，不在正式项目系统中
 
-What to capture:
+需要记录：
 
-- asset type
-- local path or tool name
-- whether it is still needed
-- where it should be migrated
+- 资产类型
+- 本地路径或工具名
+- 是否仍需要
+- 应迁移到哪里
 
-### 9. Oral agreements and unwritten operating rules
+### 9. 口头约定与非书面规则
 
-Check whether important information exists only in:
+检查重要信息是否只存在于：
 
-- chat threads
-- meeting memory
-- unwritten customer agreements
-- team “everyone knows this” rules
+- 聊天线程
+- 会议记忆
+- 客户的非书面约定
+- 团队“大家都知道”的规则
 
-What to capture:
+需要记录：
 
-- statement
-- affected project or customer
-- source of agreement
-- whether written evidence exists
+- 内容陈述
+- 影响的项目或客户
+- 约定来源
+- 是否有书面证据
 
-### 10. Responsibility boundary and unresolved items
+### 10. 责任边界与未解决事项
 
-Check whether the package clearly says:
+检查交接包是否明确说清：
 
-- what is already completed
-- what was only warned but not finished
-- what remains open
-- who owns the next step
+- 什么已完成
+- 什么只是提醒过但没做完
+- 什么仍然开放
+- 下一步归谁
 
-Why it matters:
+为什么重要：
 
-- without this, handover turns into blame transfer
+- 缺了这些，交接就会变成甩锅
 
-What to capture:
+需要记录：
 
-- item
-- current completion state
-- known risk
-- next owner
-- deadline if any
+- 事项
+- 当前完成状态
+- 已知风险
+- 下一位责任人
+- 截止时间（如有）
 
-### 11. Cash advances / loans / unreconciled reimbursements
+### 11. 备用金 / 借款 / 未核销报销
 
-Check whether the departing employee still has:
+检查离职员工是否仍有：
 
-- travel cash advances
-- petty cash
-- team advances
-- unreconciled reimbursement claims
-- payments made personally and not yet settled
+- 差旅借款
+- 备用金
+- 团队垫付款
+- 未核销报销单
+- 个人垫付且未结算的款项
 
-Why it is missed:
+为什么容易漏：
 
-- teams think “finance will see it”, but many items stay under an employee's name
+- 团队以为“财务会看到”，但很多款项挂在员工个人名下
 
-What to capture:
+需要记录：
 
-- item type
-- amount
-- current state
-- evidence or claim number
-- settlement owner
+- 款项类型
+- 金额
+- 当前状态
+- 凭证或单据号
+- 结算责任人
 
-Reference:
+参考：
 
 - https://sthj.ln.gov.cn/sthj/zfxxgk/fdzdgknr/czzj/hbzxzjxm/F5022FECE61B45568E783E1306022811/index.shtml
 
-### 12. Invoice permissions / invoice seal
+### 12. 开票权限 / 发票专用章
 
-Check whether the employee still controls:
+检查员工是否仍掌控：
 
-- invoice issuance backend
-- tax device
-- invoice seal
-- invoice application or receiving responsibility
+- 开票后台
+- 税控设备
+- 发票专用章
+- 发票申领或领用责任
 
-Why it is missed:
+为什么容易漏：
 
-- teams often separate “finance account” from “actual operator”, and only the operator knows the process
+- 团队常把“财务账号”和“实际操作人”分开，只有操作人知道流程
 
-What to capture:
+需要记录：
 
-- system or item
-- current operator
-- physical holder
-- transfer confirmation
+- 系统或物品
+- 当前操作人
+- 实际持有人
+- 移交确认
 
-References:
+参考：
 
 - https://scjg.huangshi.gov.cn/ztzl/yhyshjzfjs/202208/t20220823_933151.html
 - https://www.luan.gov.cn/hdjl/dwzsk/10477095.html
 
-### 13. Paper archive transfer index
+### 13. 纸质档案移交目录
 
-Check whether there is an actual transfer index for:
+检查以下材料是否有真实的移交目录：
 
-- paper files
-- project binders
-- archived contracts
-- customer folders
-- sealed archive packages
+- 纸质文件
+- 项目卷宗
+- 归档合同
+- 客户档案袋
+- 封存的档案包
 
-Why it is missed:
+为什么容易漏：
 
-- teams hand over the materials but forget the index, so nobody can later prove completeness
+- 团队交了材料却忘了目录，事后没人能证明完整性
 
-What to capture:
+需要记录：
 
-- archive name
-- quantity
-- index path or paper list
-- receiver
+- 档案名称
+- 数量
+- 目录路径或纸质清单
+- 接收人
 
-Reference:
+参考：
 
 - https://www.yw.gov.cn/art/2024/3/20/art_1229135557_59474584.html
 
-### 14. Classified file transfer or destruction
+### 14. 涉密文件的分类移交或销毁
 
-Check whether sensitive or classified materials require:
+检查敏感或涉密材料是否需要：
 
-- separate transfer
-- destruction registration
-- media destruction evidence
-- classified cataloging
+- 单独移交
+- 销毁登记
+- 载体销毁证据
+- 涉密编目
 
-Why it is missed:
+为什么容易漏：
 
-- people assume “sent to successor” is enough, but regulated materials often need a formal path
+- 大家以为“发给接手人”就够了，但受监管材料往往需要正式路径
 
-What to capture:
+需要记录：
 
-- file or media type
-- classification level
-- transfer or destruction method
-- evidence
+- 文件或载体类型
+- 密级
+- 移交或销毁方式
+- 证据
 
-References:
+参考：
 
 - https://www.yw.gov.cn/art/2024/3/20/art_1229135557_59474584.html
 - https://gfdy.tj.gov.cn/ztzl/rfzs/202402/t20240222_6541644.html
 
-### 15. Group ownership and moderation responsibility
+### 15. 群主与内容监管责任
 
-Check whether the employee is still the accountable person for:
+检查员工是否仍是以下事项的责任人：
 
-- group ownership
-- community moderation
-- content review
-- complaint handling
-- broadcast or posting permissions
+- 群主身份
+- 社群管理
+- 内容审核
+- 投诉处理
+- 群发或发布权限
 
-Why it is missed:
+为什么容易漏：
 
-- teams transfer the account but forget the operational responsibility
+- 团队移交了账号，却忘了运营责任
 
-What to capture:
+需要记录：
 
-- group or channel name
-- current owner or admin
-- replacement owner
-- moderation duty
+- 群或频道名称
+- 当前群主或管理员
+- 接替群主
+- 监管职责
 
-Reference:
+参考：
 
 - https://www.tlf.gov.cn/tlfs/c106653/201709/84c17e05ca064567af4bdc88678ff6e8.shtml
 
-### 16. Customer resource and chat-history usability
+### 16. 客户资源与聊天沉淀的可用性
 
-Check whether transferred customer assets remain actually usable:
+检查移交后的客户资产是否真的可用：
 
-- can the successor still log in
-- can they read chat history
-- can they keep customer labels or segmentation
-- can they continue payment or follow-up processes
+- 接手人还能登录吗
+- 能看到历史聊天吗
+- 能保留客户标签或分层吗
+- 能继续付款或跟进流程吗
 
-Why it is missed:
+为什么容易漏：
 
-- teams focus on nominal ownership, not operational usability
+- 团队关注名义上的归属，不关注操作上的可用性
 
-What to capture:
+需要记录：
 
-- platform
-- retained data or not
-- transfer success or blocker
-- next action
+- 平台
+- 数据是否保留
+- 移交成功还是受阻
+- 下一步动作
 
-Reference:
+参考：
 
 - https://www.ahjd.gov.cn/Jczwgk/show/3639895.html
 
-### 17. Certificate originals or copies in real custody
+### 17. 证照原件/复印件的实际保管
 
-Check whether the employee physically keeps:
+检查员工是否实际保管：
 
-- business license copies
-- qualification certificates
-- registration certificates
-- copied packets used for external processes
+- 营业执照复印件
+- 资质证书
+- 登记证书
+- 用于对外办事的复印件材料包
 
-Why it is missed:
+为什么容易漏：
 
-- teams remember the seal, but forget the packet of certificates that travels with business handling
+- 团队记得印章，却忘了随业务办理流转的证照材料包
 
-What to capture:
+需要记录：
 
-- certificate name
-- original or copy
-- storage place
-- receiver
+- 证照名称
+- 原件还是复印件
+- 存放地点
+- 接收人
 
-References:
+参考：
 
 - https://www.luan.gov.cn/hdjl/dwzsk/10477095.html
 - https://www.gov.cn/xinwen/2020-08/07/content_5533146.htm
 
-### 18. Receivables and collection tail items
+### 18. 应收款与催收尾项
 
-Check whether the departing employee still owns:
+检查离职员工是否仍负责：
 
-- receivables follow-up
-- collection tasks
-- overdue payment communication
-- disputed billing follow-up
+- 应收款跟进
+- 催收任务
+- 逾期付款沟通
+- 争议账单跟进
 
-Why it is missed:
+为什么容易漏：
 
-- customer ownership may be handed over, but the money trail remains unclear
+- 客户归属可能移交了，但钱的线索仍然不清
 
-What to capture:
+需要记录：
 
-- customer
-- amount
-- current collection stage
-- next owner
-- next contact plan
+- 客户
+- 金额
+- 当前催收阶段
+- 下一位责任人
+- 下一步联系计划
 
-Reference:
+参考：
 
 - https://www.fjax.gov.cn/zwgk/xwzx/tzgg/202510/t20251024_3224413.htm
 
-## Minimum Recommended Output
+## 最低推荐产出
 
-At minimum, add one summary page or table called:
+至少新增一个汇总页或表格，命名为：
 
 - `高遗漏检查清单`
 
-It should contain these columns:
+包含以下列：
 
 - `检查项`
 - `状态`

@@ -1,12 +1,12 @@
-# Role Output Templates
+# 角色输出模板
 
-Use this reference after the role has been inferred and confirmed.
+角色推断并确认之后使用本参考。
 
-The goal is not to create a folder per file type. The goal is to create a handover view that matches how the successor will take over the role.
+目标不是按文件类型建文件夹，而是建一个匹配接手人接管方式的交接视图。
 
-## Product / Requirement / Project Delivery
+## 产品 / 需求 / 项目交付
 
-Use when the folder signals PRD, product plans, customer projects, delivery, training, rollout, backlog, or project status.
+文件夹出现 PRD、产品方案、客户项目、交付、培训、上线推广、需求池或项目状态信号时使用。
 
 ```text
 离职交接包/
@@ -26,18 +26,18 @@ Use when the folder signals PRD, product plans, customer projects, delivery, tra
 └── site/
 ```
 
-Key successor questions:
+接手人的关键问题：
 
 - 哪些客户或项目还要接？
 - 哪些需求、方案、蓝图、原型是当前有效版本？
 - 哪些问题、上线范围、验收、试点或推广动作没收尾？
 - 哪些报表、测算表、合同、对账材料需要继续维护？
 
-## Sales / Presales
+## 销售 / 售前
 
-Use when the folder signals customers, opportunities, quotes, bids, contracts, receivables, or CRM exports.
+文件夹出现客户、商机、报价、投标、合同、回款或 CRM 导出信号时使用。
 
-Recommended directories:
+推荐目录：
 
 - `10-客户与商机`
 - `20-报价投标与方案`
@@ -45,11 +45,11 @@ Recommended directories:
 - `40-客户联系人与沟通记录`
 - `80-历史归档参考`
 
-## Operations / Customer Success
+## 运营 / 客户成功
 
-Use when the folder signals SOP, customer onboarding, activities, content calendars, tickets, operations data, or customer groups.
+文件夹出现 SOP、客户导入、活动、内容日历、工单、运营数据或客户群信号时使用。
 
-Recommended directories:
+推荐目录：
 
 - `10-日常SOP与流程`
 - `20-客户/用户运营`
@@ -57,11 +57,11 @@ Recommended directories:
 - `40-数据复盘与报表`
 - `50-异常与待跟进`
 
-## Engineering / Testing / Data
+## 工程 / 测试 / 数据
 
-Use when the folder signals repos, deployment, scripts, environments, test cases, issues, reports, metrics, or dashboards.
+文件夹出现代码仓库、部署、脚本、环境、测试用例、缺陷、报告、指标或看板信号时使用。
 
-Recommended directories:
+推荐目录：
 
 - `10-系统与服务边界`
 - `20-部署运行与账号权限`
@@ -69,11 +69,11 @@ Recommended directories:
 - `40-数据口径与报表`
 - `50-遗留问题与排障记录`
 
-## Finance / Legal / HR / Admin
+## 财务 / 法务 / 人事 / 行政
 
-Use when the folder signals contracts, seals, certificates, reimbursements, payroll, social benefits, personnel materials, or approvals.
+文件夹出现合同、印章、证照、报销、薪酬、社保、人事材料或审批信号时使用。
 
-Recommended directories:
+推荐目录：
 
 - `10-待办与经办事项`
 - `20-合同证照与审批`
@@ -81,9 +81,9 @@ Recommended directories:
 - `40-纸质材料与实物`
 - `50-风险与权限`
 
-## Rules
+## 规则
 
-- Confirm the role before applying a role template.
-- If two roles overlap, choose one primary template and add secondary directories only when needed.
-- Keep file types as tags and filters, not top-level directories.
-- Put old versions and broad historical context under `历史归档参考`, not under active work.
+- 应用角色模板之前先确认角色。
+- 两个角色重叠时，选一个主模板，仅在需要时补充次要目录。
+- 文件类型保留为标签和筛选条件，不作为顶层目录。
+- 旧版本和宽泛的历史背景放在 `历史归档参考` 下，不放在进行中的工作里。

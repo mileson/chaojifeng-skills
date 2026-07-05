@@ -1,10 +1,10 @@
-# Answers Contract
+# 回答契约
 
-Use `.offboarding-handover/handover.answers.json` as the mutable answer state for first-run questions and later refresh updates.
+把 `.offboarding-handover/handover.answers.json` 作为首轮问题及后续刷新更新的可变回答状态。
 
-Do not expose this file to the final handover receiver unless the user explicitly wants it.
+除非用户明确需要，不要把这个文件暴露给最终的交接接收方。
 
-## Minimal Shape
+## 最小结构
 
 ```json
 {
@@ -32,15 +32,15 @@ Do not expose this file to the final handover receiver unless the user explicitl
 }
 ```
 
-## Purpose
+## 用途
 
-- `profile`: values that should appear directly in overview docs and HTML
-- `routing`: first-run classification answers that help choose role or industry overlays
-- `checks`: values that replace `待补充` items in the missed-items checklist
-- `updated_at`: last refresh time
+- `profile`：应直接出现在总览文档和 HTML 中的值
+- `routing`：帮助选择角色或行业适配层的首轮分类回答
+- `checks`：用于替换遗漏事项清单中 `待补充` 项的值
+- `updated_at`：最近一次刷新时间
 
-## Update Rule
+## 更新规则
 
-- First run: create this file after asking the minimum high-value questions
-- Refresh run: read the file, ask only for blanks or explicitly requested fields, then rewrite it
-- HTML and markdown pages should be rendered from this file plus `offboarding.config.json` and `handover.manifest.json`
+- 首次运行：问完最少量的高价值问题后创建此文件
+- 刷新运行：读取文件，只针对空白项或用户明确要求的字段提问，然后重写
+- HTML 和 markdown 页面应从此文件加上 `offboarding.config.json` 和 `handover.manifest.json` 渲染

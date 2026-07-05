@@ -1,208 +1,208 @@
-# Execution State Machine
+# 执行状态机
 
-Use this reference to run the offboarding-handover skill as a staged workflow, not as an open-ended conversation.
+使用本参考把 offboarding-handover skill 当作分阶段工作流运行，而不是开放式对话。
 
-The goal is first-run correctness.
+目标是首轮运行的正确性。
 
-This skill should behave like a small workflow engine:
+本 skill 应表现得像一个小型工作流引擎：
 
-- each phase has an entry condition
-- each phase has a required output
-- each phase has a do-not-skip rule
+- 每个阶段有进入条件
+- 每个阶段有必需产出
+- 每个阶段有不可跳过规则
 
-## Core Principle
+## 核心原则
 
-Do not optimize for conversational freedom.
+不要为对话自由度做优化。
 
-Optimize for:
+要为以下目标优化：
 
-- correct first-run execution
-- low omission risk
-- stable handover output quality
+- 首轮执行正确
+- 低遗漏风险
+- 稳定的交接输出质量
 
-## State Machine
+## 状态机
 
-### Phase 0 — Detect Context
+### Phase 0 — 环境检测
 
-Required actions:
+必需动作：
 
-- identify working directory
-- detect whether `.offboarding-handover/` exists
-- detect whether output directory exists
-- detect whether this is first run or refresh/update
+- 确定工作目录
+- 检测 `.offboarding-handover/` 是否存在
+- 检测输出目录是否存在
+- 判断是首次运行还是刷新/更新
 
-Exit condition:
+退出条件：
 
-- execution mode is identified as `first_run` or `refresh`
+- 执行模式确定为 `first_run` 或 `refresh`
 
-Do not skip:
+不可跳过：
 
-- do not assume refresh just because some files exist
-- do not assume first run just because output is missing
+- 不要仅因存在一些文件就假设是刷新
+- 不要仅因输出缺失就假设是首次运行
 
-### Phase 1 — Inventory Baseline
+### Phase 1 — 清单基线
 
-Required actions:
+必需动作：
 
-- count total files
-- count total directories
-- list meaningful top-level branches
-- count files by branch
-- summarize extension distribution
+- 统计文件总数
+- 统计目录总数
+- 列出有效的顶层分支
+- 统计各分支文件数
+- 汇总扩展名分布
 
-Exit condition:
+退出条件：
 
-- inventory baseline is available
+- 清单基线可用
 
-Do not skip:
+不可跳过：
 
-- do not ask the user before inventory exists
-- do not classify deeply before inventory exists
+- 清单存在之前不得向用户提问
+- 清单存在之前不得深度分类
 
-### Phase 2 — Trigger Check
+### Phase 2 — 触发检查
 
-Required actions:
+必需动作：
 
-- apply the hard trigger rule
-- decide `single_agent` or `parallel_subagent`
+- 应用硬触发规则
+- 决定 `single_agent` 还是 `parallel_subagent`
 
-Hard triggers:
+硬触发条件：
 
 - `total_files > 3000`
 - `meaningful_top_level_branches > 8`
-- internal + client/project + risk/compliance signals all present
-- role confidence not high
+- 内部资料 + 客户/项目资料 + 风险/合规信号同时出现
+- 角色置信度不高
 
-Exit condition:
+退出条件：
 
-- execution mode is locked for this run
+- 本轮执行模式锁定
 
-Do not skip:
+不可跳过：
 
-- do not reinterpret a triggered folder as “simple enough”
-- do not use subjective judgment to bypass a triggered parallel run
+- 不得把已触发的文件夹重新解读为“足够简单”
+- 不得用主观判断绕过已触发的并行运行
 
-### Phase 3 — Parallel Subagent Fan-Out
+### Phase 3 — 并行子代理扇出
 
-Only required if Phase 2 selected `parallel_subagent`.
+仅当 Phase 2 选择了 `parallel_subagent` 时需要。
 
-Required actions:
+必需动作：
 
-- explicitly announce the subagents to be launched
-- launch at least 2 specialist subagents beyond inventory
-- assign disjoint responsibilities
+- 显式宣布将要启动的子代理
+- 在清单 worker 之外至少启动 2 个专职子代理
+- 分配互不重叠的职责
 
-Preferred subagents:
+优先子代理：
 
 - `offboarding-role-detector`
 - `offboarding-project-mapper`
 - `offboarding-risk-checker`
 - `offboarding-missing-facts-detector`
 
-Exit condition:
+退出条件：
 
-- subagent findings are returned
+- 子代理发现已返回
 
-Do not skip:
+不可跳过：
 
-- one inventory subagent alone is not enough
-- do not ask the user before specialist subagents return
-- do not generate outputs before synthesis
+- 只有一个清单子代理是不够的
+- 专职子代理返回之前不得向用户提问
+- 综合分析之前不得生成产出
 
-### Phase 4 — Synthesis and Coverage Check
+### Phase 4 — 综合分析与覆盖率检查
 
-Required actions:
+必需动作：
 
-- merge subagent findings
-- check coverage against inventory
-- identify missing critical facts
+- 合并子代理发现
+- 对照清单检查覆盖率
+- 识别缺失的关键事实
 
-Exit condition:
+退出条件：
 
-- coordinator has:
-  - likely role
-  - likely industry
-  - likely project/customer split
-  - likely risk profile
-  - a minimal question list
+- 协调者掌握：
+  - 可能的角色
+  - 可能的行业
+  - 可能的项目/客户划分
+  - 可能的风险画像
+  - 一份最小问题清单
 
-Do not skip:
+不可跳过：
 
-- do not generate outputs before synthesis
-- do not ask broad questions when a smaller question set is sufficient
+- 综合分析之前不得生成产出
+- 更小的问题集足够时，不要问宽泛问题
 
-### Phase 5 — Ask User
+### Phase 5 — 询问用户
 
-Required actions:
+必需动作：
 
-- ask the minimum high-value questions
-- fill key people/date/status gaps
-- avoid redundant questions already answered by evidence
+- 问最少量的高价值问题
+- 补齐关键的人员/日期/状态缺口
+- 避免证据已经回答过的冗余问题
 
-Exit condition:
+退出条件：
 
-- answers state is sufficient for first polished HTML
+- 回答状态足以生成第一版精修 HTML
 
-Do not skip:
+不可跳过：
 
-- do not ask before synthesis
-- do not ask more than needed
+- 综合分析之前不得提问
+- 不要问超出需要的问题
 
-### Phase 6 — Render
+### Phase 6 — 渲染
 
-Required actions:
+必需动作：
 
-- update config
-- update answers
-- build manifest
-- render markdown
-- render HTML
-- prune empty directories
+- 更新配置
+- 更新回答
+- 构建 manifest
+- 渲染 markdown
+- 渲染 HTML
+- 清理空目录
 
-Exit condition:
+退出条件：
 
-- handover package is generated
+- 交接包已生成
 
-Do not skip:
+不可跳过：
 
-- do not render from incomplete state when critical facts are still missing
+- 关键事实仍缺失时，不得从不完整状态渲染
 
-### Phase 7 — Refresh Mode
+### Phase 7 — 刷新模式
 
-Only for later runs.
+仅用于后续运行。
 
-Required actions:
+必需动作：
 
-- inspect missing facts
-- ask only for unresolved items
-- re-render outputs
+- 检查缺失事实
+- 只针对未解决事项提问
+- 重新渲染产出
 
-Exit condition:
+退出条件：
 
-- HTML and markdown are refreshed
+- HTML 和 markdown 已刷新
 
-Do not skip:
+不可跳过：
 
-- do not re-run heavy first-scan logic unless trust/rescan rules require it
+- 除非信任/重扫规则要求，不要重跑繁重的首次扫描逻辑
 
-## Strong Enforcement Rule
+## 强执行规则
 
-When a phase is incomplete, the agent must not silently proceed to later phases.
+某个阶段未完成时，代理不得悄悄进入后续阶段。
 
-In particular:
+尤其是：
 
-- no inventory → no ask user
-- hard trigger hit → no single-thread continuation
-- no synthesis → no generation
+- 无清单 → 不得询问用户
+- 命中硬触发 → 不得单线程继续
+- 无综合分析 → 不得生成
 
-## Recommended Transcript Pattern
+## 推荐话术模式
 
-The agent should make phase transitions visible.
+代理应让阶段切换可见。
 
-Examples:
+例如：
 
-- `Phase 1 complete: inventory baseline ready.`
-- `Phase 2 triggered parallel subagent mode.`
-- `Phase 3: now launching offboarding-role-detector, offboarding-project-mapper, offboarding-risk-checker, offboarding-missing-facts-detector.`
-- `Phase 4 complete: findings synthesized, preparing targeted questions.`
-- `Phase 6: rendering final handover package.`
+- `Phase 1 完成：清单基线就绪。`
+- `Phase 2 已触发并行子代理模式。`
+- `Phase 3：现在启动 offboarding-role-detector、offboarding-project-mapper、offboarding-risk-checker、offboarding-missing-facts-detector。`
+- `Phase 4 完成：发现已综合，准备定向提问。`
+- `Phase 6：渲染最终交接包。`

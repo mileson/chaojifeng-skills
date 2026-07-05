@@ -1,43 +1,43 @@
-# Full Inventory and Sharding
+# 完整清单与分片
 
-Use this reference before any large first scan.
+任何大型首次扫描之前使用本参考。
 
-The goal is to avoid missing files, avoid duplicate processing, and decide whether parallel subagent sharding is justified.
+目标是避免遗漏文件、避免重复处理，并决定并行子代理分片是否值得。
 
-## Core Rule
+## 核心规则
 
-Do not begin full classification immediately.
+不要立刻开始全面分类。
 
-First create a **full inventory baseline** of the folder, then decide:
+先建立文件夹的**完整清单基线**，然后决定：
 
-1. single-agent or parallel-subagent
-2. how to shard the work
-3. how to verify no file was missed
+1. 单代理还是并行子代理
+2. 如何分片
+3. 如何验证没有文件被漏掉
 
-## Step 1 — Build the inventory baseline
+## 第 1 步 — 建立清单基线
 
-The coordinator should first collect:
+协调者先收集：
 
-- total file count
-- total directory count
-- top-level directories
-- file count per top-level directory
-- extension distribution
-- root-level loose files
-- hidden/system-file count
+- 文件总数
+- 目录总数
+- 顶层目录
+- 各顶层目录的文件数
+- 扩展名分布
+- 根级散落文件
+- 隐藏/系统文件数
 
-This gives the team a stable baseline before any worker starts analysis.
+这在任何 worker 开始分析之前给团队一个稳定基线。
 
-## Inventory Output
+## 清单产出
 
-The inventory should allow the coordinator to answer:
+清单应让协调者能回答：
 
-- how big is the folder
-- where the biggest clusters are
-- whether the folder is clean or mixed
-- whether the problem is large enough to justify parallel workers
+- 文件夹有多大
+- 最大的簇在哪里
+- 文件夹是干净的还是混杂的
+- 问题规模是否足以启用并行 worker
 
-At minimum, keep:
+至少保留：
 
 - `total_files`
 - `total_dirs`
@@ -46,98 +46,98 @@ At minimum, keep:
 - `root_level_file_count`
 - `hidden_or_system_file_count`
 
-## Why this matters
+## 为什么重要
 
-Without a baseline, workers can:
+没有基线时，worker 可能：
 
-- miss entire branches
-- duplicate work on the same paths
-- over-focus on obvious keyword-heavy directories
-- under-cover quiet but important folders
+- 漏掉整个分支
+- 在相同路径上重复工作
+- 过度关注关键词密集的显眼目录
+- 覆盖不足那些安静但重要的文件夹
 
-## Step 2 — Decide single-agent vs parallel-subagent
+## 第 2 步 — 决定单代理还是并行子代理
 
-### Prefer single-agent when
+### 优先单代理，当
 
-- file count is modest
-- role is obvious
-- folder structure is already clean
-- refresh-only work is needed
+- 文件数量适中
+- 角色明显
+- 文件夹结构已经干净
+- 只需要刷新
 
-### Prefer parallel subagent mode when
+### 优先并行子代理模式，当
 
-- file count is large
-- top-level branches are numerous
-- the folder mixes internal and client/project materials
-- role is ambiguous
-- compliance, assets, and business materials are mixed
+- 文件数量大
+- 顶层分支众多
+- 文件夹混合了内部与客户/项目材料
+- 角色含糊
+- 合规、资产、业务材料混杂
 
-## Mandatory Thresholds
+## 强制阈值
 
-These are execution gates for this skill:
+以下是本 skill 的执行门禁：
 
-- `total_files > 3000` → parallel subagent mode required
-- `meaningful_top_level_branches > 8` → parallel subagent mode required
-- mixed customer/project + compliance + asset signals → parallel subagent mode required
-- low or medium role confidence after inventory triage → parallel subagent mode required
+- `total_files > 3000` → 必须并行子代理模式
+- `meaningful_top_level_branches > 8` → 必须并行子代理模式
+- 客户/项目 + 合规 + 资产信号混杂 → 必须并行子代理模式
+- 清单初筛后角色置信度低或中 → 必须并行子代理模式
 
-Below those thresholds, single-agent mode is allowed but not required.
+低于这些阈值时允许单代理模式，但不是必须。
 
-## Step 3 — Shard by directory, not by keyword
+## 第 3 步 — 按目录分片，不按关键词
 
-For first coverage, shard by **directory slices**, not semantic keyword slices.
+首轮覆盖按**目录切片**分片，不按语义关键词切片。
 
-Good sharding:
+好的分片：
 
-- Worker A owns a top-level subtree
-- Worker B owns a different subtree
-- Worker C owns another subtree
+- Worker A 负责一个顶层子树
+- Worker B 负责另一个子树
+- Worker C 负责再一个子树
 
-Bad sharding:
+坏的分片：
 
-- one worker scans “PRD”
-- one worker scans “合同”
-- one worker scans “风险”
+- 一个 worker 扫“PRD”
+- 一个 worker 扫“合同”
+- 一个 worker 扫“风险”
 
-Keyword sharding is useful later for focused checks, but it is weak as the primary coverage strategy.
+关键词分片在后期做定向检查有用，但作为主要覆盖策略偏弱。
 
-## Recommended Sharding Strategy
+## 推荐分片策略
 
-### First layer
+### 第一层
 
-Coordinator groups by top-level or near-top-level directories.
+协调者按顶层或接近顶层的目录分组。
 
-### Second layer
+### 第二层
 
-Balance shards roughly by:
+按以下因素大致平衡分片：
 
-- file count
-- business complexity
-- obvious risk
+- 文件数
+- 业务复杂度
+- 明显风险
 
-### Third layer
+### 第三层
 
-Assign workers bounded ownership, for example:
+给 worker 分配有边界的归属，例如：
 
-- Worker A: product / project / delivery folders
-- Worker B: customer / sales / external project folders
-- Worker C: finance / HR / legal / admin folders
-- Worker D: historical archive / mixed legacy folders
+- Worker A：产品 / 项目 / 交付文件夹
+- Worker B：客户 / 销售 / 外部项目文件夹
+- Worker C：财务 / 人事 / 法务 / 行政文件夹
+- Worker D：历史归档 / 混杂遗留文件夹
 
-## Worker Ownership Rule
+## Worker 归属规则
 
-Each worker should receive:
+每个 worker 应收到：
 
-- owned paths
-- excluded paths
-- target questions
-- required output format
+- 归属路径
+- 排除路径
+- 目标问题
+- 要求的输出格式
 
-This prevents overlap and improves coverage accounting.
+这可以避免重叠并改善覆盖率核算。
 
-## Step 4 — Coverage accounting
+## 第 4 步 — 覆盖率核算
 
-At the end, the coordinator must compare:
+最后，协调者必须对比：
 
 - `inventory_total`
 - `processed_unique_total`
@@ -145,74 +145,74 @@ At the end, the coordinator must compare:
 - `unassigned_total`
 - `duplicate_total`
 
-Target:
+目标：
 
 - `inventory_total = processed_unique_total + skipped_total`
 - `unassigned_total = 0`
 - `duplicate_total = 0`
 
-## Coverage Checklist
+## 覆盖率检查清单
 
-Before synthesis, verify:
+综合分析之前验证：
 
-- every top-level branch was assigned
-- root-level loose files were not forgotten
-- hidden/system files were intentionally skipped, not accidentally ignored
-- no worker reported paths outside its assigned slice
-- no top-level branch has zero ownership
+- 每个顶层分支都已分配
+- 根级散落文件没有被遗忘
+- 隐藏/系统文件是有意跳过的，不是意外忽略的
+- 没有 worker 上报了其分片之外的路径
+- 没有顶层分支处于零归属状态
 
-## Suggested Internal State Files
+## 建议的内部状态文件
 
-These do not need to be delivered to the end user. They are coordinator working state.
+这些不需要交付给最终用户，是协调者的工作状态。
 
 ### `scan.summary.json`
 
-Holds:
+保存：
 
-- total file count
-- total directory count
-- shard candidates
-- extension distribution
+- 文件总数
+- 目录总数
+- 分片候选
+- 扩展名分布
 
 ### `scan.assignment.json`
 
-Holds:
+保存：
 
-- worker name
-- owned paths
-- excluded paths
-- expected file count per shard
+- worker 名称
+- 归属路径
+- 排除路径
+- 每个分片的预期文件数
 
 ### `scan.coverage.json`
 
-Holds:
+保存：
 
-- processed file count
-- skipped file count
-- duplicate count
-- unassigned count
+- 已处理文件数
+- 已跳过文件数
+- 重复数
+- 未分配数
 
-## Required Team Flow
+## 必需的团队流程
 
-1. coordinator builds inventory baseline
-2. coordinator decides single-agent or parallel-subagent mode
-3. if parallel-subagent mode, coordinator shards by directory
-4. subagents inspect only their slices
-5. coordinator merges results
-6. coordinator runs coverage check
-7. only then ask the user and generate outputs
+1. 协调者建立清单基线
+2. 协调者决定单代理还是并行子代理模式
+3. 若并行子代理模式，协调者按目录分片
+4. 子代理只检查自己的分片
+5. 协调者合并结果
+6. 协调者做覆盖率检查
+7. 之后才询问用户并生成产出
 
-## Important Rule
+## 重要规则
 
-Coverage comes before elegance.
+覆盖率优先于精致度。
 
-It is better to have a slightly rough early classification with full coverage than a polished but incomplete classification that missed a whole branch of files.
+有完整覆盖的略粗糙的早期分类，好过漏掉一整个分支文件的精致但不完整的分类。
 
-## Important Prohibition
+## 重要禁令
 
-If the mandatory thresholds are hit, the coordinator must not:
+命中强制阈值时，协调者不得：
 
-- stop after a single inventory worker
-- ask the user immediately after inventory
-- generate HTML immediately after inventory
-- skip sharding and coverage accounting
+- 在单个清单 worker 之后就停止
+- 清单之后立即询问用户
+- 清单之后立即生成 HTML
+- 跳过分片和覆盖率核算

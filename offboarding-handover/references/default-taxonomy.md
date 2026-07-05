@@ -1,19 +1,19 @@
-# Default Taxonomy
+# 默认分类体系
 
-Use this taxonomy when the user has not supplied a company-specific standard.
+用户没有提供公司专属标准时使用本分类体系。
 
-## Presentation Modules
+## 展示模块
 
-These are the four modules shown in the generated site and overview flow:
+生成的站点和总览流程中展示这四个模块：
 
 1. `交接信息`
 2. `交接总览`
 3. `专项交接`
 4. `未完事项与状态`
 
-## Content Domains
+## 内容领域
 
-These are the eight default content domains the skill should preserve underneath the presentation layer:
+skill 应在展示层之下保留这八个默认内容领域：
 
 1. `工作事项`
 2. `关系人`
@@ -24,7 +24,7 @@ These are the eight default content domains the skill should preserve underneath
 7. `合规结算`
 8. `交接状态`
 
-## Recommended Output Tree
+## 推荐输出树
 
 ```text
 离职交接包/
@@ -50,9 +50,9 @@ These are the eight default content domains the skill should preserve underneath
     └── index.html
 ```
 
-## Tag Axes
+## 标签轴
 
-Use these tag axes in config, manifests, or generated indexes.
+在配置、manifest 或生成的索引中使用这些标签轴。
 
 ### scope
 
@@ -91,26 +91,26 @@ Use these tag axes in config, manifests, or generated indexes.
 - `restricted`
 - `confidential`
 
-## Role Overlays
+## 角色适配层
 
-Enable these overlays when the role is clear:
+角色明确时启用这些适配层：
 
-- `product`: PRD, requirement pool, user research, competition analysis, roadmap
-- `product_delivery`: customer projects, requirements, delivery plans, rollout, training, backlog, issue logs
-- `operations`: activity plan, channels, content calendar, campaign review
-- `sales`: customer list, opportunity stage, contract, receivables, owner map
-- `engineering`: repositories, deployment docs, service ownership, runbooks, secrets rotation
-- `finance`: ledger, reports, reimbursement, tax items, unsettled items
-- `legal`: contract ledger, disputes, review queue, seals and approvals
-- `hr`: recruiting pipeline, candidate notes, employee records, leave/socfund items
+- `product`：PRD、需求池、用户调研、竞品分析、roadmap
+- `product_delivery`：客户项目、需求、交付计划、上线推广、培训、需求积压、问题记录
+- `operations`：活动计划、渠道、内容日历、活动复盘
+- `sales`：客户名单、商机阶段、合同、回款、负责人映射
+- `engineering`：代码仓库、部署文档、服务归属、runbook、密钥轮换
+- `finance`：台账、报表、报销、税务事项、未结算事项
+- `legal`：合同台账、纠纷、审核队列、印章与审批
+- `hr`：招聘管道、候选人记录、员工档案、休假/社保公积金事项
 
-## Handling Principles
+## 处理原则
 
-- Keep source files when possible; use generated folders as the handover view.
-- Treat `site/index.html` as the successor's first entry, not as a decorative appendix.
-- Copy only files with handover value. Use the filtering report for review and excluded materials.
-- Mark `final` versions explicitly.
-- Place unresolved items, ongoing work, and risks in one unique place.
-- Separate company-owned accounts and assets from personal ones.
-- Treat `归档` and `历史` as status signals. Do not send all archived files to `未完事项与状态`.
-- When the confirmed role is product/project delivery, prefer directories such as `客户项目与需求`, `产品方案与知识库`, `数据报表与测算`, `客户与协作关系`, `合同对账与合规`, and `历史归档参考`.
+- 尽可能保留源文件；用生成的文件夹作为交接视图。
+- 把 `site/index.html` 当作接手人的第一入口，而不是装饰性附录。
+- 只复制有交接价值的文件。待评审和被排除的材料用过滤报告呈现。
+- 显式标记 `final` 版本。
+- 未解决事项、进行中工作和风险集中放在唯一的位置。
+- 把公司所有的账号和资产与个人的分开。
+- 把 `归档` 和 `历史` 当作状态信号。不要把所有归档文件都送进 `未完事项与状态`。
+- 确认的角色是产品/项目交付时，优先使用 `客户项目与需求`、`产品方案与知识库`、`数据报表与测算`、`客户与协作关系`、`合同对账与合规`、`历史归档参考` 等目录。

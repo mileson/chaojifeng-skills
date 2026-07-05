@@ -1,21 +1,21 @@
-# Site Design System
+# 站点设计系统
 
-Use this design system whenever the skill renders `site/index.html`.
+skill 渲染 `site/index.html` 时统一使用本设计系统。
 
-The generated site is an internal handover portal for a technology or internet company. It should feel like a clean product workspace or knowledge base: dense, calm, searchable, and operational. It is not a marketing landing page, a slide deck, or an editorial magazine.
+生成的站点是科技/互联网公司的内部交接门户。它应该像一个干净的产品工作台或知识库：信息密集、克制、可搜索、可操作。它不是营销落地页、不是幻灯片、也不是杂志排版。
 
-## Visual Direction
+## 视觉方向
 
-- Use a cold white workspace background: `#FBFCFE`.
-- Use white surfaces for primary content and `#F4F7FB` for secondary panels.
-- Use restrained enterprise blue and cyan accents.
-- Keep cards, panels, inputs, and buttons at `8px` border radius or less.
-- Avoid warm beige, decorative gradients, large hero art, oversized round cards, purple-blue gradient themes, and presentation-like cover pages.
-- Prioritize scanning and repeated use over visual spectacle.
+- 使用冷白工作区背景：`#FBFCFE`。
+- 主内容使用白色表面，次级面板使用 `#F4F7FB`。
+- 使用克制的企业蓝和青色点缀。
+- 卡片、面板、输入框、按钮的圆角保持在 `8px` 以内。
+- 避免暖米色、装饰性渐变、大幅 hero 视觉、超大圆角卡片、紫蓝渐变主题和演示封面式页面。
+- 优先服务扫读和反复使用，而不是视觉冲击。
 
-## Tokens
+## 设计 token
 
-Use these core values unless the user provides a company-specific brand system:
+除非用户提供公司专属品牌系统，使用以下核心值：
 
 ```css
 :root {
@@ -35,55 +35,55 @@ Use these core values unless the user provides a company-specific brand system:
 }
 ```
 
-## Information Architecture
+## 信息架构
 
-The HTML site is the entry point for the whole handover package. Order sections from highlights to detail, in this fixed sequence:
+HTML 站点是整个交接包的入口。区块按从重点到细节排序，固定顺序如下：
 
-1. **交接速览**: handover person/successor/coordinator cards, KPI strip (included files, in-flight items, high-risk items, files pending review, unconfirmed checks), and a `接手前必读` takeaway panel with 3-5 anchor links.
-2. **马上要接的事**: in-flight work table with item, module, status, next step, and a jump-to-file action. This is a first-class section, not a buried document.
-3. **风险与待确认**: high-risk file list with locate-file actions, plus the offboarding check items with status pills.
-4. **交接确认单**: printable sign-off table (check items + universal items such as device return and account revocation) and a signature grid for the handover person, successor, coordinator, and HR.
-5. **核心文档**: generated markdown documents as tabs with embedded previews.
-6. **交接材料**: searchable, filterable file table with inline expandable previews per row, domain chips with counts, followed by a collapsed appendix.
-7. **附录 (collapsed `<details>`)**: filtering/exclusion explanation, organizing assumptions, and the large-file list. Process information never occupies first-class screen space.
+1. **交接速览**：交接人/接手人/协调人卡片，KPI 条（纳入文件数、进行中事项、高风险事项、待评审文件、未确认检查项），以及带 3-5 个锚点链接的 `接手前必读` 要点面板。
+2. **马上要接的事**：进行中工作表格，含事项、模块、状态、下一步和跳转到文件的操作。这是一等区块，不是埋起来的文档。
+3. **风险与待确认**：高风险文件列表（带定位文件操作），加上带状态标签的离职检查项。
+4. **交接确认单**：可打印的确认表格（检查项 + 设备归还、账号回收等通用项），以及交接人、接手人、协调人、HR 的签字栏。
+5. **核心文档**：生成的 markdown 文档以标签页 + 内嵌预览呈现。
+6. **交接材料**：可搜索、可筛选的文件表，每行支持行内展开预览，领域标签带计数，其后是折叠的附录。
+7. **附录（折叠 `<details>`）**：过滤/排除说明、整理假设、大文件清单。过程信息永远不占一等屏幕空间。
 
-Do not make the user open the generated folder tree first. The site should tell the successor where to start, what is risky, what is unfinished, and where every file lives.
+不要让用户先去打开生成的文件夹树。站点应该告诉接手人从哪开始、什么有风险、什么没做完、每个文件在哪里。
 
-## Required Components
+## 必备组件
 
-- Sticky top bar with package title, `交接人 → 接手人` flow, state badge (`草稿待确认` / `正式交接包`), search focus, and a print button for the sign-off sheet.
-- Draft banner with human-language missing facts (never internal gate slugs) when polished-output gates are not satisfied.
-- Left navigation that links to each major section.
-- Takeaway panel (`接手前必读`) that summarizes in-flight work, risks, and unconfirmed checks with anchor links.
-- In-flight work table that can jump to and expand the matching file row.
-- Risk queue with locate-file actions tied to the file table.
-- Printable sign-off section with signature grid; print styles hide navigation, file table, documents, and appendix.
-- Core document preview area for generated markdown pages.
-- File explorer table with staged name (bold) plus original path (muted), domain, type, status, sensitivity, size, and actions.
-- Inline preview rows expanded directly under the file row for Office/PDF/image/text/CSV files.
-- Collapsed appendix for filtering report, assumptions, and large files.
+- 吸顶顶栏：包名、`交接人 → 接手人` 流向、状态徽章（`草稿待确认` / `正式交接包`）、搜索聚焦、确认单打印按钮。
+- 草稿横幅：精修输出门禁未满足时，用人话列出缺失事实（绝不出现内部门禁代号）。
+- 左侧导航：链接到各主要区块。
+- 要点面板（`接手前必读`）：用锚点链接汇总进行中工作、风险和未确认检查项。
+- 进行中工作表格：可跳转并展开对应文件行。
+- 风险队列：定位文件操作与文件表联动。
+- 可打印确认单区块：含签字栏；打印样式隐藏导航、文件表、文档和附录。
+- 核心文档预览区：呈现生成的 markdown 页面。
+- 文件浏览表：落盘名（加粗）+ 原路径（弱化）、领域、类型、状态、敏感级别、大小和操作。
+- 行内预览行：Office/PDF/图片/文本/CSV 文件在其文件行正下方展开。
+- 折叠附录：过滤报告、假设、大文件。
 
-## Interaction Rules
+## 交互规则
 
-- Search must filter the full file table; hiding a row also collapses its inline preview.
-- Domain chips and the domain filter stay in sync.
-- `查看预览` toggles the inline preview row under the file; `打开原文件` opens the staged copy.
-- Jump actions (from in-flight items or risks) clear filters, scroll to the row, expand its preview, and flash-highlight the row.
-- Status and sensitivity values are displayed in Chinese (`草稿/评审中/定稿/历史归档`, `公开/内部/受限/机密`); raw values stay in data attributes for filtering.
-- Static HTML cannot reliably force WPS/Office to open; use normal local file links and clear wording.
-- Keyboard focus states must be visible.
-- Tables must be horizontally scrollable on narrow screens.
-- The page must work as a standalone local HTML file.
+- 搜索必须过滤完整文件表；隐藏某行时其行内预览也一并收起。
+- 领域标签与领域筛选器保持同步。
+- `查看预览` 切换文件行下方的行内预览；`打开原文件` 打开落盘副本。
+- 跳转操作（来自进行中事项或风险）会清除筛选、滚动到该行、展开其预览并闪烁高亮该行。
+- 状态和敏感级别以中文展示（`草稿/评审中/定稿/历史归档`、`公开/内部/受限/机密`）；原始值保留在 data 属性中用于筛选。
+- 静态 HTML 无法可靠地强制用 WPS/Office 打开；使用普通本地文件链接和清晰措辞。
+- 键盘聚焦状态必须可见。
+- 窄屏下表格必须可横向滚动。
+- 页面必须能作为独立本地 HTML 文件工作。
 
-## Copy Rules
+## 文案规则
 
-Write for normal business users, not developers.
+面向普通业务用户写作，不面向开发者。
 
-- Good: `从这里开始阅读`
-- Good: `仍需确认`
-- Good: `优先核对`
-- Good: `查看预览`
-- Good: `打开原文件`
-- Good: `草稿待确认`
-- Avoid exposing implementation details such as manifest, script, API, parser, or internal pipeline names in user-facing text.
-- Avoid `下载文件` unless the link truly downloads a file.
+- 好：`从这里开始阅读`
+- 好：`仍需确认`
+- 好：`优先核对`
+- 好：`查看预览`
+- 好：`打开原文件`
+- 好：`草稿待确认`
+- 避免在用户可见文案中暴露 manifest、脚本、API、parser、内部 pipeline 名称等实现细节。
+- 避免 `下载文件`（除非该链接真的会下载文件）。

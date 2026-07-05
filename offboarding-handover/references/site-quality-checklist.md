@@ -1,62 +1,62 @@
-# Site Quality Checklist
+# 站点质量清单
 
-Use this checklist before treating a generated handover site as polished.
+把生成的交接站点当作精修成品之前，先过一遍本清单。
 
-## P0 Must Pass
+## P0 必须通过
 
-- The page opens as a local standalone HTML file.
-- Sections follow the highlights-to-detail order: 交接速览 → 马上要接的事 → 风险与待确认 → 交接确认单 → 核心文档 → 交接材料 → 附录.
-- The first screen shows what this package is, who it is for, and the `接手前必读` takeaways.
-- If the package is a draft, the banner says what still needs confirmation in human language, never internal gate slugs.
-- The first screen shows handover owner/person, successor, handover coordinator, role, and last working day, or clearly marks unknown facts as draft blockers.
-- In-flight work is a first-class section with status, next step, and a working jump-to-file action.
-- A printable sign-off section exists with check-item statuses and a signature grid; print view hides navigation, documents, file table, and appendix.
-- Every generated core document is reachable from the site:
+- 页面能以本地独立 HTML 文件打开。
+- 区块遵循从重点到细节的顺序：交接速览 → 马上要接的事 → 风险与待确认 → 交接确认单 → 核心文档 → 交接材料 → 附录。
+- 首屏说清这个包是什么、给谁看，以及 `接手前必读` 要点。
+- 如果是草稿，横幅用人话说明还需确认什么，绝不出现内部门禁代号。
+- 首屏展示交接人/当事人、接手人、交接协调人、角色、最后工作日，或把未知事实清晰标注为草稿阻塞项。
+- 进行中工作是一等区块，含状态、下一步和可用的跳转到文件操作。
+- 存在可打印的确认单区块，含检查项状态和签字栏；打印视图隐藏导航、文档、文件表和附录。
+- 每份生成的核心文档都能从站点访问：
   - `00-交接总览.md`
   - `01-阅读顺序.md`
   - `00-交接信息.md`
   - `00-进行中事项总表.md`
   - `01-高遗漏检查清单.md`
   - `02-交接结论说明.md`
-- High-risk items are visible without scrolling through the full file table, and each one can locate its file row.
-- The site shows how many files were included, need review, and were excluded.
-- The filtering report, assumptions, and large-file list live in a collapsed appendix, not first-class sections.
-- The site or filtering report shows other-person exclusions and review candidates when such files were detected.
-- The site or filtering report shows version-collapsed files and their retained representative.
-- The file table shows standardized staged names (bold) with original paths preserved (muted).
-- File search and domain filters work; filtering a row away also collapses its inline preview.
-- Local staged file links use relative paths that work from `site/index.html`.
-- Office/PDF/image/text/CSV files have inline expandable previews under their rows, or a clear `打开原文件` action when no preview is possible.
-- Status and sensitivity labels render in Chinese for business users.
-- File actions do not use `下载` wording unless the browser action is truly download-only.
-- Text does not overlap or overflow on desktop or mobile widths.
-- No clearly unrelated other-person personal material appears in the core file table.
-- No obvious superseded older version appears in the core file table unless explicitly justified.
-- Copied core files use readable, sortable, successor-facing staged filenames.
+- 不用滚完整个文件表就能看到高风险事项，且每一项都能定位到对应文件行。
+- 站点展示纳入、待评审、排除的文件数量。
+- 过滤报告、假设、大文件清单放在折叠的附录里，不作为一等区块。
+- 检测到他人文件时，站点或过滤报告展示他人材料的排除项和待评审候选。
+- 站点或过滤报告展示被版本折叠的文件及其保留代表。
+- 文件表展示标准化落盘名（加粗），并保留原路径（弱化显示）。
+- 文件搜索和领域筛选可用；筛选掉某行时，其行内预览也一并收起。
+- 本地落盘文件链接使用从 `site/index.html` 出发可用的相对路径。
+- Office/PDF/图片/文本/CSV 文件在其行下有行内可展开预览，无法预览时有清晰的 `打开原文件` 操作。
+- 状态和敏感级别标签面向业务用户以中文渲染。
+- 除非浏览器行为真的是纯下载，文件操作不使用 `下载` 措辞。
+- 桌面和移动宽度下文字不重叠、不溢出。
+- 核心文件表中不出现明显无关的他人个人材料。
+- 核心文件表中不出现明显已被取代的旧版本，除非有明确理由。
+- 复制的核心文件使用可读、可排序、面向接手人的落盘文件名。
 
-## P1 Should Pass
+## P1 应当通过
 
-- The visual style follows `references/site-design-system.md`.
-- The page uses `#FBFCFE` as the workspace background.
-- Controls, panels, and cards use restrained radius, spacing, and borders.
-- The site uses semantic HTML landmarks such as `header`, `nav`, `main`, `section`, and `table`.
-- Buttons and links have visible focus states.
-- Empty states explain what is empty and what the user should do next.
-- File table can search both standardized staged names and original names.
+- 视觉风格遵循 `references/site-design-system.md`。
+- 页面工作区背景使用 `#FBFCFE`。
+- 控件、面板、卡片使用克制的圆角、间距和描边。
+- 站点使用语义化 HTML 地标，例如 `header`、`nav`、`main`、`section`、`table`。
+- 按钮和链接有可见的聚焦状态。
+- 空状态说明什么是空的、用户下一步该做什么。
+- 文件表可同时搜索标准化落盘名和原名称。
 
-## P2 Useful Polish
+## P2 有价值的打磨
 
-- Tables are horizontally scrollable on narrow screens.
-- The active document preview tab is visually clear.
-- Risk and pending states use color sparingly and consistently.
-- The page remains useful when there are zero scanned files.
-- The page remains useful when profile fields are still `待补充`.
-- Draft state explains the next user action rather than presenting the package as final.
-- Review candidates make clear why confirmation is needed.
+- 窄屏下表格可横向滚动。
+- 当前激活的文档预览标签页视觉清晰。
+- 风险和待确认状态克制且一致地使用颜色。
+- 扫描文件为零时页面仍然可用。
+- profile 字段仍为 `待补充` 时页面仍然可用。
+- 草稿状态说明用户的下一步动作，而不是把包呈现为最终成品。
+- 待评审候选说清为什么需要确认。
 
-## P3 Nice To Have
+## P3 锦上添花
 
-- Print styles keep the summary, risk queue, and document links readable.
-- Large tables preserve row hover and zebra striping for scanning.
-- Counts and status labels are compact enough for repeated operational use.
-- Filename mapping can be exported or read without opening the source folder.
+- 打印样式保持摘要、风险队列和文档链接可读。
+- 大表格保留行悬停和斑马纹以便扫读。
+- 计数和状态标签足够紧凑，适合反复的日常使用。
+- 文件名映射可以导出，或不打开源文件夹也能阅读。

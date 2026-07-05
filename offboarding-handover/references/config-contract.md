@@ -1,10 +1,10 @@
-# Config Contract
+# 配置契约
 
-Use `.offboarding-handover/offboarding.config.json` as the internal config path. Keep it out of the final handover package.
+把 `.offboarding-handover/offboarding.config.json` 作为内部配置路径，不要放进最终交接包。
 
-For mutable first-run and refresh answers, also use `.offboarding-handover/handover.answers.json`.
+首轮和刷新的可变回答另外使用 `.offboarding-handover/handover.answers.json`。
 
-## Minimal Shape
+## 最小结构
 
 ```json
 {
@@ -78,20 +78,20 @@ For mutable first-run and refresh answers, also use `.offboarding-handover/hando
 }
 ```
 
-## Expectations
+## 预期
 
-- Keep `version` as a string.
-- Keep `presentation_modules` at four items unless the user explicitly wants a different UX.
-- Keep `content_domains` at eight items unless the user provides a company-specific standard.
-- Record assumptions in adjacent notes or in the generated overview document when values are inferred.
-- Treat `employee_name`, `handover_owner`, `successor`, `handover_coordinator`, `last_working_day`, and `role` as confirmed facts or explicit unknowns before final delivery.
-- Keep owner aliases in `relevance.owner_aliases`; do not infer identity only from folder names or scattered name hits.
+- `version` 保持字符串。
+- 除非用户明确想要不同的体验，`presentation_modules` 保持四项。
+- 除非用户提供公司专属标准，`content_domains` 保持八项。
+- 值是推断出来的时候，把假设记录在相邻备注或生成的总览文档中。
+- 最终交付之前，把 `employee_name`、`handover_owner`、`successor`、`handover_coordinator`、`last_working_day`、`role` 当作已确认事实或显式未知。
+- 当事人别名保存在 `relevance.owner_aliases`；不要仅凭文件夹名或零散的姓名命中推断身份。
 
-## Manifest Shape
+## Manifest 结构
 
-The scaffold script generates `.offboarding-handover/handover.manifest.json`.
+脚手架脚本生成 `.offboarding-handover/handover.manifest.json`。
 
-Recommended top-level keys:
+推荐的顶层键：
 
 - `generated_at`
 - `source_root`
@@ -114,9 +114,9 @@ Recommended top-level keys:
 - `assumptions`
 - `notes`
 
-## File Record Shape
+## 文件记录结构
 
-Each manifest file record should include:
+manifest 中每条文件记录应包含：
 
 - `source`
 - `original_name`
@@ -124,9 +124,9 @@ Each manifest file record should include:
 - `relative_path`
 - `size`
 - `modified_at`
-- `staged_name` when files are copied into the output tree
-- `staged_path` when files are copied into the output tree
-- `rename_reason` when the staged filename differs from the original filename
+- `staged_name`（文件被复制进输出树时）
+- `staged_path`（文件被复制进输出树时）
+- `rename_reason`（落盘名与原名不同时）
 - `scope`
 - `doctype`
 - `status`
@@ -135,58 +135,58 @@ Each manifest file record should include:
 - `reasons`
 - `retain_decision`
 - `retain_reasons`
-- `owner_evidence` when the file is retained because it matches the confirmed handover owner, alias, role, project, or successor need
-- `other_person_signal` when the file name or metadata mentions another person
-- `review_reason` when the file must be checked before inclusion
-- `exclude_reason` when the file is excluded from core output
-- `version_group_key` when the file belongs to a version group
-- `superseded_by` when the file was excluded as an older version
+- `owner_evidence`（因匹配已确认的交接人、别名、角色、项目或接手人需求而保留时）
+- `other_person_signal`（文件名或元数据提到他人时）
+- `review_reason`（纳入前必须核查时）
+- `exclude_reason`（被排除出核心输出时）
+- `version_group_key`（属于某版本组时）
+- `superseded_by`（作为旧版本被排除时）
 
-## Staged Filename Mapping
+## 落盘文件名映射
 
-When files are copied into the handover package, create a mapping that allows the successor to understand both the clean delivery name and the source provenance.
+文件被复制进交接包时，创建一份映射，让接手人既能理解干净的交付名，也能追溯来源。
 
-Recommended staged filename pattern:
+推荐落盘文件名模式：
 
 ```text
 {序号}-{项目或客户简称}-{主题}-{材料类型}-{状态}-{日期}-{版本}.{扩展名}
 ```
 
-Rules:
+规则：
 
-- Rename staged copies only; never rename original source files unless the user explicitly asks for in-place reorganization.
-- Keep the original extension exactly.
-- Use short, stable Chinese or English terms that make sense without opening the original folder.
-- Prefer final/release/fixed/latest wording in the staged name only when the retained file truly represents the selected version.
-- Omit empty fields instead of adding placeholder text.
-- Avoid emoji, slashes, colons, repeated whitespace, and punctuation that is unsafe across operating systems or ZIP tools.
-- If two staged names collide, append a short numeric suffix and record the reason.
-- If a readable staged name cannot be generated confidently, keep the file in `review` and ask for confirmation.
+- 只重命名落盘副本；除非用户明确要求就地重组，绝不重命名原始源文件。
+- 严格保留原始扩展名。
+- 使用简短、稳定的中文或英文词汇，不打开原文件夹也能看懂。
+- 只有保留的文件确实代表选定版本时，落盘名才使用 final/发布/定稿/最新等措辞。
+- 空字段直接省略，不要加占位文本。
+- 避免 emoji、斜杠、冒号、重复空白，以及跨操作系统或 ZIP 工具不安全的标点。
+- 两个落盘名冲突时，追加简短数字后缀并记录原因。
+- 无法自信地生成可读落盘名时，把文件留在 `review` 并请求确认。
 
-## Safe Defaults
+## 安全默认值
 
-- Default `industry` to `internet`.
-- Default `projects/assets/accounts` to `true`.
-- Default `clients/legal` to `false` unless the folder strongly suggests otherwise.
-- Default polished-output gates to `false`; a guessed role is draft-only until confirmed.
-- Default to staged output instead of in-place file moves.
-- Default to copying only `include` files. `review` and `exclude` files should remain in the source folder and appear in the filtering report.
-- Default other-person personal materials to `exclude`; default ambiguous shared materials that mention another person to `review`.
-- Default duplicate version groups to one retained representative, preferring final/release/fixed variants first, newest explicit date second, and newest file modified time third.
-- Default copied filenames to standardized staged names with a reversible original-name mapping.
-- Default ZIP export should be skipped for draft output unless the agent explicitly uses a draft ZIP flag after telling the user.
-- Keep config and manifest in `.offboarding-handover/`, not in the final delivery folder.
-- Render the HTML site with the fixed `tech-portal` style from `site-design-system.md`.
+- `industry` 默认 `internet`。
+- `projects/assets/accounts` 默认 `true`。
+- 除非文件夹强烈提示，`clients/legal` 默认 `false`。
+- 精修输出门禁默认 `false`；猜测的角色在确认前只能是草稿。
+- 默认分级输出，而不是就地移动文件。
+- 默认只复制 `include` 文件。`review` 和 `exclude` 文件留在源文件夹，并出现在过滤报告中。
+- 他人个人材料默认 `exclude`；提到他人的含糊共享材料默认 `review`。
+- 重复版本组默认保留一个代表：final/发布/定稿变体优先，其次最新显式日期，最后最新文件修改时间。
+- 复制的文件名默认使用标准化落盘名，并保留可逆的原名映射。
+- 草稿输出默认跳过 ZIP 导出，除非代理在告知用户后显式使用草稿 ZIP 参数。
+- 配置和 manifest 保存在 `.offboarding-handover/`，不放进最终交付文件夹。
+- HTML 站点使用 `site-design-system.md` 中固定的 `tech-portal` 风格渲染。
 
-## Internal Script Modes
+## 内部脚本模式
 
-Default internal executable used by the agent:
+代理默认使用的内部可执行入口：
 
 ```bash
 python3 scripts/bootstrap_handover.py /target/path --interactive
 ```
 
-Internal examples for the agent:
+代理的内部示例：
 
 ```bash
 python3 scripts/bootstrap_handover.py /target/path --no-scan

@@ -1,94 +1,94 @@
-# Agent-Led Classification
+# 代理主导的分类
 
-Use this approach when the target folder is messy, role-specific, or contains ambiguous materials that should not be classified by hard-coded script rules alone.
+目标文件夹杂乱、岗位特殊，或包含不适合仅靠硬编码脚本规则分类的含糊材料时，使用本方法。
 
-## Principle
+## 原则
 
-Prefer agent judgment over script expansion when classification depends on:
+当分类取决于以下因素时，优先用代理判断而不是扩充脚本：
 
-- role semantics
-- team context
-- business vocabulary
-- mixed folders with overlapping document types
-- deciding whether something is current, archival, or merely reference material
+- 角色语义
+- 团队上下文
+- 业务词汇
+- 文档类型相互重叠的混杂文件夹
+- 判断某物是现行、归档还是仅供参考
 
-The script may provide a baseline classification, but the agent should correct it after inspection.
+脚本可以提供基线分类，但代理应在检查之后进行纠正。
 
-Use this tool strategy:
+工具策略：
 
-1. `grep` + `find` as the compatibility baseline
-2. `rg` as the recommended acceleration layer when available
-3. platform-native alternatives such as PowerShell `Get-ChildItem` + `Select-String` when shell tooling differs
+1. `grep` + `find` 作为兼容性基线
+2. `rg` 可用时作为推荐加速层
+3. shell 工具不同时使用平台原生替代，例如 PowerShell 的 `Get-ChildItem` + `Select-String`
 
-## Recommended Inspection Flow
+## 推荐检查流程
 
-1. Start with directory and filename discovery.
-2. Use `find` to list candidate files. If `rg` exists, `rg --files` is a faster equivalent.
-3. Use `grep -RInE` on filenames or short text patterns to cluster likely materials. If `rg` exists, prefer `rg` for speed. If the environment is PowerShell-first, use `Select-String`.
-4. Read only small targeted slices of representative files when needed.
-5. Decide whether the file should be `include`, `review`, or `exclude`.
-6. Decide the business object, then write the chosen mapping into the output structure or manifest.
-7. For high-value materials, record why the successor needs it, not only where the file was moved.
+1. 从目录和文件名发现开始。
+2. 用 `find` 列出候选文件。若 `rg` 存在，`rg --files` 是更快的等价物。
+3. 用 `grep -RInE` 匹配文件名或短文本模式来聚类可能的材料。若 `rg` 存在，优先用 `rg` 提速。若环境以 PowerShell 为主，用 `Select-String`。
+4. 需要时只读代表性文件的小段定向切片。
+5. 决定文件应为 `include`、`review` 还是 `exclude`。
+6. 决定业务对象，然后把选定的映射写入输出结构或 manifest。
+7. 对高价值材料，记录接手人为什么需要它，而不只是文件被移到了哪里。
 
-## Useful Shell Patterns
+## 常用 shell 模式
 
-List files:
+列出文件：
 
 ```bash
 find /target/path -type f
 ```
 
-Find likely product files:
+查找可能的产品文件：
 
 ```bash
 grep -RInE "PRD|需求池|用户调研|竞品|roadmap|原型" /target/path
 ```
 
-Find likely engineering files:
+查找可能的工程文件：
 
 ```bash
 grep -RInE "repo|仓库|部署|上线|runbook|密钥|token|数据库|域名" /target/path
 ```
 
-Find likely sales or client files:
+查找可能的销售或客户文件：
 
 ```bash
 grep -RInE "客户|商机|合同|报价|回款|跟进|CRM" /target/path
 ```
 
-Find likely operations files:
+查找可能的运营文件：
 
 ```bash
 grep -RInE "活动|投放|渠道|素材|复盘|排期|内容日历" /target/path
 ```
 
-## Optional Acceleration
+## 可选加速
 
-If `rg` exists, use it as a faster replacement for some searches, but do not make the skill depend on it.
+若 `rg` 存在，可用它更快地完成部分搜索，但 skill 不得依赖它。
 
-List files:
+列出文件：
 
 ```bash
 rg --files /target/path
 ```
 
-## Environment Note
+## 环境说明
 
-In the current workspace I verified `grep`, `find`, and `rg` all exist. Treat that as local context only. The skill should remain portable by keeping `grep` + `find` as the baseline and `rg` as the preferred accelerator when present.
+在当前工作区中已验证 `grep`、`find`、`rg` 均存在。这只是本地上下文。skill 应保持可移植：以 `grep` + `find` 为基线，`rg` 存在时作为优先加速器。
 
-## Decision Heuristics
+## 决策启发式
 
-- If a file mainly helps the successor continue the current role, prefer `文档知识` or a business domain under `专项交接`.
-- If a file mainly records access, devices, accounts, systems, or secrets, prefer `资产权限`.
-- If a file mainly records contracts, salary, reimbursement, social benefits, proofs, or restrictions, prefer `合规结算`.
-- If a file is old and no longer part of the active handover path, prefer `交接状态` and place it under historical references.
-- `归档` or `archive` in the path should not override stronger business signals such as project, requirement, report, contract, or customer.
-- If a folder mixes active and historical materials, split them rather than forcing the whole folder into one bucket.
-- If a file is clearly someone else's personal material, company-wide public reference, an older duplicate version, or generated export noise, do not stage it by default. Put the reason in the filtering report.
-- If a file has no employee name but clearly belongs to the role, project, customer, risk, account, or ongoing work, keep it as a handover candidate.
+- 文件主要帮助接手人延续当前角色时，优先归入 `文档知识` 或 `专项交接` 下的业务领域。
+- 文件主要记录访问、设备、账号、系统或密钥时，优先归入 `资产权限`。
+- 文件主要记录合同、薪酬、报销、社保、证明或限制条款时，优先归入 `合规结算`。
+- 文件已过时且不再属于进行中的交接路径时，优先归入 `交接状态` 并放到历史参考下。
+- 路径中的 `归档` 或 `archive` 不应压过更强的业务信号，例如项目、需求、报告、合同或客户。
+- 文件夹混合了现行与历史材料时，拆开处理，不要把整个文件夹硬塞进一个桶。
+- 文件明显是他人的个人材料、全公司公开参考、旧的重复版本或生成的导出噪音时，默认不落盘，并把原因写进过滤报告。
+- 文件没有员工姓名但明显属于该角色、项目、客户、风险、账号或进行中的工作时，保留为交接候选。
 
-## Output Expectation
+## 输出预期
 
-After agent-led review, the final manifest or staged output should reflect the resolved classification, not merely the script's first guess.
+代理主导评审之后，最终的 manifest 或落盘输出应反映纠正后的分类，而不仅仅是脚本的初次猜测。
 
-For each important cluster, the agent should be able to say: what the successor is taking over, current status, next action, risk, and supporting files.
+对每个重要材料簇，代理应能说清：接手人要接什么、当前状态、下一步动作、风险和支撑文件。
