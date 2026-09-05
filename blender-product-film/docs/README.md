@@ -2,13 +2,27 @@
 
 > 给出一句话，结合项目定位，组织从产品故事到可编辑三维场景、动画与成片的制作流程。
 
-![Blender Product Film 概念封面](assets/cover.png)
+![Blender Product Film](assets/cover.png)
 
-*封面由 Codex 内置 ImageGen 生成，用于展示视觉方向；不是 Blender 实际渲染截图，也不是效果保证。*
-
-[![MIT](https://img.shields.io/badge/License-MIT-green)](../../LICENSE) [阅读 Skill](../../blender-product-film/SKILL.md) · [图像来源](ASSETS.md) · [验证范围](VALIDATION.md)
+[![MIT](https://img.shields.io/badge/License-MIT-green)](../LICENSE) [阅读 Skill](../SKILL.md) · [图像来源](ASSETS.md) · [验证范围](VALIDATION.md)
 
 这是超级峰在实际产品宣传片制作过程中整理的 Agent Skill。Agent 根据产品资料组织故事、角色与镜头；配套脚本负责环境准备、资产校验、绑定检查、渲染续作与交付验证。适用于 App、软件服务和实体产品。
+
+## 视频效果
+
+### 人物动画与光影 · 6 秒
+
+展示新版角色的举手机拍照、扶帽、眨眼与面部变化。下方是视频动图预览，点击可查看带声音的原始 MP4。
+
+[![人物动画与光影演示](assets/character-animation-preview.gif)](assets/character-animation-6s.mp4)
+
+[查看 / 下载 6 秒视频](assets/character-animation-6s.mp4) · 1080×1920 · 24 fps
+
+### 完整产品故事 · 18 秒
+
+从情侣拍照到照片与品牌收束，展示完整剪辑和配乐。此版采用早期角色造型；新版人物效果见上方 6 秒演示。
+
+[查看 / 下载 18 秒完整故事](assets/product-story-18s.mp4) · 1080×1920 · 24 fps
 
 ## 安装与使用
 
@@ -62,7 +76,7 @@ flowchart LR
 
 Blender 或 bpy 提供三维引擎，FFmpeg 负责基础编码与混音合成。没有环境时，工作流会先探测和复用，再在已授权范围内准备环境。无需为了这个 Skill 重复安装已有软件。
 
-HyperFrames 与 Remotion 是可选后期工具；需要字幕、界面叠加或复杂品牌收尾时按需接入。当前附带脚本直接支持 Blender＋FFmpeg，外部剪辑导出需要补充对应验证，详见 [声音与后期](../../blender-product-film/references/audio-editing.md)。
+HyperFrames 与 Remotion 是可选后期工具；需要字幕、界面叠加或复杂品牌收尾时按需接入。当前附带脚本直接支持 Blender＋FFmpeg，外部剪辑导出需要补充对应验证，详见 [声音与后期](../references/audio-editing.md)。
 
 ## 最终拿到什么
 
@@ -80,4 +94,4 @@ HyperFrames 与 Remotion 是可选后期工具；需要字幕、界面叠加或�
 
 ## 来源与许可
 
-作者：[超级峰](https://soulcard.me/card/chaojifeng)。本仓库代码与文档沿用 [MIT](../../LICENSE)。Blender、MPFB 和下载的模型/音乐/字体等按各自许可证处理，未随 Skill 打包。封面为 AI 生成概念图，来源记录见 [ASSETS.md](ASSETS.md)。作者署名用于仓库介绍，不自动加入用户生成的视频。
+作者：[超级峰](https://soulcard.me/card/chaojifeng)。本仓库代码与文档沿用 [MIT](../LICENSE)。Blender、MPFB 和下载的模型/音乐/字体等按各自许可证处理，未随 Skill 打包。素材来源记录见 [ASSETS.md](ASSETS.md)。作者署名用于仓库介绍，不自动加入用户生成的视频。
