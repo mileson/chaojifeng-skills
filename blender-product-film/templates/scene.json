@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "product-film",
+  "product": {"name": "REPLACE_PRODUCT", "positioning": "REPLACE_POSITIONING", "audience": "REPLACE_AUDIENCE", "user_outcome": "REPLACE_VERIFIED_OUTCOME"},
+  "blend": "scene.blend",
+  "delivery_scope": "complete product film",
+  "requires_humans": false,
+  "characters": [],
+  "animated_objects": ["ProductCamera"],
+  "required_uv_objects": [],
+  "claims": [],
+  "dependency_files": [],
+  "render": {"profile": "final", "engine": "EEVEE", "width": 1080, "height": 1920, "fps": 24, "frame_start": 1, "frame_end": 432, "threads": 4, "settings": {"eevee.taa_render_samples": 128, "eevee.use_raytracing": true, "eevee.shadow_ray_count": 1, "eevee.shadow_step_count": 8, "render.use_motion_blur": true, "render.motion_blur_shutter": 0.35}},
+  "shots": [
+    {"start": 1, "end": 72, "purpose": "建立真实问题", "action": "由 Agent 根据产品编写", "product_role": "说明问题与用户的关系"},
+    {"start": 73, "end": 168, "purpose": "产品介入", "action": "由 Agent 根据已确认能力编写", "product_role": "显示产品具体帮助"},
+    {"start": 169, "end": 288, "purpose": "可见结果", "action": "由 Agent 编写可观察的变化", "product_role": "用画面证明价值"},
+    {"start": 289, "end": 432, "purpose": "情绪与品牌收束", "action": "由 Agent 根据品牌编写", "product_role": "回到核心定位"}
+  ],
+  "qa": {"frames": [1, 48, 120, 230, 360, 431]},
+  "audio": {"required": false},
+  "constraints": {"minimum_free_bytes": 2147483648, "max_render_seconds": null},
+  "limitations": []
+}

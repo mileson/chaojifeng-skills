@@ -22,6 +22,7 @@
 <!-- 自动记录，手动添加：
 - `skill-name` - 发布日期
 -->
+- `blender-product-film` - 2026-09-06
 - `shenbi-maliang` - 2026-06-24（独立仓库：https://github.com/mileson/shenbi-maliang）
 
 ## 不发布

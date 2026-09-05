@@ -51,6 +51,7 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 | Skill | 简介 | 核心能力 | 适用场景 | 安装命令 |
 | --- | --- | --- | --- | --- |
 | [`shenbi-maliang`](https://github.com/mileson/shenbi-maliang) | 必须带真人形象照的人物迁移与参考图复刻流程 | 强制先确认形象照<br>支持单图、多图参考板和历史画册复用<br>内置形象照归档、画册归档和参考板脚本<br>独立主仓库只保留空数据骨架，不包含私人图片 | 用自己的形象照复刻封面、头像、海报、生活照或内容创作配图风格 | `npx skills add mileson/shenbi-maliang` |
+| [`blender-product-film`](docs/blender-product-film/README.md) | 从一句话与项目定位制作产品 3D 宣传片 | 产品叙事与 ImageGen 素材<br>真实骨架、服装蒙皮与面部控制<br>布光、渲染续作、声音与交付验证 | App、软件服务、实体产品的使用场景宣传片 | `npx skills add mileson/chaojifeng-skills --skill blender-product-film` |
 | `video-content-factory` | 一体化口播视频内容工厂 | 阶段1：根据选题/背景材料生成口播稿与分镜稿<br>阶段2：ASR 转录、自动剪辑口误停顿、渲染透明特效轨<br>FFmpeg 合成、字幕/封面元数据、输出标准发布包 | 独立开发者、知识 IP、小团队稳定产出口播视频；B站/YouTube/抖音等平台 | `npx skills add mileson/chaojifeng-skills --skill video-content-factory` |
 | `skill-creator` | Skill 创建与更新工作流 | 支持品牌模板与仓库层 / Skill 层 / 产物层署名边界<br>支持 Mermaid 方案图 + 已明确授权时的直执行链路<br>覆盖 frontmatter、目录结构、示例、脚本和持久化记忆设计 | 新建 Skill、重构 Skill 结构、补规范、拆 references、整理模板和脚本 | `npx skills add mileson/chaojifeng-skills --skill skill-creator` |
 | `offboarding-handover` | 离职交接资料整理 | 生成 HTML 交接工作台：进行中事项、风险清单、可打印交接确认单<br>文件表内直接预览 Word/PDF/表格/图片，无需翻原始文件夹<br>自动去重旧版本、排除他人材料，输出标准化命名的交接包与 ZIP<br>多 Agent 协作：资料盘点、缺失检测、项目映射、风险检查 | 离职员工、HR 与接手人三方完成资料梳理、交接确认与签收 | `npx skills add mileson/chaojifeng-skills --skill offboarding-handover` |
@@ -72,6 +73,8 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 ├── README.md
 ├── publish-list.yaml
 ├── sync-skills.py
+├── blender-product-film/
+├── docs/blender-product-film/
 ├── skill-creator/
 ├── video-content-factory/
 └── offboarding-handover/
