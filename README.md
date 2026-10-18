@@ -4,7 +4,7 @@
 
 > 把超级峰在真实 AI 工作流里反复验证的经验，沉淀成可安装、可复用、可迁移的 Agent Skills。
 
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![许可证](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Install](https://img.shields.io/badge/install-npx%20skills%20add-blue)](#一行安装)
 [![Skill Collection](https://img.shields.io/badge/Skill%20Collection-持续更新-7c3aed)](#skills-一览)
 
