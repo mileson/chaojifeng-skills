@@ -1,12 +1,27 @@
+<a id="超级峰-skill"></a>
+
 <div align="center">
 
-# 超级峰 Skill
+# 超级峰 Skill · 可复用的 Agent 技能集合
 
-> 把超级峰在真实 AI 工作流里反复验证的经验，沉淀成可安装、可复用、可迁移的 Agent Skills。
+**把实际任务中的规则、工具和参考资料一起交给 Agent。**
 
+按需安装 · 场景技能 · 参考规则 · 配套工具
+
+[![中文说明](https://img.shields.io/badge/%E8%AF%B4%E6%98%8E-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-059669)](#readme-detail-audience)
+[![项目类型](https://img.shields.io/badge/%E9%A1%B9%E7%9B%AE-Skill-6366f1)](#readme-detail-audience)
 [![许可证](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Install](https://img.shields.io/badge/install-npx%20skills%20add-blue)](#一行安装)
 [![Skill Collection](https://img.shields.io/badge/Skill%20Collection-持续更新-7c3aed)](#skills-一览)
+
+[✅ 适用场景](#readme-detail-audience) · [🚀 一行安装](#readme-detail-10) · [🧩 Skills 一览](#readme-detail-16) · [📖 怎么使用](#readme-detail-12) · [📖 项目介绍](#readme-detail-14) · [📁 仓库结构](#readme-detail-18)
+
+</div>
+
+---
+
+> 把超级峰在真实 AI 工作流里反复验证的经验，沉淀成可安装、可复用、可迁移的 Agent Skills。
+
 
 <br>
 
@@ -17,14 +32,19 @@
 
 [Skills 一览](#skills-一览) · [一行安装](#一行安装) · [怎么使用](#怎么使用) · [仓库结构](#仓库结构) · [作者](#作者)
 
-</div>
+<a id="readme-detail-audience"></a>
 
+## ✅ 适用场景
 
-[一行安装](#readme-section-1) · [怎么使用](#readme-section-2) · [这个仓库是什么](#readme-section-3) · [仓库结构](#readme-section-5) · [发布原则](#readme-section-6) · [许可证](#readme-section-7) · [作者](#readme-section-8)
+适合使用 Agent 完成创作、研发与运营任务的读者。
 
 <a id="readme-section-1"></a>
 
-## 一行安装
+<a id="一行安装"></a>
+
+<a id="readme-detail-10"></a>
+
+## 🚀 一行安装
 
 安装独立 Skill：
 
@@ -42,7 +62,11 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 
 <a id="readme-section-2"></a>
 
-## 怎么使用
+<a id="怎么使用"></a>
+
+<a id="readme-detail-12"></a>
+
+## 📖 怎么使用
 
 装好后，在支持 Agent Skills 的环境里直接点名调用：
 
@@ -54,7 +78,11 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 
 <a id="readme-section-3"></a>
 
-## 这个仓库是什么
+<a id="这个仓库是什么"></a>
+
+<a id="readme-detail-14"></a>
+
+## 📖 项目介绍
 
 这是一个公开的个人 Skill 集合。它不是教程合集，也不是泛泛的提示词库，而是把已经在真实场景里跑过的流程整理成可复用的 Agent Skill：
 
@@ -65,7 +93,11 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 
 <a id="readme-section-4"></a>
 
-## Skills 一览
+<a id="skills-一览"></a>
+
+<a id="readme-detail-16"></a>
+
+## 🧩 Skills 一览
 
 | Skill | 简介 | 核心能力 | 适用场景 | 安装命令 |
 | --- | --- | --- | --- | --- |
@@ -77,7 +109,13 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 
 <a id="readme-section-5"></a>
 
-## 仓库结构
+<a id="仓库结构"></a>
+
+<a id="readme-detail-18"></a>
+
+## 📁 仓库结构
+
+下面按实现职责列出目录位置，便于把修改放回对应模块。
 
 ```text
 .
@@ -94,7 +132,11 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 
 <a id="readme-section-6"></a>
 
-## 发布原则
+<a id="发布原则"></a>
+
+<a id="readme-detail-20"></a>
+
+## 📤 发布原则
 
 - 公开仓库只保留可复用流程、脚本、模板和空数据骨架。
 - 不提交真实 API key、token、账号凭证或私人联系方式。
@@ -103,13 +145,21 @@ npx skills add mileson/shenbi-maliang --agent claude-code
 
 <a id="readme-section-7"></a>
 
-## 许可证
+<a id="许可证"></a>
+
+<a id="readme-detail-22"></a>
+
+## 📄 许可证
 
 MIT
 
 <a id="readme-section-8"></a>
 
-## 作者
+<a id="作者"></a>
+
+<a id="readme-detail-24"></a>
+
+## 👤 作者
 
 - SoulCard: [超级峰](https://soulcard.me/card/chaojifeng)
 - X: [Mileson07](https://x.com/Mileson07)
